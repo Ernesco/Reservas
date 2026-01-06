@@ -3,45 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menú Principal</title>
+    <title>Login</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body> <header>
-        <div class="logo-texto">📦 SISTEMA GESTIÓN</div>
-        <a href="#" id="btnSalir" class="btn-header">🚪 SALIR</a>
+<body>
+
+    <header>
+        <div class="logo-texto">INGRESO AL SISTEMA DE RESERVAS</div>
     </header>
 
     <div class="caja-central">
-        <h1>Panel de Control</h1>
-        <p style="color: #444; margin-bottom: 30px; font-weight: 500;">Seleccione una operación:</p>
-
-        <div class="contenedor-menu">
-            <a href="formulario.html" class="btn-menu">
-                <span class="icono">➕</span> Nueva Reserva
-            </a>
-
-            <a href="lista.html" class="btn-menu">
-                <span class="icono">📋</span> Ver Lista de Reservas
-            </a>
-        </div>
+        <h2>Iniciar Sesión</h2>
+        
+        <form id="formLogin">
+            <label for="usuario">Usuario:</label>
+            <input type="text" id="usuario" placeholder="Ej: admin" required>
+            
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" placeholder="••••••" required>
+            
+            <button type="submit" class="btn-ingresar">INGRESAR</button>
+            
+            <p id="mensaje" style="margin-top: 15px; text-align: center; font-weight: bold;"></p>
+        </form>
     </div>
 
     <script>
-        // 1. Mostrar nombre del usuario si existe
-        const nombre = sessionStorage.getItem('usuario_nombre');
-        const sucursal = sessionStorage.getItem('usuario_sucursal');
-        
-        if (nombre) {
-            // Usamos el azul de la app para el nombre resaltado
-            document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2">${nombre}</span>`;
-            document.querySelector('p').textContent = `Conectado desde: ${sucursal}`;
-        }
+        function mostrarError(mensaje) {
+            const modal = document.getElementById('modalError');
+            const texto = document.getElementById('mensajeErrorTexto');
+            const btnCerrar = document.getElementById('btnCerrarError');
 
-        // 2. Botón Salir
-        document.getElementById('btnSalir').addEventListener('click', (e) => {
+            texto.textContent = mensaje;
+            modal.style.display = 'flex';
+
+            btnCerrar.onclick = () => {
+                modal.style.display = 'none';
+            };
+        }
+        document.getElementById('formLogin').addEventListener('submit', function(e) {
             e.preventDefault();
-            sessionStorage.clear();
-            window.location.href = 'login.html';
+            
+            const usuario = document.getElementById('usuario').value;
+            const password = document.getElementById('password').value;
+            const mensaje = document.getElementById('mensaje');
+
+            mensaje.style.color = '#4a90e2'; // Azul mientras verifica
+            mensaje.textContent = 'Verificando...';
+
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    sessionStorage.setItem('usuario_rol', data.rol);
+                    sessionStorage.setItem('usuario_sucursal', data.sucursal);
+                    sessionStorage.setItem('usuario_nombre', data.nombre);
+
+                    mensaje.style.color = '#28a745'; // Verde éxito
+                    mensaje.textContent = '¡Bienvenido! Entrando...';
+
+                    setTimeout(() => {
+                        window.location.href = 'panel.html';
+                    }, 500);
+                } else {
+                    mostrarError('❌ ' + data.message);
+                }
+            })
+            .catch(err => {
+                mostrarError('❌ ' + data.message);
+            });
         });
     </script>
 
@@ -54,6 +88,5 @@
                 </div>
             </div>
         </div>
-
 </body>
 </html>
