@@ -10,12 +10,17 @@ app.use(express.json());
 // Sirve los archivos estáticos desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
-// CONEXIÓN A LA BASE DE DATOS
+// CONEXIÓN A LA BASE DE DATOS (Ajustada para Render + TiDB)
 const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',      
-    password: 'Erco2802',      
-    database: 'reservas_mo'
+    host: process.env.MYSQLHOST,
+    user: process.env.MYSQLUSER,      
+    password: process.env.MYSQLPASSWORD,      
+    database: process.env.MYSQLDATABASE,
+    port: process.env.MYSQLPORT || 4000,
+    ssl: {
+        minVersion: 'TLSv1.2',
+        rejectUnauthorized: true
+    }
 });
 
 db.connect(err => {
