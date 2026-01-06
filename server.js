@@ -10,22 +10,29 @@ app.use(express.json());
 // Sirve los archivos estáticos desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
-// CONEXIÓN A LA BASE DE DATOS (Ajustada para Render + TiDB)
-const db = mysql.createConnection({
+// CONFIGURACIÓN DEFINITIVA PARA LA NUBE (server.js)
+const db = mysql.createPool({
     host: process.env.MYSQLHOST,
     user: process.env.MYSQLUSER,
     password: process.env.MYSQLPASSWORD,
     database: process.env.MYSQLDATABASE,
     port: process.env.MYSQLPORT || 4000,
     ssl: {
-        minVersion: 'TLSv1.2',
-        rejectUnauthorized: false // Cambia a false para facilitar la conexión inicial
-    }
+        rejectUnauthorized: false // Esto es clave para que TiDB no rechace a Render
+    },
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
 });
 
-db.connect(err => {
-    if (err) console.error('❌ Error conectando a MySQL:', err);
-    else console.log('✅ Conectado a MySQL exitosamente');
+// Prueba de conexión inicial
+db.getConnection((err, connection) => {
+    if (err) {
+        console.error('❌ Error conectando a TiDB:', err.message);
+        return;
+    }
+    console.log('✅ Conexión exitosa a TiDB Cloud');
+    connection.release();
 });
 
 // 1. GUARDAR NUEVA RESERVA
