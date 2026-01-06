@@ -13,13 +13,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 // CONEXIÓN A LA BASE DE DATOS (Ajustada para Render + TiDB)
 const db = mysql.createConnection({
     host: process.env.MYSQLHOST,
-    user: process.env.MYSQLUSER,      
-    password: process.env.MYSQLPASSWORD,      
+    user: process.env.MYSQLUSER,
+    password: process.env.MYSQLPASSWORD,
     database: process.env.MYSQLDATABASE,
     port: process.env.MYSQLPORT || 4000,
     ssl: {
         minVersion: 'TLSv1.2',
-        rejectUnauthorized: true
+        rejectUnauthorized: false // Cambia a false para facilitar la conexión inicial
     }
 });
 
