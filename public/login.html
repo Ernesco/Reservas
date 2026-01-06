@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo-texto">INGRESO AL SISTEMA DE RESERVAS</div>
+    </header>
+
+    <div class="caja-central">
+        <h2>Iniciar Sesión</h2>
+        
+        <form id="formLogin">
+            <label for="usuario">Usuario:</label>
+            <input type="text" id="usuario" placeholder="Ej: admin" required>
+            
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" placeholder="••••••" required>
+            
+            <button type="submit" class="btn-ingresar">INGRESAR</button>
+            
+            <p id="mensaje" style="margin-top: 15px; text-align: center; font-weight: bold;"></p>
+        </form>
+    </div>
+
+    <script>
+        function mostrarError(mensaje) {
+            const modal = document.getElementById('modalError');
+            const texto = document.getElementById('mensajeErrorTexto');
+            const btnCerrar = document.getElementById('btnCerrarError');
+
+            texto.textContent = mensaje;
+            modal.style.display = 'flex';
+
+            btnCerrar.onclick = () => {
+                modal.style.display = 'none';
+            };
+        }
+        document.getElementById('formLogin').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const usuario = document.getElementById('usuario').value;
+            const password = document.getElementById('password').value;
+            const mensaje = document.getElementById('mensaje');
+
+            mensaje.style.color = '#4a90e2'; // Azul mientras verifica
+            mensaje.textContent = 'Verificando...';
+
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ usuario, password })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    sessionStorage.setItem('usuario_rol', data.rol);
+                    sessionStorage.setItem('usuario_sucursal', data.sucursal);
+                    sessionStorage.setItem('usuario_nombre', data.nombre);
+
+                    mensaje.style.color = '#28a745'; // Verde éxito
+                    mensaje.textContent = '¡Bienvenido! Entrando...';
+
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 500);
+                } else {
+                    mostrarError('❌ ' + data.message);
+                }
+            })
+            .catch(err => {
+                mostrarError('❌ ' + data.message);
+            });
+        });
+    </script>
+
+        <div id="modalError" class="modal-overlay">
+            <div class="modal-caja" style="border-color: #f38ba8;">
+                <h3 style="color: #f38ba8;">❌ Error</h3>
+                <p id="mensajeErrorTexto">Hubo un problema al procesar la solicitud.</p>
+                <div class="modal-botones">
+                    <button id="btnCerrarError" class="btn-azul" style="background-color: #f38ba8;">Aceptar</button>
+                </div>
+            </div>
+        </div>
+</body>
+</html>

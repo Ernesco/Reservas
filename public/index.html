@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú Principal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body> <header>
+        <div class="logo-texto">📦 SISTEMA GESTIÓN</div>
+        <a href="#" id="btnSalir" class="btn-header">🚪 SALIR</a>
+    </header>
+
+    <div class="caja-central">
+        <h1>Panel de Control</h1>
+        <p style="color: #444; margin-bottom: 30px; font-weight: 500;">Seleccione una operación:</p>
+
+        <div class="contenedor-menu">
+            <a href="formulario.html" class="btn-menu">
+                <span class="icono">➕</span> Nueva Reserva
+            </a>
+
+            <a href="lista.html" class="btn-menu">
+                <span class="icono">📋</span> Ver Lista de Reservas
+            </a>
+        </div>
+    </div>
+
+    <script>
+        // 1. Mostrar nombre del usuario si existe
+        const nombre = sessionStorage.getItem('usuario_nombre');
+        const sucursal = sessionStorage.getItem('usuario_sucursal');
+        
+        if (nombre) {
+            // Usamos el azul de la app para el nombre resaltado
+            document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2">${nombre}</span>`;
+            document.querySelector('p').textContent = `Conectado desde: ${sucursal}`;
+        }
+
+        // 2. Botón Salir
+        document.getElementById('btnSalir').addEventListener('click', (e) => {
+            e.preventDefault();
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        });
+    </script>
+
+        <div id="modalError" class="modal-overlay">
+            <div class="modal-caja" style="border-color: #f38ba8;">
+                <h3 style="color: #f38ba8;">❌ Error</h3>
+                <p id="mensajeErrorTexto">Hubo un problema al procesar la solicitud.</p>
+                <div class="modal-botones">
+                    <button id="btnCerrarError" class="btn-azul" style="background-color: #f38ba8;">Aceptar</button>
+                </div>
+            </div>
+        </div>
+
+</body>
+</html>

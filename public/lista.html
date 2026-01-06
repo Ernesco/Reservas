@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Lista de Reservas</title>
+</head>
+<body>
+
+    <header>
+        <div class="logo-texto">🛒 SISTEMA RESERVAS</div>
+        <a href="index.html" class="btn-header">🏠 INICIO</a>
+    </header>
+
+    <div class="contenedor-lista">    
+        <div class="encabezado-total">
+            <h2 style="margin-bottom: 20px; text-align: left;">📋 Gestión de Reservas</h2>
+
+            <div class="fila-controles">
+                <div class="filtros-estados">
+                    <button class="btn-filtro active" onclick="filtrarEstado('En Tránsito')">En Tránsito</button>
+                    <button class="btn-filtro" onclick="filtrarEstado('Pendiente de Retiro')">Pendiente de Retiro</button>
+                    <button class="btn-filtro" onclick="filtrarEstado('Finalizado')">Finalizado</button>
+                    <button id="btnTabEliminados" class="btn-filtro" onclick="filtrarEstado('Eliminados')" style="display: none; border-color: #f38ba8; color: #f38ba8;">🗑️ Eliminados</button>
+                </div>
+
+                <input type="text" id="buscador" placeholder="🔍 Buscar cliente o producto..." style="margin: 0; width: 300px;">
+            </div>
+        </div>
+
+        <div style="overflow-x: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border-radius: 10px;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Fecha</th>
+                        <th>Cliente</th>
+                        <th>Producto</th>
+                        <th>Estado Actual</th>
+                        <th>Operador</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaCuerpo"></tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    let estadoActualFiltrado = 'En Tránsito';
+
+    // 1. Manejo de Pestañas
+    function filtrarEstado(estado) {
+        estadoActualFiltrado = estado;
+        document.querySelectorAll('.btn-filtro').forEach(btn => {
+            btn.classList.toggle('active', btn.textContent.trim().includes(estado));
+        });
+        cargarReservas(document.getElementById('buscador').value);
+    }
+
+    // 2. Cargar Reservas
+    function cargarReservas(busqueda = '') {
+        const tabla = document.getElementById('tablaCuerpo');
+        const sucursalUsuario = sessionStorage.getItem('usuario_sucursal') || 'Todas';
+        const rolUsuario = sessionStorage.getItem('usuario_rol'); 
+
+        tabla.innerHTML = '<tr><td colspan="7" style="text-align:center">Cargando...</td></tr>';
+
+        fetch(`/reservas?q=${busqueda}&sucursal=${sucursalUsuario}&rol=${rolUsuario}`)
+            .then(response => response.json())
+            .then(datos => {
+                tabla.innerHTML = '';
+
+                // FILTRADO LÓGICO POR PESTAÑA
+                const filtrados = datos.filter(item => {
+                    if (estadoActualFiltrado === 'Eliminados') {
+                        return item.borrado === 1;
+                    }
+                    if (estadoActualFiltrado === 'Finalizado') {
+                        return (item.estado === 'Retirado' || item.estado === 'Cancelado') && item.borrado === 0;
+                    }
+                    return item.estado === estadoActualFiltrado && item.borrado === 0;
+                });
+
+                if(filtrados.length === 0) {
+                    tabla.innerHTML = `<tr><td colspan="7" style="text-align:center">No hay reservas en ${estadoActualFiltrado}</td></tr>`;
+                    return;
+                }
+
+                filtrados.forEach(item => {
+                    const fecha = new Date(item.fecha_registro).toLocaleString();
+                    const claseEstado = item.estado.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
+                    
+                    const estiloFila = item.borrado === 1 ? 'style="opacity: 0.7; background-color: #2a1b1b;"' : '';
+
+                    const fila = `
+                        <tr ${estiloFila}>
+                            <td>${item.id}</td>
+                            <td>${fecha}</td>
+                            <td><strong>${item.cliente_nombre}</strong><br><small style="color: #89b4fa">${item.cliente_telefono}</small></td>
+                            <td>${item.prod_codigo} (x${item.prod_cantidad})</td>
+                            <td><span class="badge estado-${claseEstado}">${item.estado}</span></td>
+                            <td>${item.operador_nombre}</td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 5px;">
+                                    ${getBotonesAccion(item)}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                    tabla.innerHTML += fila;
+                });
+            })
+            .catch(err => mostrarError("Error al cargar datos"));
+    }
+
+    // 3. Botones según Estado y Borrado
+    function getBotonesAccion(item) {
+        // Si está borrado, botón para Restaurar (Solo lo verá el Admin)
+        if (item.borrado === 1) {
+            return `<button class="btn-azul" style="background:#89b4fa; color:#1e1e2e; padding: 5px 10px; font-size: 11px;" onclick="restaurarReserva(${item.id})">RESTAURAR</button>`;
+        }
+
+        if (item.estado === 'En Tránsito') {
+            return `<button class="btn-azul" style="padding: 5px 10px; font-size: 11px;" onclick="cambiarEstado(${item.id}, 'Pendiente de Retiro')">LLEGÓ A LOCAL</button>`;
+        } else if (item.estado === 'Pendiente de Retiro') {
+            return `
+                <button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e; padding: 5px 10px; font-size: 11px;" onclick="cambiarEstado(${item.id}, 'Retirado')">ENTREGADO</button>
+                <button class="btn-borrar" style="padding: 5px 10px; font-size: 11px;" onclick="cambiarEstado(${item.id}, 'Cancelado')">CANCELAR</button>
+            `;
+        } else {
+            return `<button class="btn-borrar" style="padding: 5px 10px; font-size: 11px;" onclick="borrarReserva(${item.id})">ELIMINAR</button>`;
+        }
+    }
+
+    function cambiarEstado(id, nuevoEstado) {
+        fetch(`/reservas/${id}/estado`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ estado: nuevoEstado })
+        }).then(res => { if(res.ok) cargarReservas(); });
+    }
+
+    function restaurarReserva(id) {
+        fetch(`/reservas/${id}/estado`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ borrado: 0 })
+        }).then(res => { if(res.ok) cargarReservas(); });
+    }
+
+    function borrarReserva(id) {
+        const modal = document.getElementById('modalBorrar');
+        modal.style.display = 'flex';
+        document.getElementById('confirmarBorrar').onclick = function() {
+            fetch(`/reservas/${id}`, { method: 'DELETE' })
+            .then(res => { 
+                if(res.ok) {
+                    modal.style.display = 'none';
+                    cargarReservas(); 
+                }
+            });
+        }
+        document.getElementById('cancelarBorrar').onclick = () => modal.style.display = 'none';
+    }
+
+    function mostrarError(mensaje) {
+        const modal = document.getElementById('modalError');
+        document.getElementById('mensajeErrorTexto').textContent = mensaje;
+        modal.style.display = 'flex';
+        document.getElementById('btnCerrarError').onclick = () => modal.style.display = 'none';
+    }
+
+    // Configuración Inicial
+    document.addEventListener('DOMContentLoaded', () => {
+        const rolActual = sessionStorage.getItem('usuario_rol');
+        if (rolActual === 'admin') {
+            document.getElementById('btnTabEliminados').style.display = 'block';
+        }
+        cargarReservas();
+    });
+
+    document.getElementById('buscador').addEventListener('input', (e) => cargarReservas(e.target.value));
+</script>
+
+    <div id="modalBorrar" class="modal-overlay">
+        <div class="modal-caja">
+            <h3>⚠️ Confirmación</h3>
+            <p>¿Estás seguro de que deseas borrar esta reserva?</p>
+            <div class="modal-botones">
+                <button id="confirmarBorrar" class="btn-azul" style="background-color: #f38ba8;">Eliminar</button>
+                <button id="cancelarBorrar" class="btn-secundario">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modalError" class="modal-overlay">
+        <div class="modal-caja" style="border-color: #f38ba8;">
+            <h3 style="color: #f38ba8;">❌ Error</h3>
+            <p id="mensajeErrorTexto"></p>
+            <div class="modal-botones">
+                <button id="btnCerrarError" class="btn-azul" style="background-color: #f38ba8;">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
