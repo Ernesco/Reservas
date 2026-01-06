@@ -154,6 +154,7 @@ app.post('/login', (req, res) => {
 });
 
 // INICIAR SERVIDOR
-app.listen(3000, '0.0.0.0', () => {
-    console.log('🚀 Sistema de Reservas funcionando en: http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Sistema funcionando en puerto ${PORT}`);
 });
