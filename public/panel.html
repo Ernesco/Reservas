@@ -39,9 +39,10 @@
         const sucursal = sessionStorage.getItem('usuario_sucursal');
         
         if (nombre) {
-            // Usamos el azul de la app para el nombre resaltado
-            document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2">${nombre}</span>`;
-            document.querySelector('p').textContent = `Conectado desde: ${sucursal}`;
+            // Mostramos el nombre de la sucursal en el título
+            document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2">${sucursal}</span>`;
+            // Mostramos el nombre de usuario abajo
+            document.querySelector('p').textContent = `Operador activo: ${nombre}`;
         }
 
         // 2. Botón Salir
