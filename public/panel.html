@@ -6,7 +6,8 @@
     <title>Menú Principal</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body> <header>
+<body> 
+    <header>
         <div class="logo-texto">📦 SISTEMA GESTIÓN</div>
         <a href="#" id="btnSalir" class="btn-header">🚪 SALIR</a>
     </header>
@@ -27,7 +28,13 @@
     </div>
 
     <script>
-        // 1. Mostrar nombre del usuario si existe
+        // --- CAPA DE SEGURIDAD ---
+        // Si no hay datos de sesión, redirigir inmediatamente al login
+        if (!sessionStorage.getItem('usuario_nombre')) {
+            window.location.href = 'index.html';
+        }
+
+        // 1. Mostrar nombre del usuario y sucursal
         const nombre = sessionStorage.getItem('usuario_nombre');
         const sucursal = sessionStorage.getItem('usuario_sucursal');
         
@@ -40,20 +47,20 @@
         // 2. Botón Salir
         document.getElementById('btnSalir').addEventListener('click', (e) => {
             e.preventDefault();
-            sessionStorage.clear();
+            sessionStorage.clear(); // Limpia toda la sesión
             window.location.href = 'index.html';
         });
     </script>
 
-        <div id="modalError" class="modal-overlay">
-            <div class="modal-caja" style="border-color: #f38ba8;">
-                <h3 style="color: #f38ba8;">❌ Error</h3>
-                <p id="mensajeErrorTexto">Hubo un problema al procesar la solicitud.</p>
-                <div class="modal-botones">
-                    <button id="btnCerrarError" class="btn-azul" style="background-color: #f38ba8;">Aceptar</button>
-                </div>
+    <div id="modalError" class="modal-overlay">
+        <div class="modal-caja" style="border-color: #f38ba8;">
+            <h3 style="color: #f38ba8;">❌ Error</h3>
+            <p id="mensajeErrorTexto">Hubo un problema al procesar la solicitud.</p>
+            <div class="modal-botones">
+                <button id="btnCerrarError" class="btn-azul" style="background-color: #f38ba8;">Aceptar</button>
             </div>
         </div>
+    </div>
 
 </body>
 </html>

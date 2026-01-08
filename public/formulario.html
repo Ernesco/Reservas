@@ -25,8 +25,25 @@
 
         <fieldset>
             <legend>🛒 Producto</legend>
-            <label>Código *</label><input type="text" id="prod_codigo" required>
-            <label>Cantidad *</label><input type="number" id="prod_cantidad" required min="1" value="1">
+            <label>Código *</label>
+            <input type="text" id="prod_codigo" placeholder="Ingrese código y presione TAB" required>
+            
+            <label>Descripción</label>
+            <input type="text" id="prod_descripcion" readonly style="background-color: #f8f9fa; color: #666;" placeholder="Autocompletado">
+
+            <div style="display: flex; gap: 10px;">
+                <div style="flex: 1;">
+                    <label>Precio Unitario</label>
+                    <input type="number" id="precio_unitario" readonly style="background-color: #f8f9fa; color: #666;">
+                </div>
+                <div style="flex: 1;">
+                    <label>Cantidad *</label>
+                    <input type="number" id="prod_cantidad" required min="1" value="1">
+                </div>
+            </div>
+
+            <label style="font-weight: bold; color: #2ecc71;">TOTAL ESTIMADO</label>
+            <input type="text" id="total_reserva" readonly style="background-color: #d4edda; color: #155724; font-weight: bold; font-size: 1.1em;">
         </fieldset>
 
         <fieldset>
@@ -55,48 +72,91 @@
         </div>
     </div>
 
+    <div id="modalError" class="modal-overlay">
+        <div class="modal-caja" style="border-color: #f38ba8;">
+            <h3 style="color: #f38ba8;">❌ Error</h3>
+            <p id="mensajeErrorTexto">Hubo un problema al procesar la solicitud.</p>
+            <div class="modal-botones">
+                <button id="btnCerrarError" class="btn-azul" style="background-color: #f38ba8;">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         function mostrarError(mensaje) {
             const modal = document.getElementById('modalError');
             const texto = document.getElementById('mensajeErrorTexto');
-            const btnCerrar = document.getElementById('btnCerrarError');
-
             texto.textContent = mensaje;
             modal.style.display = 'flex';
-
-            btnCerrar.onclick = () => {
-                modal.style.display = 'none';
-            };
+            document.getElementById('btnCerrarError').onclick = () => modal.style.display = 'none';
         }
 
-        // 1. CARGA INICIAL DE DATOS DE SESIÓN
+        // --- LÓGICA DE PRODUCTOS Y CÁLCULOS ---
+        const inputCodigo = document.getElementById('prod_codigo');
+        const inputCantidad = document.getElementById('prod_cantidad');
+        const inputPrecio = document.getElementById('precio_unitario');
+        const inputTotal = document.getElementById('total_reserva');
+
+        // Buscar producto al salir del campo código
+        inputCodigo.addEventListener('blur', async () => {
+            const codigo = inputCodigo.value.trim();
+            if (!codigo) return;
+
+            try {
+                const response = await fetch(`/productos/${codigo}`);
+                if (response.ok) {
+                    const producto = await response.json();
+                    document.getElementById('prod_descripcion').value = producto.descripcion;
+                    inputPrecio.value = producto.precio_unitario;
+                    calcularTotal();
+                } else {
+                    mostrarError('⚠️ Código de producto no encontrado en la base de datos.');
+                    limpiarCamposProducto();
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        });
+
+        // Calcular total al cambiar cantidad
+        inputCantidad.addEventListener('input', calcularTotal);
+
+        function calcularTotal() {
+            const precio = parseFloat(inputPrecio.value) || 0;
+            const cantidad = parseInt(inputCantidad.value) || 0;
+            inputTotal.value = (precio * cantidad).toFixed(2);
+        }
+
+        function limpiarCamposProducto() {
+            document.getElementById('prod_descripcion').value = "";
+            inputPrecio.value = "";
+            inputTotal.value = "";
+        }
+
+        // --- CARGA INICIAL ---
         document.addEventListener('DOMContentLoaded', () => {
             const rol = sessionStorage.getItem('usuario_rol');
             const sucursal = sessionStorage.getItem('usuario_sucursal');
             const operador = sessionStorage.getItem('usuario_nombre');
-            const inputSucursal = document.getElementById('sucursal_nombre');
-            const inputOperador = document.getElementById('operador_nombre');
-
+            
             if (!rol) {
-                window.location.href = 'panel.html';
+                window.location.href = 'index.html';
                 return;
             }
 
+            const inputSucursal = document.getElementById('sucursal_nombre');
             if (rol !== 'admin') {
                 inputSucursal.value = sucursal;
                 inputSucursal.readOnly = true; 
                 inputSucursal.style.backgroundColor = '#e9ecef'; 
-                inputSucursal.style.color = '#333';
-            } else {
-                inputSucursal.placeholder = "Ingresar Sucursal (Admin)";
             }
 
             if (operador) {
-                inputOperador.value = operador;
+                document.getElementById('operador_nombre').value = operador;
             }
         });
 
-        // 2. ENVÍO DEL FORMULARIO Y CONTROL DEL MODAL
+        // --- ENVÍO DEL FORMULARIO ---
         document.getElementById('formReservas').addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -104,8 +164,9 @@
                 cliente_nombre: document.getElementById('cliente_nombre').value,
                 cliente_telefono: document.getElementById('cliente_telefono').value,
                 cliente_email: document.getElementById('cliente_email').value,
-                prod_codigo: document.getElementById('prod_codigo').value,
-                prod_cantidad: document.getElementById('prod_cantidad').value,
+                prod_codigo: inputCodigo.value,
+                prod_cantidad: inputCantidad.value,
+                total_reserva: inputTotal.value, // Enviamos el total calculado
                 sucursal_nombre: document.getElementById('sucursal_nombre').value,
                 sucursal_contacto: document.getElementById('sucursal_contacto').value,
                 operador_nombre: document.getElementById('operador_nombre').value,
@@ -119,46 +180,25 @@
             })
             .then(res => {
                 if (res.ok) {
-                    // MOSTRAR EL MODAL EN LUGAR DEL CONFIRM
                     const modal = document.getElementById('miModal');
                     modal.style.display = 'flex';
 
-                    // ACCIÓN AL HACER CLIC EN ACEPTAR
-                    document.getElementById('modalAceptar').onclick = function() {
-                        window.location.href = 'lista.html';
-                    };
-
-                    // ACCIÓN AL HACER CLIC EN CANCELAR
-                    document.getElementById('modalCancelar').onclick = function() {
-                        modal.style.display = 'none'; // Cerramos el modal
+                    document.getElementById('modalAceptar').onclick = () => window.location.href = 'lista.html';
+                    document.getElementById('modalCancelar').onclick = () => {
+                        modal.style.display = 'none';
                         document.getElementById('formReservas').reset();
-                        
-                        // Restauramos datos fijos tras el reset
-                        const rol = sessionStorage.getItem('usuario_rol');
-                        if (rol !== 'admin') {
+                        // Re-cargar fijos tras reset
+                        document.getElementById('operador_nombre').value = sessionStorage.getItem('usuario_nombre');
+                        if (sessionStorage.getItem('usuario_rol') !== 'admin') {
                             document.getElementById('sucursal_nombre').value = sessionStorage.getItem('usuario_sucursal');
                         }
-                        document.getElementById('operador_nombre').value = sessionStorage.getItem('usuario_nombre');
                     };
-
                 } else {
-                    mostrarError('No se pudo guardar la reserva. Verifique los datos.');
+                    mostrarError('No se pudo guardar la reserva.');
                 }
             })
-            .catch(err => {
-                mostrarError('❌ ' + data.message);
-            });
+            .catch(err => mostrarError('Error de conexión con el servidor.'));
         });
     </script>
-    
-        <div id="modalError" class="modal-overlay">
-            <div class="modal-caja" style="border-color: #f38ba8;">
-                <h3 style="color: #f38ba8;">❌ Error</h3>
-                <p id="mensajeErrorTexto">Hubo un problema al procesar la solicitud.</p>
-                <div class="modal-botones">
-                    <button id="btnCerrarError" class="btn-azul" style="background-color: #f38ba8;">Aceptar</button>
-                </div>
-            </div>
-        </div>
 </body>
 </html>

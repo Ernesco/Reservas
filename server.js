@@ -10,7 +10,7 @@ app.use(express.json());
 // Sirve los archivos estáticos desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
-// CONFIGURACIÓN DEFINITIVA PARA LA NUBE (server.js)
+// CONFIGURACIÓN PARA LA NUBE
 const db = mysql.createPool({
     host: process.env.MYSQLHOST,
     user: process.env.MYSQLUSER,
@@ -18,7 +18,7 @@ const db = mysql.createPool({
     database: process.env.MYSQLDATABASE,
     port: process.env.MYSQLPORT || 4000,
     ssl: {
-        rejectUnauthorized: false // Esto es clave para que TiDB no rechace a Render
+        rejectUnauthorized: false 
     },
     waitForConnections: true,
     connectionLimit: 10,
@@ -35,35 +35,57 @@ db.getConnection((err, connection) => {
     connection.release();
 });
 
-// 1. GUARDAR NUEVA RESERVA
-// Por defecto, nacen con estado 'En Tránsito' y borrado = 0
+// --- NUEVA RUTA: BUSCAR PRODUCTO POR CÓDIGO ---
+app.get('/productos/:codigo', (req, res) => {
+    const { codigo } = req.params;
+    const sql = "SELECT descripcion, precio_unitario FROM productos WHERE codigo = ?";
+
+    db.query(sql, [codigo], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Error al buscar producto');
+        }
+        if (results.length > 0) {
+            res.json(results[0]);
+        } else {
+            res.status(404).send('Producto no encontrado');
+        }
+    });
+});
+
+// 1. GUARDAR NUEVA RESERVA (Actualizado con total_reserva)
 app.post('/reservar', (req, res) => {
     const { 
         cliente_nombre, cliente_telefono, cliente_email,
-        prod_codigo, prod_cantidad,
+        prod_codigo, prod_cantidad, total_reserva, // Nuevo campo
         sucursal_nombre, sucursal_contacto,
         operador_nombre, comentarios
     } = req.body;
     
     const sql = `
         INSERT INTO reservas 
-        (cliente_nombre, cliente_telefono, cliente_email, prod_codigo, prod_cantidad, sucursal_nombre, sucursal_contacto, operador_nombre, comentarios, estado, borrado) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'En Tránsito', 0)
+        (cliente_nombre, cliente_telefono, cliente_email, prod_codigo, prod_cantidad, total_reserva, sucursal_nombre, sucursal_contacto, operador_nombre, comentarios, estado, borrado) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'En Tránsito', 0)
     `;
     
-    const valores = [cliente_nombre, cliente_telefono, cliente_email, prod_codigo, prod_cantidad, sucursal_nombre, sucursal_contacto, operador_nombre, comentarios];
+    const valores = [
+        cliente_nombre, cliente_telefono, cliente_email, 
+        prod_codigo, prod_cantidad, total_reserva, 
+        sucursal_nombre, sucursal_contacto, 
+        operador_nombre, comentarios
+    ];
 
     db.query(sql, valores, (err) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Error al guardar');
+        if (err) { 
+            console.error(err); 
+            res.status(500).send('Error al guardar la reserva'); 
         } else {
             res.send('Guardado OK');
         }
     });
 });
 
-// 2. LISTAR RESERVAS (Filtra por sucursal, rol y búsqueda)
+// 2. LISTAR RESERVAS
 app.get('/reservas', (req, res) => {
     const termino = req.query.q || ''; 
     const sucursalUsuario = req.query.sucursal || 'Todas'; 
@@ -73,12 +95,10 @@ app.get('/reservas', (req, res) => {
     let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ?)`;
     let parametros = [filtro, filtro, filtro];
 
-    // Si NO es admin, ocultamos registros marcados como borrados
     if (rol !== 'admin') {
         sql += " AND borrado = 0";
     }
 
-    // Filtro por sucursal (si no es Admin con acceso total)
     if (sucursalUsuario !== 'Todas') {
         sql += " AND sucursal_nombre = ?";
         parametros.push(sucursalUsuario);
@@ -96,20 +116,16 @@ app.get('/reservas', (req, res) => {
     });
 });
 
-// 3. ACTUALIZAR ESTADO O RESTAURAR REGISTRO
-// Esta ruta maneja tanto el cambio de flujo (Pendiente, Retirado) como la restauración (borrado = 0)
+// 3. ACTUALIZAR ESTADO O RESTAURAR
 app.put('/reservas/:id/estado', (req, res) => {
     const id = req.params.id;
     const { estado, borrado } = req.body;
-
     let sql, valor;
 
-    // Si recibimos 'borrado', es una acción de restauración
     if (borrado !== undefined) {
         sql = "UPDATE reservas SET borrado = ? WHERE id = ?";
         valor = borrado;
     } else {
-        // Si no, es un cambio de estado normal
         sql = "UPDATE reservas SET estado = ? WHERE id = ?";
         valor = estado;
     }
@@ -124,7 +140,7 @@ app.put('/reservas/:id/estado', (req, res) => {
     });
 });
 
-// 4. BORRADO LÓGICO (Ocultar registro)
+// 4. BORRADO LÓGICO
 app.delete('/reservas/:id', (req, res) => {
     const id = req.params.id;
     const sql = "UPDATE reservas SET borrado = 1 WHERE id = ?";
@@ -139,7 +155,7 @@ app.delete('/reservas/:id', (req, res) => {
     });
 });
 
-// 5. LOGIN DE USUARIOS
+// 5. LOGIN
 app.post('/login', (req, res) => {
     const { usuario, password } = req.body;
     const sql = "SELECT * FROM usuarios WHERE usuario = ? AND password = ?";
@@ -150,7 +166,6 @@ app.post('/login', (req, res) => {
             res.status(500).send('Error del servidor');
             return;
         }
-
         if (results.length > 0) {
             const encontrado = results[0];
             res.json({
