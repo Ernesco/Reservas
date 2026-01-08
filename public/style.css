@@ -8,7 +8,7 @@ body {
     padding-bottom: 40px;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centrado horizontal del body */
+    align-items: center;
     min-height: 100vh;
     box-sizing: border-box;
 }
@@ -49,12 +49,7 @@ header {
     transition: 0.3s;
 }
 
-.btn-header:hover {
-    background-color: #89b4fa;
-    color: #1e1e2e;
-}
-
-/* --- CAJAS (Login, Panel y Formularios) --- */
+/* --- CAJAS (Login y Formularios) --- */
 .caja-central {
     background-color: #ffffff; 
     padding: 40px; 
@@ -62,39 +57,35 @@ header {
     box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra los hijos (h1, p, div) horizontalmente */
-    text-align: center;  /* Centra el texto */
+    align-items: center; /* Centrado horizontal del contenido */
+    text-align: center;  /* Centrado del texto */
     width: 90%;
     max-width: 500px; 
     margin: auto; 
-    box-sizing: border-box;
 }
 
-.caja-central h1, .caja-central h2 {
+/* Forzar que los títulos en la caja blanca sean oscuros */
+.caja-central h1, .caja-central h2, .caja-central p {
+    color: #1e1e2e !important;
     margin-top: 0;
-    color: #1e1e2e;
 }
 
-.caja-central p {
-    color: #444;
-}
-
-/* --- CONTENEDOR DE BOTONES DEL MENÚ --- */
+/* --- BOTONES DEL MENÚ ( PANEL.HTML ) --- */
 .contenedor-menu {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra los botones dentro del contenedor */
+    align-items: center; /* Centra los botones en el medio de la caja */
     width: 100%;
-    gap: 10px;
-    margin-top: 10px;
+    gap: 15px;
+    margin-top: 20px;
 }
 
 .btn-menu {
     display: flex;
     align-items: center;
-    justify-content: center; /* Centra el texto e icono dentro del botón */
+    justify-content: center; /* Centra texto e icono dentro del botón */
     width: 100%;
-    max-width: 320px; /* Ancho fijo para que ambos botones sean iguales */
+    max-width: 320px; /* Ancho fijo para simetría */
     padding: 18px;
     background-color: #313244;
     color: white;
@@ -103,90 +94,78 @@ header {
     border-radius: 12px;
     border: 2px solid #45475a;
     transition: 0.3s;
-    box-sizing: border-box;
 }
 
 .btn-menu:hover {
-    background-color: #4a90e2; /* Azul para el hover */
-    border-color: #89b4fa;
-    transform: translateY(-2px);
+    background-color: #89b4fa;
+    color: #1e1e2e;
 }
 
-/* Iconos dentro de los botones */
-.btn-menu .icono {
-    margin-right: 10px;
-    font-size: 1.2rem;
-}
-
-/* --- BOTONES DE FORMULARIO --- */
-.btn-ingresar, .btn-azul, button[type="submit"] {
-    width: 100%;
-    max-width: 400px;
-    padding: 15px;
-    margin-top: 20px;
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-/* --- FORMULARIOS --- */
+/* --- FORMULARIOS ( formulario.html ) - RESTAURADO --- */
 fieldset {
-    border: 1px solid #ddd; /* Un poco más claro sobre fondo blanco */
+    border: 1px solid #45475a;
     border-radius: 10px;
     padding: 25px; 
     margin-bottom: 25px; 
-    background-color: #f9f9f9;
+    background-color: rgba(255, 255, 255, 0.05);
     width: 100%;
     box-sizing: border-box;
 }
 
 legend {
     padding: 0 10px;
-    color: #4a90e2;
+    color: #89b4fa;
     font-weight: bold;
 }
 
 label {
     margin-bottom: 8px; 
     display: block;
-    color: #333; /* Oscuro para legibilidad sobre blanco */
-    text-align: left;
-    width: 100%;
+    color: #bac2de;
+    text-align: left; /* Alineación a la izquierda para etiquetas de form */
 }
 
 input, select, textarea {
     padding: 12px; 
     width: 100%;   
     border-radius: 6px;
-    border: 1px solid #ccc;
-    background-color: white;
-    color: #333;
+    border: 1px solid #45475a;
+    background-color: #313244;
+    color: white;
     margin-bottom: 15px; 
     box-sizing: border-box;
 }
 
-/* Estilo para inputs de solo lectura */
+/* Estilo para los inputs bloqueados (readonly) */
 input[readonly] {
-    background-color: #eee;
+    background-color: #11111b;
+    color: #89b4fa;
     cursor: not-allowed;
 }
 
-/* --- TABLA --- */
+.btn-azul, button[type="submit"] {
+    width: 100%;
+    padding: 15px;
+    background-color: #4a90e2; 
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* --- TABLA ( lista.html ) - RESTAURADO --- */
 .contenedor-lista {
     width: 95%;
-    max-width: 1200px; 
+    max-width: 1100px; 
     margin: 0 auto; 
     display: flex;
     flex-direction: column;
 }
 
 table {
-    width: 100%;
+    width: 100%; 
     border-collapse: collapse;
     background-color: #313244;
     border-radius: 10px;
@@ -196,13 +175,42 @@ table {
 th, td { padding: 15px; text-align: left; border-bottom: 1px solid #45475a;}
 th { background-color: #45475a; color: #89b4fa; }
 
+/* --- FILTROS Y ESTADOS --- */
+.fila-controles {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.btn-filtro {
+    background: #313244;
+    color: white;
+    border: 1px solid #45475a;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-filtro.active {
+    background: #4a90e2;
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
 /* --- MODALES --- */
 .modal-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(0, 0, 0, 0.8);
     z-index: 2000;
     justify-content: center;
     align-items: center;
@@ -216,61 +224,4 @@ th { background-color: #45475a; color: #89b4fa; }
     text-align: center;
     max-width: 400px;
     width: 90%;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    animation: aparecer 0.3s ease-out;
-}
-
-@keyframes aparecer {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.modal-botones {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    width: 100%;
-    margin-top: 20px;
-}
-
-.btn-secundario {
-    background-color: #313244;
-    color: white;
-    border: 1px solid #45475a;
-    padding: 14px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* --- FILTROS Y BUSCADOR --- */
-.fila-controles {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    flex-wrap: wrap;
-    gap: 15px;
-}
-
-.btn-filtro {
-    background: #313244;
-    color: white;
-    border: 1px solid #45475a;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.btn-filtro.active {
-    background: #4a90e2;
-    border-color: #89b4fa;
-}
-
-.badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: bold;
 }
