@@ -53,24 +53,24 @@ app.get('/productos/:codigo', (req, res) => {
     });
 });
 
-// 1. GUARDAR NUEVA RESERVA (Actualizado con total_reserva)
+// 1. GUARDAR NUEVA RESERVA (Actualizado con total_reserva y descripcion)
 app.post('/reservar', (req, res) => {
     const { 
         cliente_nombre, cliente_telefono, cliente_email,
-        prod_codigo, prod_cantidad, total_reserva, // Nuevo campo
+        prod_codigo, descripcion, prod_cantidad, total_reserva, // Agregado: descripcion
         sucursal_nombre, sucursal_contacto,
         operador_nombre, comentarios
     } = req.body;
     
     const sql = `
         INSERT INTO reservas 
-        (cliente_nombre, cliente_telefono, cliente_email, prod_codigo, prod_cantidad, total_reserva, sucursal_nombre, sucursal_contacto, operador_nombre, comentarios, estado, borrado) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'En Tránsito', 0)
+        (cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva, sucursal_nombre, sucursal_contacto, operador_nombre, comentarios, estado, borrado) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'En Tránsito', 0)
     `;
     
     const valores = [
         cliente_nombre, cliente_telefono, cliente_email, 
-        prod_codigo, prod_cantidad, total_reserva, 
+        prod_codigo, descripcion, prod_cantidad, total_reserva, // Agregado: descripcion
         sucursal_nombre, sucursal_contacto, 
         operador_nombre, comentarios
     ];

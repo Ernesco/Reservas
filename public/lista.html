@@ -33,11 +33,14 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Id</th>
+                        <th>ID</th>
                         <th>Fecha</th>
                         <th>Cliente</th>
-                        <th>Producto</th>
-                        <th>Estado Actual</th>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Cant.</th>
+                        <th>Total ($)</th>
+                        <th>Estado</th>
                         <th>Operador</th>
                         <th>Acciones</th>
                     </tr>
@@ -50,7 +53,6 @@
 <script>
     let estadoActualFiltrado = 'En Tránsito';
 
-    // 1. Manejo de Pestañas
     function filtrarEstado(estado) {
         estadoActualFiltrado = estado;
         document.querySelectorAll('.btn-filtro').forEach(btn => {
@@ -59,24 +61,20 @@
         cargarReservas(document.getElementById('buscador').value);
     }
 
-    // 2. Cargar Reservas
     function cargarReservas(busqueda = '') {
         const tabla = document.getElementById('tablaCuerpo');
         const sucursalUsuario = sessionStorage.getItem('usuario_sucursal') || 'Todas';
         const rolUsuario = sessionStorage.getItem('usuario_rol'); 
 
-        tabla.innerHTML = '<tr><td colspan="7" style="text-align:center">Cargando...</td></tr>';
+        tabla.innerHTML = '<tr><td colspan="10" style="text-align:center">Cargando...</td></tr>';
 
         fetch(`/reservas?q=${busqueda}&sucursal=${sucursalUsuario}&rol=${rolUsuario}`)
             .then(response => response.json())
             .then(datos => {
                 tabla.innerHTML = '';
 
-                // FILTRADO LÓGICO POR PESTAÑA
                 const filtrados = datos.filter(item => {
-                    if (estadoActualFiltrado === 'Eliminados') {
-                        return item.borrado === 1;
-                    }
+                    if (estadoActualFiltrado === 'Eliminados') return item.borrado === 1;
                     if (estadoActualFiltrado === 'Finalizado') {
                         return (item.estado === 'Retirado' || item.estado === 'Cancelado') && item.borrado === 0;
                     }
@@ -84,24 +82,29 @@
                 });
 
                 if(filtrados.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="7" style="text-align:center">No hay reservas en ${estadoActualFiltrado}</td></tr>`;
+                    tabla.innerHTML = `<tr><td colspan="10" style="text-align:center">No hay reservas en ${estadoActualFiltrado}</td></tr>`;
                     return;
                 }
 
                 filtrados.forEach(item => {
-                    const fecha = new Date(item.fecha_registro).toLocaleString();
+                    const fecha = new Date(item.fecha_registro).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' });
                     const claseEstado = item.estado.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
-                    
                     const estiloFila = item.borrado === 1 ? 'style="opacity: 0.7; background-color: #2a1b1b;"' : '';
+                    
+                    // Formateo de Precio
+                    const precioTotal = item.total_reserva ? parseFloat(item.total_reserva).toLocaleString('es-AR', {minimumFractionDigits: 2}) : '0,00';
 
                     const fila = `
                         <tr ${estiloFila}>
-                            <td>${item.id}</td>
-                            <td>${fecha}</td>
+                            <td>#${item.id}</td>
+                            <td style="font-size: 0.85em;">${fecha}</td>
                             <td><strong>${item.cliente_nombre}</strong><br><small style="color: #89b4fa">${item.cliente_telefono}</small></td>
-                            <td>${item.prod_codigo} (x${item.prod_cantidad})</td>
+                            <td><code>${item.prod_codigo}</code></td>
+                            <td style="font-size: 0.9em; max-width: 150px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.descripcion || '---'}</td>
+                            <td style="text-align: center;">${item.prod_cantidad}</td>
+                            <td style="font-weight: bold; color: #a6e3a1;">$${precioTotal}</td>
                             <td><span class="badge estado-${claseEstado}">${item.estado}</span></td>
-                            <td>${item.operador_nombre}</td>
+                            <td><small>${item.operador_nombre} (${item.sucursal_nombre})</small></td>
                             <td>
                                 <div style="display: flex; flex-direction: column; gap: 5px;">
                                     ${getBotonesAccion(item)}
@@ -115,13 +118,10 @@
             .catch(err => mostrarError("Error al cargar datos"));
     }
 
-    // 3. Botones según Estado y Borrado
     function getBotonesAccion(item) {
-        // Si está borrado, botón para Restaurar (Solo lo verá el Admin)
         if (item.borrado === 1) {
             return `<button class="btn-azul" style="background:#89b4fa; color:#1e1e2e; padding: 5px 10px; font-size: 11px;" onclick="restaurarReserva(${item.id})">RESTAURAR</button>`;
         }
-
         if (item.estado === 'En Tránsito') {
             return `<button class="btn-azul" style="padding: 5px 10px; font-size: 11px;" onclick="cambiarEstado(${item.id}, 'Pendiente de Retiro')">LLEGÓ A LOCAL</button>`;
         } else if (item.estado === 'Pendiente de Retiro') {
@@ -172,8 +172,11 @@
         document.getElementById('btnCerrarError').onclick = () => modal.style.display = 'none';
     }
 
-    // Configuración Inicial
     document.addEventListener('DOMContentLoaded', () => {
+        if (!sessionStorage.getItem('usuario_nombre')) {
+            window.location.href = 'index.html';
+            return;
+        }
         const rolActual = sessionStorage.getItem('usuario_rol');
         if (rolActual === 'admin') {
             document.getElementById('btnTabEliminados').style.display = 'block';

@@ -91,11 +91,11 @@
             document.getElementById('btnCerrarError').onclick = () => modal.style.display = 'none';
         }
 
-        // --- LÓGICA DE PRODUCTOS Y CÁLCULOS ---
         const inputCodigo = document.getElementById('prod_codigo');
         const inputCantidad = document.getElementById('prod_cantidad');
         const inputPrecio = document.getElementById('precio_unitario');
         const inputTotal = document.getElementById('total_reserva');
+        const inputDescripcion = document.getElementById('prod_descripcion'); // Capturamos la descripción
 
         // Buscar producto al salir del campo código
         inputCodigo.addEventListener('blur', async () => {
@@ -106,7 +106,7 @@
                 const response = await fetch(`/productos/${codigo}`);
                 if (response.ok) {
                     const producto = await response.json();
-                    document.getElementById('prod_descripcion').value = producto.descripcion;
+                    inputDescripcion.value = producto.descripcion;
                     inputPrecio.value = producto.precio_unitario;
                     calcularTotal();
                 } else {
@@ -118,7 +118,6 @@
             }
         });
 
-        // Calcular total al cambiar cantidad
         inputCantidad.addEventListener('input', calcularTotal);
 
         function calcularTotal() {
@@ -128,12 +127,11 @@
         }
 
         function limpiarCamposProducto() {
-            document.getElementById('prod_descripcion').value = "";
+            inputDescripcion.value = "";
             inputPrecio.value = "";
             inputTotal.value = "";
         }
 
-        // --- CARGA INICIAL ---
         document.addEventListener('DOMContentLoaded', () => {
             const rol = sessionStorage.getItem('usuario_rol');
             const sucursal = sessionStorage.getItem('usuario_sucursal');
@@ -156,17 +154,18 @@
             }
         });
 
-        // --- ENVÍO DEL FORMULARIO ---
         document.getElementById('formReservas').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // CONSTRUIMOS EL OBJETO DATOS (Incluyendo la descripción para el server.js)
             const datos = {
                 cliente_nombre: document.getElementById('cliente_nombre').value,
                 cliente_telefono: document.getElementById('cliente_telefono').value,
                 cliente_email: document.getElementById('cliente_email').value,
                 prod_codigo: inputCodigo.value,
+                descripcion: inputDescripcion.value, // <-- SE ENVÍA LA DESCRIPCIÓN
                 prod_cantidad: inputCantidad.value,
-                total_reserva: inputTotal.value, // Enviamos el total calculado
+                total_reserva: inputTotal.value, 
                 sucursal_nombre: document.getElementById('sucursal_nombre').value,
                 sucursal_contacto: document.getElementById('sucursal_contacto').value,
                 operador_nombre: document.getElementById('operador_nombre').value,
@@ -187,7 +186,6 @@
                     document.getElementById('modalCancelar').onclick = () => {
                         modal.style.display = 'none';
                         document.getElementById('formReservas').reset();
-                        // Re-cargar fijos tras reset
                         document.getElementById('operador_nombre').value = sessionStorage.getItem('usuario_nombre');
                         if (sessionStorage.getItem('usuario_rol') !== 'admin') {
                             document.getElementById('sucursal_nombre').value = sessionStorage.getItem('usuario_sucursal');
