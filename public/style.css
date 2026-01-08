@@ -1,15 +1,14 @@
 /* --- ESTILOS GENERALES --- */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #1e1e2e; /* Fondo oscuro de la app */
+    background-color: #1e1e2e; 
     color: #cdd6f4;
     margin: 0;
-    /* Espacio para el Header fijo */
     padding-top: 100px; 
     padding-bottom: 40px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Centrado horizontal del body */
     min-height: 100vh;
     box-sizing: border-box;
 }
@@ -55,26 +54,77 @@ header {
     color: #1e1e2e;
 }
 
-/* --- CAJAS (Login y Formularios) --- */
+/* --- CAJAS (Login, Panel y Formularios) --- */
 .caja-central {
-    background-color: #ffffff; /* CAMBIO: Blanco puro */
+    background-color: #ffffff; 
     padding: 40px; 
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Centra los hijos (h1, p, div) horizontalmente */
+    text-align: center;  /* Centra el texto */
     width: 90%;
     max-width: 500px; 
-    margin: auto; /* ESTO CENTRA SIN ROMPER EL SCROLL */
+    margin: auto; 
+    box-sizing: border-box;
 }
 
-/* --- ESTILO DEL BOTÓN (Tono de la App) --- */
+.caja-central h1, .caja-central h2 {
+    margin-top: 0;
+    color: #1e1e2e;
+}
+
+.caja-central p {
+    color: #444;
+}
+
+/* --- CONTENEDOR DE BOTONES DEL MENÚ --- */
+.contenedor-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra los botones dentro del contenedor */
+    width: 100%;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centra el texto e icono dentro del botón */
+    width: 100%;
+    max-width: 320px; /* Ancho fijo para que ambos botones sean iguales */
+    padding: 18px;
+    background-color: #313244;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 12px;
+    border: 2px solid #45475a;
+    transition: 0.3s;
+    box-sizing: border-box;
+}
+
+.btn-menu:hover {
+    background-color: #4a90e2; /* Azul para el hover */
+    border-color: #89b4fa;
+    transform: translateY(-2px);
+}
+
+/* Iconos dentro de los botones */
+.btn-menu .icono {
+    margin-right: 10px;
+    font-size: 1.2rem;
+}
+
+/* --- BOTONES DE FORMULARIO --- */
 .btn-ingresar, .btn-azul, button[type="submit"] {
     width: 100%;
+    max-width: 400px;
     padding: 15px;
     margin-top: 20px;
-    background-color: #4a90e2; /* Azul de la app */
+    background-color: #4a90e2;
     color: white;
     border: none;
     border-radius: 8px;
@@ -84,52 +134,59 @@ header {
     transition: background 0.3s ease;
 }
 
-.btn-ingresar:hover, .btn-azul:hover, button[type="submit"]:hover {
-    background-color: #357abd; 
-}
-
-/* Ajuste para textos dentro de caja blanca */
-.caja-central h2, .caja-central label {
-    color: #1e1e2e !important; /* Forzamos color oscuro sobre fondo blanco */
-}
-
-/* --- FORMULARIOS (Para formulario.html) --- */
+/* --- FORMULARIOS --- */
 fieldset {
-    border: 1px solid #45475a;
+    border: 1px solid #ddd; /* Un poco más claro sobre fondo blanco */
     border-radius: 10px;
     padding: 25px; 
     margin-bottom: 25px; 
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: #f9f9f9;
     width: 100%;
     box-sizing: border-box;
 }
 
 legend {
     padding: 0 10px;
-    color: #89b4fa;
+    color: #4a90e2;
     font-weight: bold;
 }
 
 label {
     margin-bottom: 8px; 
     display: block;
-    color: #bac2de;
+    color: #333; /* Oscuro para legibilidad sobre blanco */
+    text-align: left;
+    width: 100%;
 }
 
 input, select, textarea {
     padding: 12px; 
     width: 100%;   
     border-radius: 6px;
-    border: 1px solid #45475a;
-    background-color: #313244;
-    color: white;
+    border: 1px solid #ccc;
+    background-color: white;
+    color: #333;
     margin-bottom: 15px; 
     box-sizing: border-box;
 }
 
-/* --- TABLA (Para que coincida exacto) --- */
+/* Estilo para inputs de solo lectura */
+input[readonly] {
+    background-color: #eee;
+    cursor: not-allowed;
+}
+
+/* --- TABLA --- */
+.contenedor-lista {
+    width: 95%;
+    max-width: 1200px; 
+    margin: 0 auto; 
+    display: flex;
+    flex-direction: column;
+}
+
 table {
-    width: 100%; /* Ocupará el 100% de los 1100px del contenedor */
+    width: 100%;
     border-collapse: collapse;
     background-color: #313244;
     border-radius: 10px;
@@ -139,42 +196,18 @@ table {
 th, td { padding: 15px; text-align: left; border-bottom: 1px solid #45475a;}
 th { background-color: #45475a; color: #89b4fa; }
 
-/* --- BOTONES DEL MENÚ --- */
-.btn-menu {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    max-width: 400px;
-    padding: 20px;
-    background-color: #313244;
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 12px;
-    margin-bottom: 15px;
-    border: 2px solid #45475a;
-    transition: 0.3s;
-}
-
-.btn-menu:hover {
-    background-color: #89b4fa;
-    color: #1e1e2e;
-}
-
-/* Fondo oscuro translúcido */
+/* --- MODALES --- */
 .modal-overlay {
-    display: none; /* Oculto por defecto */
+    display: none;
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     z-index: 2000;
     justify-content: center;
     align-items: center;
 }
 
-/* La caja del mensaje */
 .modal-caja {
     background: #1e1e2e;
     padding: 30px;
@@ -184,45 +217,6 @@ th { background-color: #45475a; color: #89b4fa; }
     max-width: 400px;
     width: 90%;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-.modal-caja h3 { color: #89b4fa; margin-top: 0; }
-.modal-caja p { color: #fff; margin: 20px 0; }
-
-/* --- AJUSTE DE BOTONES EN EL MODAL --- */
-.modal-botones {
-    display: flex;
-    flex-direction: column; /* Apila los botones uno debajo del otro */
-    gap: 12px;              /* Espacio entre los botones */
-    width: 100%;            /* Asegura que el contenedor ocupe todo el ancho */
-    margin-top: 20px;
-}
-
-.modal-botones button {
-    width: 100%;            /* Hace que ambos botones tengan el mismo ancho */
-    padding: 14px;          /* Misma altura para ambos */
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 8px;
-    cursor: pointer;
-    margin: 0;              /* Quita márgenes extra */
-    box-sizing: border-box;
-}
-
-/* El botón secundario (Cancelar) ahora tendrá el mismo estilo base pero distinto color */
-.btn-secundario {
-    background-color: #313244;
-    color: white;
-    border: 1px solid #45475a;
-    transition: background 0.3s;
-}
-
-.btn-secundario:hover {
-    background-color: #45475a;
-}
-
-/* Agregamos esto a .modal-caja en tu style.css */
-.modal-caja {
     animation: aparecer 0.3s ease-out;
 }
 
@@ -231,55 +225,34 @@ th { background-color: #45475a; color: #89b4fa; }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* --- CONTENEDOR MAESTRO DE ALINEACIÓN --- */
-.contenedor-lista {
-    width: 95%;
-    max-width: 1100px; /* Ajustamos todo a este ancho fijo */
-    margin: 0 auto;    /* Esto es lo que centra el bloque completo */
+.modal-botones {
     display: flex;
     flex-direction: column;
-}
-
-/* --- ENCABEZADO (Título, Filtros y Buscador) --- */
-.encabezado-total {
+    gap: 12px;
     width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-bottom: 30px;
+    margin-top: 20px;
 }
 
-/* Ajuste fino para el buscador */
-/* El buscador de la derecha */
-#buscador {
-    width: 250px;                  /* Ancho fijo para que no baile */
-    margin-bottom: 0 !important;   /* Alineado con los botones */
+.btn-secundario {
     background-color: #313244;
-    border: 1px solid #45475a;
-    padding: 10px;
-    border-radius: 8px;
     color: white;
-}
-
-/* Etiquetas de estado */
-.badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 12px;
+    border: 1px solid #45475a;
+    padding: 14px;
+    border-radius: 8px;
     font-weight: bold;
-    text-transform: uppercase;
+    cursor: pointer;
 }
-.estado-transito { background: #89b4fa; color: #1e1e2e; } /* Azul */
-.estado-pendiente { background: #fab387; color: #1e1e2e; } /* Naranja */
-.estado-retirado { background: #a6e3a1; color: #1e1e2e; } /* Verde */
-.estado-cancelado { background: #f38ba8; color: #1e1e2e; } /* Rojo */
 
-/* El grupo de botones de la izquierda */
-.filtros-estados {
+/* --- FILTROS Y BUSCADOR --- */
+.fila-controles {
     display: flex;
-    gap: 8px;
-    margin-bottom: 0 !important;   /* Quitamos cualquier margen que lo desalinee */
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 15px;
 }
+
 .btn-filtro {
     background: #313244;
     color: white;
@@ -287,16 +260,17 @@ th { background-color: #45475a; color: #89b4fa; }
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
+    transition: 0.3s;
 }
+
 .btn-filtro.active {
     background: #4a90e2;
     border-color: #89b4fa;
 }
 
-.fila-controles {
-    display: flex;
-    justify-content: space-between; /* Estados a la izq, Buscador a la der */
-    align-items: center;
-    width: 100%;
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
 }
-

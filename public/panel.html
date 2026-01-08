@@ -38,11 +38,14 @@
         const nombre = sessionStorage.getItem('usuario_nombre');
         const sucursal = sessionStorage.getItem('usuario_sucursal');
         
+        // Limpiamos y centramos el contenido
         if (nombre) {
-            // Mostramos el nombre de la sucursal en el título
+            // Título principal centrado
             document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2">${sucursal}</span>`;
-            // Mostramos el nombre de usuario abajo
-            document.querySelector('p').textContent = `Operador activo: ${nombre}`;
+            
+            // Instrucción debajo del título
+            document.querySelector('p').textContent = `Seleccione una operación para continuar:`;
+            document.querySelector('p').style.marginBottom = "30px";
         }
 
         // 2. Botón Salir
