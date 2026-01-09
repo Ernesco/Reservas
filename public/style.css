@@ -1,132 +1,135 @@
 /* =========================================
-   1. BASE (Común para todas las hojas)
+   1. BASE Y HEADER (No tocar nada aquí)
    ========================================= */
-:root {
-    --fondo-app: #1e1e2e;
-    --azul-app: #4a90e2;
-    --texto-oscuro: #1e1e2e;
-    --borde: #45475a;
-}
-
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: var(--fondo-app);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1e1e2e;
     margin: 0;
-    padding-top: 80px; /* Espacio para el header */
+    padding-top: 80px;
     color: #cdd6f4;
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
 }
 
-/* --- HEADER --- */
 header {
-    position: fixed; top: 0; left: 0; width: 100%; height: 70px;
-    background: #11111b; border-bottom: 2px solid var(--azul-app);
+    position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+    background: #11111b; border-bottom: 2px solid #4a90e2;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 0 30px; z-index: 1000; box-sizing: border-box;
+    padding: 0 20px; z-index: 1000; box-sizing: border-box;
 }
 
-.btn-header {
-    background: #313244; color: white !important;
-    padding: 10px 20px; border-radius: 8px; text-decoration: none;
-    font-weight: bold; border: 1px solid var(--borde);
+.logo-texto { 
+    color: white; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
 }
+
+/* Botón SALIR / INICIO con estilo de botón real */
+.btn-header {
+    background: #313244; color: white !important; padding: 8px 15px;
+    border-radius: 6px; text-decoration: none; font-weight: bold;
+    border: 1px solid #45475a; font-size: 0.8rem; transition: 0.3s;
+}
+.btn-header:hover { background: #4a90e2; }
 
 /* =========================================
-   2. DISEÑO PARA LOGIN (INDEX) Y PANEL
+   2. EL MÓDULO DE LOGIN (INDEX.HTML)
    ========================================= */
-/* Solo aplica a Index y Panel para que no sean anchos */
-#formLogin, #panel-box {
+#formLogin {
     background: white;
     padding: 40px;
     border-radius: 15px;
-    width: 400px; /* Ancho fijo para que no se estire */
+    width: 380px; /* Ancho fijo para que no sea largo */
     margin: 10vh auto; /* Centrado vertical y horizontal */
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     text-align: center;
 }
 
-/* Texto oscuro en Login y Panel */
-#formLogin h2, #panel-box h1, #panel-box p, #formLogin label {
-    color: var(--texto-oscuro) !important;
-}
+#formLogin h2 { color: #1e1e2e; font-size: 1.8rem; margin-bottom: 25px; }
 
-/* Botones del Panel (Grandes y centrados) */
-.contenedor-menu {
-    display: flex; flex-direction: column; gap: 15px; margin-top: 20px;
-}
-.btn-menu {
-    background: #313244; color: white !important;
-    padding: 18px; border-radius: 12px; font-weight: bold;
-    text-decoration: none; border: 1px solid var(--borde);
+#formLogin label {
+    color: #333 !important; font-weight: 700; font-size: 1rem;
+    display: block; text-align: left; margin-bottom: 8px;
 }
 
 /* =========================================
-   3. DISEÑO PARA FORMULARIO (NUEVA RESERVA)
+   3. EL MÓDULO DE PANEL (PANEL.HTML)
    ========================================= */
-#formReservas {
+#panel-box {
     background: white;
     padding: 40px;
     border-radius: 15px;
-    width: 700px; /* Ancho cómodo para el formulario */
-    margin: 30px auto;
+    width: 450px; /* Un poco más ancho que el login pero contenido */
+    margin: 10vh auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+#panel-box h1 { color: #1e1e2e; margin-bottom: 10px; }
+#panel-box p { color: #555; font-weight: 600; margin-bottom: 30px; }
+
+.contenedor-menu { display: flex; flex-direction: column; gap: 15px; }
+
+.btn-menu {
+    background: #313244; color: white !important; padding: 18px;
+    border-radius: 10px; text-decoration: none; font-weight: bold;
+    border: 1px solid #45475a; transition: 0.3s;
+}
+.btn-menu:hover { background: #4a90e2; transform: translateY(-2px); }
+
+/* =========================================
+   4. EL MÓDULO DE FORMULARIO (FORMULARIO.HTML)
+   ========================================= */
+#formReservas {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 600px; /* Ancho perfecto para que no sea larguísimo */
+    margin: 20px auto;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-#formReservas h2, #formReservas label, #formReservas legend {
-    color: var(--texto-oscuro) !important;
-    text-align: left;
-}
+#formReservas h2 { color: #1e1e2e; text-align: center; }
+#formReservas fieldset { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+#formReservas legend { color: #4a90e2; font-weight: bold; padding: 0 10px; }
+#formReservas label { color: #333; font-weight: 600; display: block; text-align: left; margin-bottom: 5px; }
 
-/* Verde del Total Estimado */
+/* Verde del Total Estimado corregido */
 #total_reserva {
-    background: #e8f5e9 !important; color: #2e7d32 !important;
-    border: 2px solid #a5d6a7; font-weight: bold;
+    background: #e8f5e9 !important; color: #1b5e20 !important;
+    border: 2px solid #2e7d32; font-weight: 800; font-size: 1.2rem;
 }
 
 /* =========================================
-   4. DISEÑO PARA LISTA (PANTALLA COMPLETA)
+   5. EL MÓDULO DE LISTA (LISTA.HTML)
    ========================================= */
-.contenedor-lista {
-    width: 98%; 
-    max-width: 1400px;
-    margin: 20px auto;
-}
+.contenedor-lista { width: 98%; max-width: 1300px; margin: 20px auto; }
 
-table {
-    width: 100%; border-collapse: collapse; background: #313244;
-    border-radius: 10px; overflow: hidden;
-}
-th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--borde); }
-th { background: #45475a; color: #89b4fa; }
+.fila-controles { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 
-/* Filtros de la lista */
-.fila-controles { display: flex; justify-content: space-between; margin-bottom: 20px; }
+/* Botones de filtros corregidos */
 .btn-filtro {
-    background: #313244; color: white; border: 1px solid var(--borde);
-    padding: 10px 20px; border-radius: 8px; cursor: pointer;
+    background: #313244; color: white; border: 1px solid #45475a;
+    padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;
 }
-.btn-filtro.active { background: var(--azul-app); }
+.btn-filtro.active { background: #4a90e2; border-color: white; }
+
+table { width: 100%; border-collapse: collapse; background: #313244; border-radius: 10px; overflow: hidden; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #45475a; }
+th { background: #45475a; color: #89b4fa; text-transform: uppercase; font-size: 0.8rem; }
 
 /* =========================================
-   5. INPUTS Y MODALES (Comunes)
+   6. ELEMENTOS COMUNES (INPUTS Y BOTONES)
    ========================================= */
 input, select, textarea {
-    width: 100%; padding: 12px; border-radius: 8px; margin-bottom: 15px;
-    background: #313244; color: white; border: 1px solid var(--borde);
-    box-sizing: border-box;
+    width: 100%; padding: 12px; background: #313244; color: white;
+    border: 1px solid #45475a; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box;
 }
 
 .btn-azul, .btn-ingresar, button[type="submit"] {
-    width: 100%; padding: 15px; background: var(--azul-app);
-    color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer;
+    width: 100%; padding: 15px; background: #4a90e2; color: white;
+    border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;
 }
 
-/* Modales / Alertas */
-.modal-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center;
-}
-.modal-caja {
-    background: #1e1e2e; padding: 30px; border-radius: 15px; border: 2px solid var(--azul-app);
-    text-align: center; max-width: 400px; color: white;
-}
+/* Modales */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
+.modal-caja { background: #1e1e2e; padding: 30px; border-radius: 15px; border: 1px solid #4a90e2; text-align: center; color: white; max-width: 400px; width: 90%; }
