@@ -1,227 +1,164 @@
-/* --- ESTILOS GENERALES --- */
+/* =========================================
+   1. VARIABLES Y ESTILOS GENERALES
+   ========================================= */
+:root {
+    --fondo-app: #1e1e2e;
+    --header-bg: #11111b;
+    --azul-app: #4a90e2;
+    --azul-hover: #357abd;
+    --borde: #45475a;
+    --texto-oscuro: #1e1e2e;
+    --texto-claro: #cdd6f4;
+    --texto-labels: #333333; /* Labels oscuros para fondo blanco */
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #1e1e2e; 
-    color: #cdd6f4;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--fondo-app);
+    color: var(--texto-claro);
     margin: 0;
-    padding-top: 100px; 
-    padding-bottom: 40px;
+    padding-top: 90px;
     display: flex;
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
-    box-sizing: border-box;
 }
 
-/* --- HEADER (Barra Superior) --- */
+/* =========================================
+   2. HEADER
+   ========================================= */
 header {
-    position: fixed; 
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 70px;
-    background-color: #11111b; 
-    border-bottom: 2px solid #89b4fa; 
-    display: flex;
-    justify-content: space-between; 
-    align-items: center;
-    padding: 0 40px; 
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-    z-index: 1000; 
-    box-sizing: border-box;
-}
-
-.logo-texto {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #fff;
-    letter-spacing: 1px;
+    position: fixed; top: 0; left: 0; width: 100%; height: 70px;
+    background-color: var(--header-bg);
+    border-bottom: 2px solid var(--azul-app);
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 40px; z-index: 1000; box-sizing: border-box;
 }
 
 .btn-header {
-    background-color: #313244;
-    color: #fff;
-    border: 1px solid #45475a;
-    text-decoration: none; 
-    padding: 8px 20px;
-    border-radius: 20px; 
-    font-weight: bold;
-    transition: 0.3s;
+    background-color: #313244; color: #fff; text-decoration: none;
+    padding: 8px 20px; border-radius: 20px; font-weight: bold; border: 1px solid var(--borde);
 }
 
-/* --- CAJAS (Login y Formularios) --- */
+/* =========================================
+   3. MÓDULO: CAJA CENTRAL (Login, Panel, Form)
+   ========================================= */
 .caja-central {
-    background-color: #ffffff; 
-    padding: 40px; 
+    background-color: #ffffff;
+    padding: 40px;
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Centrado horizontal del contenido */
-    text-align: center;  /* Centrado del texto */
     width: 90%;
-    max-width: 500px; 
-    margin: auto; 
-}
-
-/* Forzar que los títulos en la caja blanca sean oscuros */
-.caja-central h1, .caja-central h2, .caja-central p {
-    color: #1e1e2e !important;
-    margin-top: 0;
-}
-
-/* --- BOTONES DEL MENÚ ( PANEL.HTML ) --- */
-.contenedor-menu {
+    max-width: 550px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra los botones en el medio de la caja */
+    align-items: center;
+    text-align: center;
+}
+
+/* Títulos y Labels dentro de cajas blancas */
+.caja-central h1, .caja-central h2, .caja-central h3 { color: var(--texto-oscuro); margin-top: 0; }
+
+/* Corrección Contraste labels (Index y Formulario) */
+.caja-central label {
+    color: var(--texto-labels) !important;
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+    text-align: left;
     width: 100%;
-    gap: 15px;
-    margin-top: 20px;
+}
+
+/* Inputs generales */
+input, select, textarea {
+    padding: 12px; width: 100%; border-radius: 8px;
+    border: 1px solid #ccc; background-color: #313244; /* Fondo oscuro en inputs */
+    color: white; margin-bottom: 15px; box-sizing: border-box;
+}
+
+/* Verde del Total Estimado (Más oscuro) */
+#total_reserva {
+    background-color: #e8f5e9 !important;
+    color: #1b5e20 !important; /* Verde bosque oscuro */
+    border: 2px solid #2e7d32;
+    font-size: 1.3rem;
+}
+
+/* =========================================
+   4. MÓDULO: PANEL (Botones Menú)
+   ========================================= */
+.contenedor-menu {
+    display: flex; flex-direction: column; align-items: center;
+    width: 100%; gap: 15px; margin-top: 10px;
 }
 
 .btn-menu {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Centra texto e icono dentro del botón */
-    width: 100%;
-    max-width: 320px; /* Ancho fijo para simetría */
-    padding: 18px;
-    background-color: #313244;
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 12px;
-    border: 2px solid #45475a;
-    transition: 0.3s;
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; max-width: 350px; padding: 20px;
+    background-color: #313244; color: white; text-decoration: none;
+    font-weight: bold; border-radius: 12px; border: 2px solid var(--borde);
 }
+.btn-menu:hover { background-color: var(--azul-app); color: white; }
 
-.btn-menu:hover {
-    background-color: #89b4fa;
-    color: #1e1e2e;
-}
-
-/* --- FORMULARIOS ( formulario.html ) - RESTAURADO --- */
-fieldset {
-    border: 1px solid #45475a;
-    border-radius: 10px;
-    padding: 25px; 
-    margin-bottom: 25px; 
-    background-color: rgba(255, 255, 255, 0.05);
-    width: 100%;
-    box-sizing: border-box;
-}
-
-legend {
-    padding: 0 10px;
-    color: #89b4fa;
-    font-weight: bold;
-}
-
-label {
-    margin-bottom: 8px; 
-    display: block;
-    color: #bac2de;
-    text-align: left; /* Alineación a la izquierda para etiquetas de form */
-}
-
-input, select, textarea {
-    padding: 12px; 
-    width: 100%;   
-    border-radius: 6px;
-    border: 1px solid #45475a;
-    background-color: #313244;
-    color: white;
-    margin-bottom: 15px; 
-    box-sizing: border-box;
-}
-
-/* Estilo para los inputs bloqueados (readonly) */
-input[readonly] {
-    background-color: #11111b;
-    color: #89b4fa;
-    cursor: not-allowed;
-}
-
-.btn-azul, button[type="submit"] {
-    width: 100%;
-    padding: 15px;
-    background-color: #4a90e2; 
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-/* --- TABLA ( lista.html ) - RESTAURADO --- */
+/* =========================================
+   5. MÓDULO: LISTA DE RESERVAS
+   ========================================= */
 .contenedor-lista {
-    width: 95%;
-    max-width: 1100px; 
-    margin: 0 auto; 
-    display: flex;
-    flex-direction: column;
+    width: 95%; max-width: 1200px; margin: 0 auto;
 }
 
-table {
-    width: 100%; 
-    border-collapse: collapse;
-    background-color: #313244;
-    border-radius: 10px;
-    overflow: hidden;
-}
-
-th, td { padding: 15px; text-align: left; border-bottom: 1px solid #45475a;}
-th { background-color: #45475a; color: #89b4fa; }
-
-/* --- FILTROS Y ESTADOS --- */
+/* Arreglo botones de filtro y botón eliminados */
 .fila-controles {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
+    display: flex; justify-content: space-between; align-items: flex-end; /* Alineados abajo */
+    flex-wrap: wrap; gap: 15px; margin-bottom: 15px;
+}
+
+.filtros-estados {
+    display: flex; gap: 8px; flex-wrap: wrap; /* Permite que el de eliminados baje sin romper */
 }
 
 .btn-filtro {
-    background: #313244;
-    color: white;
-    border: 1px solid #45475a;
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
+    background: #313244; color: white; border: 1px solid var(--borde);
+    padding: 10px 18px; border-radius: 8px; cursor: pointer;
 }
+.btn-filtro.active { background: var(--azul-app); border-color: #fff; }
 
-.btn-filtro.active {
-    background: #4a90e2;
+/* Tabla */
+table {
+    width: 100%; border-collapse: collapse; background-color: #313244;
+    border-radius: 10px; overflow: hidden; margin-top: 10px;
 }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--borde); }
+th { background-color: #45475a; color: #89b4fa; font-size: 0.9rem; }
 
-.badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-/* --- MODALES --- */
+/* =========================================
+   6. MÓDULO: MODALES Y ALERTAS
+   ========================================= */
 .modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 2000;
-    justify-content: center;
-    align-items: center;
+    display: none; position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85);
+    z-index: 2000; justify-content: center; align-items: center;
 }
 
 .modal-caja {
-    background: #1e1e2e;
-    padding: 30px;
-    border-radius: 15px;
-    border: 1px solid #4a90e2;
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
+    background: #1e1e2e; padding: 30px; border-radius: 15px;
+    border: 2px solid var(--azul-app); text-align: center;
+    width: 90%; max-width: 400px; color: white;
+}
+
+.modal-botones {
+    display: flex; flex-direction: column; gap: 10px; margin-top: 20px;
+}
+
+/* Botón Aceptar principal */
+.btn-azul, .modal-botones button {
+    width: 100%; padding: 14px; border-radius: 8px; border: none;
+    font-weight: bold; cursor: pointer; background-color: var(--azul-app); color: white;
+}
+
+/* Botón Cancelar del modal (Blanco como pediste) */
+.btn-secundario {
+    background-color: #ffffff !important;
+    color: #1e1e2e !important;
+    border: 1px solid #ccc !important;
 }
