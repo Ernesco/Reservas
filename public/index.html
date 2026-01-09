@@ -8,23 +8,25 @@
 </head>
 <body>
 
-    <header class="header-index">
-    <span>Ingreso al Sistema de Reservas</span>
-</header>
+    <header>
+        <div class="logo-texto">INGRESO AL SISTEMA DE RESERVAS</div>
+    </header>
 
-<main class="contenedor-login">
-    <form id="formLogin">
+    <div>
         <h2>Iniciar Sesión</h2>
         
-        <label>Usuario:</label>
-        <input type="text" placeholder="Ej: admin">
-        
-        <label>Contraseña:</label>
-        <input type="password" placeholder="••••••">
-        
-        <button type="submit" class="btn-ingresar">Ingresar</button>
-    </form>
-</main>
+        <form id="formLogin">
+            <label for="usuario">Usuario:</label>
+            <input type="text" id="usuario" placeholder="Ej: admin" required>
+            
+            <label for="password">Contraseña:</label>
+            <input type="password" id="password" placeholder="••••••" required>
+            
+            <button type="submit" class="btn-ingresar">INGRESAR</button>
+            
+            <p id="mensaje" style="margin-top: 15px; text-align: center; font-weight: bold;"></p>
+        </form>
+    </div>
 
     <script>
         function mostrarError(mensaje) {
