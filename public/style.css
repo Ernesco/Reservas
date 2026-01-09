@@ -1,11 +1,11 @@
 /* =========================================
-   1. BASE Y HEADER (No tocar nada aquí)
+   1. BASE Y HEADER (Tipografía fina)
    ========================================= */
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', sans-serif;
     background-color: #1e1e2e;
     margin: 0;
-    padding-top: 80px;
+    padding-top: 90px;
     color: #cdd6f4;
     display: flex;
     flex-direction: column;
@@ -13,123 +13,172 @@ body {
 }
 
 header {
-    position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+    position: fixed; top: 0; left: 0; width: 100%; height: 70px;
     background: #11111b; border-bottom: 2px solid #4a90e2;
     display: flex; justify-content: space-between; align-items: center;
-    padding: 0 20px; z-index: 1000; box-sizing: border-box;
+    padding: 0 40px; z-index: 1000; box-sizing: border-box;
 }
 
-.logo-texto { 
-    color: white; font-weight: 800; font-size: 1.1rem; text-transform: uppercase; 
+/* Letra del header fina y profesional */
+header span, .logo-texto { 
+    color: white; 
+    font-weight: 300; /* Letra fina */
+    font-size: 1rem;
+    letter-spacing: 1px;
 }
 
-/* Botón SALIR / INICIO con estilo de botón real */
+/* Botones del Header (SALIR / INICIO) más grandes */
 .btn-header {
-    background: #313244; color: white !important; padding: 8px 15px;
-    border-radius: 6px; text-decoration: none; font-weight: bold;
-    border: 1px solid #45475a; font-size: 0.8rem; transition: 0.3s;
+    background: #313244;
+    color: white !important;
+    padding: 12px 25px; /* Más grandes */
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    border: 1px solid #45475a;
+    font-size: 0.95rem;
+    transition: 0.3s;
 }
-.btn-header:hover { background: #4a90e2; }
+.btn-header:hover { background: #4a90e2; border-color: white; }
 
 /* =========================================
-   2. EL MÓDULO DE LOGIN (INDEX.HTML)
+   2. CAJAS (LOGIN, PANEL, FORMULARIO)
    ========================================= */
-#formLogin {
+/* Estilo común para el fondo blanco */
+#formLogin, #panel-box, #formReservas {
     background: white;
     padding: 40px;
-    border-radius: 15px;
-    width: 380px; /* Ancho fijo para que no sea largo */
-    margin: 10vh auto; /* Centrado vertical y horizontal */
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    text-align: center;
-}
-
-#formLogin h2 { color: #1e1e2e; font-size: 1.8rem; margin-bottom: 25px; }
-
-#formLogin label {
-    color: #333 !important; font-weight: 700; font-size: 1rem;
-    display: block; text-align: left; margin-bottom: 8px;
-}
-
-/* =========================================
-   3. EL MÓDULO DE PANEL (PANEL.HTML)
-   ========================================= */
-#panel-box {
-    background: white;
-    padding: 40px;
-    border-radius: 15px;
-    width: 450px; /* Un poco más ancho que el login pero contenido */
-    margin: 10vh auto;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    text-align: center;
-}
-
-#panel-box h1 { color: #1e1e2e; margin-bottom: 10px; }
-#panel-box p { color: #555; font-weight: 600; margin-bottom: 30px; }
-
-.contenedor-menu { display: flex; flex-direction: column; gap: 15px; }
-
-.btn-menu {
-    background: #313244; color: white !important; padding: 18px;
-    border-radius: 10px; text-decoration: none; font-weight: bold;
-    border: 1px solid #45475a; transition: 0.3s;
-}
-.btn-menu:hover { background: #4a90e2; transform: translateY(-2px); }
-
-/* =========================================
-   4. EL MÓDULO DE FORMULARIO (FORMULARIO.HTML)
-   ========================================= */
-#formReservas {
-    background: white;
-    padding: 30px;
-    border-radius: 15px;
-    width: 600px; /* Ancho perfecto para que no sea larguísimo */
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
     margin: 20px auto;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-align: center;
+    color: #1e1e2e;
+    box-sizing: border-box;
 }
 
-#formReservas h2 { color: #1e1e2e; text-align: center; }
-#formReservas fieldset { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-#formReservas legend { color: #4a90e2; font-weight: bold; padding: 0 10px; }
-#formReservas label { color: #333; font-weight: 600; display: block; text-align: left; margin-bottom: 5px; }
+/* Títulos internos */
+#formLogin h2, #panel-box h1, #formReservas h2 {
+    color: #1e1e2e;
+    margin-top: 0;
+    font-weight: 800;
+}
 
-/* Verde del Total Estimado corregido */
-#total_reserva {
-    background: #e8f5e9 !important; color: #1b5e20 !important;
-    border: 2px solid #2e7d32; font-weight: 800; font-size: 1.2rem;
+/* Labels con buen tamaño y peso */
+label {
+    display: block;
+    text-align: left;
+    color: #333 !important;
+    font-weight: 700;
+    margin-bottom: 8px;
+    font-size: 1rem;
+}
+
+/* --- ANCHOS ESPECÍFICOS --- */
+#formLogin, #panel-box { width: 480px; } /* Login y Panel iguales */
+#formReservas { width: 650px; }           /* Formulario un poco más ancho */
+
+/* =========================================
+   3. BOTONES DE ACCIÓN (Centrados y Proporcionales)
+   ========================================= */
+/* Contenedor para botones en Panel */
+.contenedor-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra los botones */
+    gap: 15px;
+    margin-top: 20px;
+}
+
+/* Botones de Menú y Guardar Reserva */
+.btn-menu, #formReservas button[type="submit"] {
+    width: 320px; /* Tamaño fijo, no estirado */
+    padding: 16px;
+    background: #313244;
+    color: white !important;
+    border-radius: 12px;
+    font-weight: bold;
+    text-decoration: none;
+    border: 1px solid #45475a;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Botón Guardar es Azul */
+#formReservas button[type="submit"], .btn-ingresar {
+    background-color: #4a90e2;
+    border: none;
+}
+
+.btn-menu:hover, button[type="submit"]:hover {
+    background-color: #4a90e2;
+    transform: translateY(-2px);
 }
 
 /* =========================================
-   5. EL MÓDULO DE LISTA (LISTA.HTML)
+   4. LISTA DE RESERVAS (Letra y Filtros)
    ========================================= */
-.contenedor-lista { width: 98%; max-width: 1300px; margin: 20px auto; }
+.contenedor-lista {
+    width: 95%;
+    max-width: 1350px;
+    margin: 0 auto;
+}
 
-.fila-controles { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-
-/* Botones de filtros corregidos */
+/* Botones de filtros (En Tránsito, etc) más grandes */
 .btn-filtro {
-    background: #313244; color: white; border: 1px solid #45475a;
-    padding: 10px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;
+    background: #313244;
+    color: white;
+    border: 1px solid #45475a;
+    padding: 12px 22px; /* Más grandes */
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem; /* Letra más grande */
 }
 .btn-filtro.active { background: #4a90e2; border-color: white; }
 
-table { width: 100%; border-collapse: collapse; background: #313244; border-radius: 10px; overflow: hidden; }
-th, td { padding: 12px; text-align: left; border-bottom: 1px solid #45475a; }
-th { background: #45475a; color: #89b4fa; text-transform: uppercase; font-size: 0.8rem; }
+/* Tabla: Letra más legible */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #313244;
+    border-radius: 12px;
+    overflow: hidden;
+    font-size: 0.95rem; /* Letra un poco más grande */
+}
+
+th { background: #45475a; color: #89b4fa; padding: 18px; text-transform: uppercase; font-size: 0.85rem; }
+td { padding: 15px; border-bottom: 1px solid #45475a; }
+
+/* El verde del Total más profesional */
+#total_reserva {
+    background: #e8f5e9 !important;
+    color: #1b5e20 !important;
+    border: 2px solid #2e7d32;
+    font-weight: 800;
+}
 
 /* =========================================
-   6. ELEMENTOS COMUNES (INPUTS Y BOTONES)
+   5. INPUTS Y MODALES
    ========================================= */
 input, select, textarea {
-    width: 100%; padding: 12px; background: #313244; color: white;
-    border: 1px solid #45475a; border-radius: 8px; margin-bottom: 12px; box-sizing: border-box;
+    width: 100%;
+    padding: 14px;
+    background: #313244;
+    color: white;
+    border: 1px solid #45475a;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
 }
 
-.btn-azul, .btn-ingresar, button[type="submit"] {
-    width: 100%; padding: 15px; background: #4a90e2; color: white;
-    border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;
+.modal-caja {
+    background: #1e1e2e;
+    padding: 40px;
+    border-radius: 15px;
+    border: 2px solid #4a90e2;
+    text-align: center;
 }
-
-/* Modales */
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; }
-.modal-caja { background: #1e1e2e; padding: 30px; border-radius: 15px; border: 1px solid #4a90e2; text-align: center; color: white; max-width: 400px; width: 90%; }
