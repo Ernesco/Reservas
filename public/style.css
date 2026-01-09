@@ -5,125 +5,107 @@
     --fondo-app: #1e1e2e;
     --azul-app: #4a90e2;
     --texto-oscuro: #1e1e2e;
-    --texto-label: #333333; /* Color oscuro para que se lea bien */
+    --texto-label: #333333; /* Gris casi negro para labels en fondo blanco */
+    --borde: #45475a;
 }
 
 body {
     font-family: 'Segoe UI', sans-serif;
     background-color: var(--fondo-app);
     margin: 0;
-    display: flex;
-    flex-direction: column;
+    padding-top: 80px; /* Espacio para el header fijo */
+    color: #cdd6f4;
     min-height: 100vh;
-}
-
-/* =========================================
-   2. HEADER (Fijo arriba)
-   ========================================= */
-header {
-    position: fixed; top: 0; width: 100%; height: 70px;
-    background: #11111b; border-bottom: 2px solid var(--azul-app);
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 40px; z-index: 1000; box-sizing: border-box;
-}
-
-.logo-texto { color: white; font-weight: bold; font-size: 1.2rem; }
-
-/* =========================================
-   3. CONTENEDOR PRINCIPAL (Centrado Vertical)
-   ========================================= */
-/* Esto centra las cajas en el medio exacto de la pantalla */
-main, .flex-centrado {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center; /* Centrado vertical */
-    padding: 20px;
-    margin-top: 70px; /* Espacio para el header */
-}
-
-/* =========================================
-   4. LA CAJA BLANCA (Login, Panel, Form)
-   ========================================= */
-.caja-central {
-    background: white;
-    padding: 40px;
-    border-radius: 15px;
-    width: 100%;
-    max-width: 500px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    text-align: center;
     box-sizing: border-box;
 }
 
-/* Titulos y Labels con CONTRASTE OSCURO */
-.caja-central h1, .caja-central h2, .caja-central legend { 
-    color: var(--texto-oscuro); 
-    margin-bottom: 20px;
+/* =========================================
+   2. HEADER
+   ========================================= */
+header {
+    position: fixed; top: 0; left: 0; width: 100%; height: 60px;
+    background: #11111b; border-bottom: 2px solid var(--azul-app);
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0 30px; z-index: 1000; box-sizing: border-box;
 }
 
+.logo-texto { color: white; font-weight: bold; }
+
+/* =========================================
+   3. CAJA CENTRAL (Login, Panel, Formulario)
+   ========================================= */
+/* Esta clase centrará el contenido en Index, Panel y Formulario */
+.caja-central {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    margin: 40px auto; /* ESTO CENTRA LA CAJA HORIZONTALMENTE */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-align: center;
+    color: var(--texto-oscuro);
+}
+
+.caja-central h1, .caja-central h2 { margin-top: 0; color: var(--texto-oscuro); }
+
+/* Labels Oscuros para que se lean bien */
 .caja-central label {
     display: block;
     text-align: left;
-    color: var(--texto-label) !important; /* Forzamos el color oscuro */
+    color: var(--texto-label) !important;
     font-weight: 600;
     margin-bottom: 5px;
-    font-size: 0.9rem;
 }
 
-/* =========================================
-   5. INPUTS Y BOTONES
-   ========================================= */
+/* Inputs con fondo oscuro para resaltar */
 input, select, textarea {
     width: 100%;
     padding: 12px;
-    background: #313244; /* Fondo oscuro original */
-    border: 1px solid #45475a;
+    background: #313244;
+    border: 1px solid var(--borde);
     color: white;
     border-radius: 8px;
     margin-bottom: 15px;
     box-sizing: border-box;
 }
 
-/* Botón Ingresar / Guardar (Azul Grande) */
+/* Botón Ingresar / Guardar */
 .btn-azul, .btn-ingresar, button[type="submit"] {
     width: 100%;
-    padding: 15px;
+    padding: 14px;
     background: var(--azul-app);
     color: white;
     border: none;
     border-radius: 8px;
     font-weight: bold;
-    font-size: 1rem;
     cursor: pointer;
-    transition: 0.3s;
     margin-top: 10px;
 }
 
-.btn-azul:hover { background: #357abd; }
-
 /* =========================================
-   6. AJUSTES ESPECÍFICOS FORMULARIO
+   4. FORMULARIO ( Fieldsets )
    ========================================= */
 fieldset {
     border: 1px solid #ddd;
     border-radius: 10px;
     padding: 20px;
     margin-bottom: 20px;
-    text-align: left;
 }
 
-/* El verde del Total (Más suave y legible) */
+legend { color: var(--azul-app); font-weight: bold; padding: 0 10px; }
+
+/* Verde del Total (Más oscuro y legible) */
 #total_reserva {
     background: #e8f5e9 !important;
-    color: #2e7d32 !important;
+    color: #2e7d32 !important; /* Verde oscuro */
     border: 2px solid #a5d6a7;
-    font-size: 1.2rem;
     font-weight: bold;
+    font-size: 1.2rem;
 }
 
 /* =========================================
-   7. AJUSTES ESPECÍFICOS PANEL (Menú)
+   5. PANEL (Botones de menú)
    ========================================= */
 .contenedor-menu {
     display: flex;
@@ -135,22 +117,61 @@ fieldset {
 .btn-menu {
     width: 100%;
     max-width: 300px;
-    padding: 18px;
+    padding: 15px;
     background: #313244;
     color: white;
     text-decoration: none;
     border-radius: 10px;
     font-weight: bold;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
+    border: 1px solid var(--borde);
 }
 
-.btn-menu:hover { background: var(--azul-app); }
+/* =========================================
+   6. LISTA DE RESERVAS (Ancho Completo)
+   ========================================= */
+.contenedor-lista {
+    width: 95%;
+    max-width: 1300px;
+    margin: 20px auto;
+}
+
+.fila-controles {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+/* Botones de filtro */
+.filtros-estados { display: flex; gap: 10px; }
+
+.btn-filtro {
+    background: #313244;
+    color: white;
+    border: 1px solid var(--borde);
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-filtro.active { background: var(--azul-app); }
+
+/* Tabla Restaurada */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #313244;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--borde); }
+th { background: #45475a; color: #89b4fa; }
 
 /* =========================================
-   8. MODALES (Alertas)
+   7. MODALES (Alertas)
    ========================================= */
 .modal-overlay {
     display: none; position: fixed; top: 0; left: 0;
@@ -159,10 +180,19 @@ fieldset {
 }
 
 .modal-caja {
-    background: #1e1e2e; padding: 30px; border-radius: 15px;
-    color: white; text-align: center; max-width: 400px; width: 90%;
+    background: #1e1e2e; padding: 25px; border-radius: 15px;
+    text-align: center; max-width: 400px; width: 90%;
+    border: 1px solid var(--azul-app);
 }
 
-.modal-botones {
-    display: flex; flex-direction: column; gap: 10px; margin-top: 20px;
+.modal-botones { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+
+.btn-secundario {
+    background: white;
+    color: var(--texto-oscuro);
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
 }
