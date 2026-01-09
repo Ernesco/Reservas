@@ -1,184 +1,227 @@
-/* =========================================
-   1. BASE Y HEADER (Tipografía fina)
-   ========================================= */
+/* --- ESTILOS GENERALES --- */
 body {
-    font-family: 'Segoe UI', sans-serif;
-    background-color: #1e1e2e;
-    margin: 0;
-    padding-top: 90px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #1e1e2e; 
     color: #cdd6f4;
+    margin: 0;
+    padding-top: 100px; 
+    padding-bottom: 40px;
     display: flex;
     flex-direction: column;
+    align-items: center;
     min-height: 100vh;
-}
-
-header {
-    position: fixed; top: 0; left: 0; width: 100%; height: 70px;
-    background: #11111b; border-bottom: 2px solid #4a90e2;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 0 40px; z-index: 1000; box-sizing: border-box;
-}
-
-/* Letra del header fina y profesional */
-header span, .logo-texto { 
-    color: white; 
-    font-weight: 300; /* Letra fina */
-    font-size: 1rem;
-    letter-spacing: 1px;
-}
-
-/* Botones del Header (SALIR / INICIO) más grandes */
-.btn-header {
-    background: #313244;
-    color: white !important;
-    padding: 12px 25px; /* Más grandes */
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: bold;
-    border: 1px solid #45475a;
-    font-size: 0.95rem;
-    transition: 0.3s;
-}
-.btn-header:hover { background: #4a90e2; border-color: white; }
-
-/* =========================================
-   2. CAJAS (LOGIN, PANEL, FORMULARIO)
-   ========================================= */
-/* Estilo común para el fondo blanco */
-#formLogin, #panel-box, #formReservas {
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-    margin: 20px auto;
-    text-align: center;
-    color: #1e1e2e;
     box-sizing: border-box;
 }
 
-/* Títulos internos */
-#formLogin h2, #panel-box h1, #formReservas h2 {
-    color: #1e1e2e;
+/* --- HEADER (Barra Superior) --- */
+header {
+    position: fixed; 
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    background-color: #11111b; 
+    border-bottom: 2px solid #89b4fa; 
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+    padding: 0 40px; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    z-index: 1000; 
+    box-sizing: border-box;
+}
+
+.logo-texto {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #fff;
+    letter-spacing: 1px;
+}
+
+.btn-header {
+    background-color: #313244;
+    color: #fff;
+    border: 1px solid #45475a;
+    text-decoration: none; 
+    padding: 8px 20px;
+    border-radius: 20px; 
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+/* --- CAJAS (Login y Formularios) --- */
+.caja-central {
+    background-color: #ffffff; 
+    padding: 40px; 
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centrado horizontal del contenido */
+    text-align: center;  /* Centrado del texto */
+    width: 90%;
+    max-width: 500px; 
+    margin: auto; 
+}
+
+/* Forzar que los títulos en la caja blanca sean oscuros */
+.caja-central h1, .caja-central h2, .caja-central p {
+    color: #1e1e2e !important;
     margin-top: 0;
-    font-weight: 800;
 }
 
-/* Labels con buen tamaño y peso */
-label {
-    display: block;
-    text-align: left;
-    color: #333 !important;
-    font-weight: 700;
-    margin-bottom: 8px;
-    font-size: 1rem;
-}
-
-/* --- ANCHOS ESPECÍFICOS --- */
-#formLogin, #panel-box { width: 480px; } /* Login y Panel iguales */
-#formReservas { width: 650px; }           /* Formulario un poco más ancho */
-
-/* =========================================
-   3. BOTONES DE ACCIÓN (Centrados y Proporcionales)
-   ========================================= */
-/* Contenedor para botones en Panel */
+/* --- BOTONES DEL MENÚ ( PANEL.HTML ) --- */
 .contenedor-menu {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra los botones */
+    align-items: center; /* Centra los botones en el medio de la caja */
+    width: 100%;
     gap: 15px;
     margin-top: 20px;
 }
 
-/* Botones de Menú y Guardar Reserva */
-.btn-menu, #formReservas button[type="submit"] {
-    width: 320px; /* Tamaño fijo, no estirado */
-    padding: 16px;
-    background: #313244;
-    color: white !important;
-    border-radius: 12px;
-    font-weight: bold;
-    text-decoration: none;
-    border: 1px solid #45475a;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: 0.3s;
+.btn-menu {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: center; /* Centra texto e icono dentro del botón */
+    width: 100%;
+    max-width: 320px; /* Ancho fijo para simetría */
+    padding: 18px;
+    background-color: #313244;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 12px;
+    border: 2px solid #45475a;
+    transition: 0.3s;
 }
 
-/* Botón Guardar es Azul */
-#formReservas button[type="submit"], .btn-ingresar {
-    background-color: #4a90e2;
+.btn-menu:hover {
+    background-color: #89b4fa;
+    color: #1e1e2e;
+}
+
+/* --- FORMULARIOS ( formulario.html ) - RESTAURADO --- */
+fieldset {
+    border: 1px solid #45475a;
+    border-radius: 10px;
+    padding: 25px; 
+    margin-bottom: 25px; 
+    background-color: rgba(255, 255, 255, 0.05);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+legend {
+    padding: 0 10px;
+    color: #89b4fa;
+    font-weight: bold;
+}
+
+label {
+    margin-bottom: 8px; 
+    display: block;
+    color: #bac2de;
+    text-align: left; /* Alineación a la izquierda para etiquetas de form */
+}
+
+input, select, textarea {
+    padding: 12px; 
+    width: 100%;   
+    border-radius: 6px;
+    border: 1px solid #45475a;
+    background-color: #313244;
+    color: white;
+    margin-bottom: 15px; 
+    box-sizing: border-box;
+}
+
+/* Estilo para los inputs bloqueados (readonly) */
+input[readonly] {
+    background-color: #11111b;
+    color: #89b4fa;
+    cursor: not-allowed;
+}
+
+.btn-azul, button[type="submit"] {
+    width: 100%;
+    padding: 15px;
+    background-color: #4a90e2; 
+    color: white;
     border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
 }
 
-.btn-menu:hover, button[type="submit"]:hover {
-    background-color: #4a90e2;
-    transform: translateY(-2px);
-}
-
-/* =========================================
-   4. LISTA DE RESERVAS (Letra y Filtros)
-   ========================================= */
+/* --- TABLA ( lista.html ) - RESTAURADO --- */
 .contenedor-lista {
     width: 95%;
-    max-width: 1350px;
-    margin: 0 auto;
+    max-width: 1100px; 
+    margin: 0 auto; 
+    display: flex;
+    flex-direction: column;
 }
 
-/* Botones de filtros (En Tránsito, etc) más grandes */
+table {
+    width: 100%; 
+    border-collapse: collapse;
+    background-color: #313244;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th, td { padding: 15px; text-align: left; border-bottom: 1px solid #45475a;}
+th { background-color: #45475a; color: #89b4fa; }
+
+/* --- FILTROS Y ESTADOS --- */
+.fila-controles {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
 .btn-filtro {
     background: #313244;
     color: white;
     border: 1px solid #45475a;
-    padding: 12px 22px; /* Más grandes */
+    padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
+}
+
+.btn-filtro.active {
+    background: #4a90e2;
+}
+
+.badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
     font-weight: bold;
-    font-size: 1rem; /* Letra más grande */
-}
-.btn-filtro.active { background: #4a90e2; border-color: white; }
-
-/* Tabla: Letra más legible */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: #313244;
-    border-radius: 12px;
-    overflow: hidden;
-    font-size: 0.95rem; /* Letra un poco más grande */
+    text-transform: uppercase;
 }
 
-th { background: #45475a; color: #89b4fa; padding: 18px; text-transform: uppercase; font-size: 0.85rem; }
-td { padding: 15px; border-bottom: 1px solid #45475a; }
-
-/* El verde del Total más profesional */
-#total_reserva {
-    background: #e8f5e9 !important;
-    color: #1b5e20 !important;
-    border: 2px solid #2e7d32;
-    font-weight: 800;
-}
-
-/* =========================================
-   5. INPUTS Y MODALES
-   ========================================= */
-input, select, textarea {
-    width: 100%;
-    padding: 14px;
-    background: #313244;
-    color: white;
-    border: 1px solid #45475a;
-    border-radius: 10px;
-    margin-bottom: 15px;
-    box-sizing: border-box;
+/* --- MODALES --- */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
 }
 
 .modal-caja {
     background: #1e1e2e;
-    padding: 40px;
+    padding: 30px;
     border-radius: 15px;
-    border: 2px solid #4a90e2;
+    border: 1px solid #4a90e2;
     text-align: center;
+    max-width: 400px;
+    width: 90%;
 }
