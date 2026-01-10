@@ -57,24 +57,23 @@ header {
     box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centrado horizontal del contenido */
-    text-align: center;  /* Centrado del texto */
+    align-items: center;
+    text-align: center;
     width: 90%;
     max-width: 500px; 
     margin: auto; 
 }
 
-/* Forzar que los títulos en la caja blanca sean oscuros */
 .caja-central h1, .caja-central h2, .caja-central p {
     color: #1e1e2e !important;
     margin-top: 0;
 }
 
-/* --- BOTONES DEL MENÚ ( PANEL.HTML ) --- */
+/* --- BOTONES DEL MENÚ --- */
 .contenedor-menu {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra los botones en el medio de la caja */
+    align-items: center;
     width: 100%;
     gap: 15px;
     margin-top: 20px;
@@ -83,9 +82,9 @@ header {
 .btn-menu {
     display: flex;
     align-items: center;
-    justify-content: center; /* Centra texto e icono dentro del botón */
+    justify-content: center;
     width: 100%;
-    max-width: 320px; /* Ancho fijo para simetría */
+    max-width: 320px;
     padding: 18px;
     background-color: #313244;
     color: white;
@@ -101,7 +100,7 @@ header {
     color: #1e1e2e;
 }
 
-/* --- FORMULARIOS ( formulario.html ) - RESTAURADO --- */
+/* --- FORMULARIOS --- */
 fieldset {
     border: 1px solid #45475a;
     border-radius: 10px;
@@ -122,7 +121,7 @@ label {
     margin-bottom: 8px; 
     display: block;
     color: #5e616b;
-    text-align: left; /* Alineación a la izquierda para etiquetas de form */
+    text-align: left;
 }
 
 input, select, textarea {
@@ -136,69 +135,79 @@ input, select, textarea {
     box-sizing: border-box;
 }
 
-/* Estilo para los inputs bloqueados (readonly) */
 input[readonly] {
     background-color: #11111b;
     color: #89b4fa;
     cursor: not-allowed;
 }
 
-.btn-azul, button[type="submit"] {
-    width: 100%;
-    padding: 15px;
-    background-color: #4a90e2; 
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-/* Color rojo para asteriscos obligatorios */
-.requerido {
-    color: #ff4d4d;
-    font-weight: bold;
-    margin-left: 2px;
-}
-
-/* --- TABLA ( lista.html ) - RESTAURADO --- */
+/* --- TABLA (lista.html) - VERSIÓN CORREGIDA --- */
 .contenedor-lista {
     width: 95%;
-    max-width: 1100px; 
+    max-width: 1400px; 
     margin: 0 auto; 
     display: flex;
     flex-direction: column;
 }
 
+/* Contenedor con scroll horizontal */
+.contenedor-lista > div {
+    overflow-x: auto;
+    border-radius: 10px;
+    background-color: #313244;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
 table {
     width: 100%; 
     border-collapse: collapse;
-    background-color: #313244;
-    border-radius: 10px;
-    overflow: hidden;
+    min-width: 1200px; /* Asegura que la tabla no se aplaste */
 }
 
-th, td { padding: 15px; text-align: left; border-bottom: 1px solid #45475a;}
-th { background-color: #45475a; color: #89b4fa; }
+th, td { 
+    padding: 15px; 
+    text-align: center; /* Centrado de datos */
+    border-bottom: 1px solid #45475a;
+    white-space: nowrap; /* Evita saltos de línea */
+    vertical-align: middle;
+}
 
-/* --- CORRECCIÓN DE ALINEACIÓN FILA DE CONTROLES --- */
+th { 
+    background-color: #45475a; 
+    color: #89b4fa; 
+    font-size: 0.95rem;
+}
+
+/* Botones dentro de la tabla */
+.btn-azul, .btn-borrar {
+    width: auto !important;
+    padding: 8px 15px !important;
+    font-size: 11px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-azul { background-color: #4a90e2; color: white; }
+.btn-borrar { background-color: #f38ba8; color: #1e1e2e; }
+
+/* --- FILA DE CONTROLES --- */
 .fila-controles {
     display: flex;
-    justify-content: space-between; /* Mantiene filtros a la izquierda y buscador a la derecha */
-    align-items: center;            /* Alinea verticalmente al centro todos los elementos */
+    justify-content: space-between;
+    align-items: center;
     width: 100%;
     margin-bottom: 20px;
-    gap: 15px;                      /* Espacio entre botones y buscador */
-    flex-wrap: wrap;                /* Si no entran, se acomodan solos sin romperse */
+    gap: 15px;
+    flex-wrap: wrap;
 }
 
-/* Contenedor de botones (filtros + eliminados) */
 .filtros-estados {
     display: flex;
-    align-items: center;            /* Alinea los botones entre sí */
-    gap: 10px;                      /* Espacio entre cada botón */
-    margin: 0 !important;           /* Quita márgenes que puedan desalinear */
+    align-items: center;
+    gap: 10px;
 }
 
 .btn-filtro {
@@ -210,22 +219,11 @@ th { background-color: #45475a; color: #89b4fa; }
     cursor: pointer;
 }
 
-.btn-filtro.active {
-    background: #4a90e2;
-}
+.btn-filtro.active { background: #4a90e2; }
 
-/* Buscador */
 #buscador {
-    margin: 0 !important;           /* Asegura que no tenga margen superior/inferior */
-    min-width: 250px;               /* Tamaño mínimo para que no se achique demasiado */
-}
-
-.badge {
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: bold;
-    text-transform: uppercase;
+    margin: 0 !important;
+    min-width: 250px;
 }
 
 /* --- MODALES --- */
@@ -250,10 +248,9 @@ th { background-color: #45475a; color: #89b4fa; }
     width: 90%;
 }
 
-/* --- BOTONES DEL MODAL (RESERVAS GUARDADAS) --- */
 .modal-botones {
     display: flex;
-    flex-direction: column; /* Uno debajo del otro como en el Panel */
+    flex-direction: column;
     gap: 12px;
     align-items: center;
     margin-top: 20px;
@@ -261,7 +258,7 @@ th { background-color: #45475a; color: #89b4fa; }
 
 #modalAceptar, #modalCancelar {
     width: 100%;
-    max-width: 280px; /* Ancho controlado */
+    max-width: 280px;
     padding: 12px;
     border-radius: 8px;
     font-weight: bold;
@@ -270,18 +267,18 @@ th { background-color: #45475a; color: #89b4fa; }
     border: none;
 }
 
-#modalAceptar {
-    background-color: #4a90e2;
-    color: white;
+#modalAceptar { background-color: #4a90e2; color: white; }
+#modalCancelar { background-color: #313244; color: #bac2de; border: 1px solid #45475a; }
+#modalCancelar:hover { background-color: #f38ba8; color: white; }
+
+/* Color rojo para asteriscos obligatorios */
+.requerido {
+    color: #ff4d4d;
+    font-weight: bold;
+    margin-left: 2px;
 }
 
-#modalCancelar {
-    background-color: #313244; /* Color oscuro como el fondo de inputs */
-    color: #bac2de;
-    border: 1px solid #45475a;
-}
-
-#modalCancelar:hover {
-    background-color: #f38ba8; /* Un rojo suave al pasar el mouse */
-    color: white;
-}
+/* Estilo para barra de scroll */
+.contenedor-lista > div::-webkit-scrollbar { height: 8px; }
+.contenedor-lista > div::-webkit-scrollbar-track { background: #1e1e2e; }
+.contenedor-lista > div::-webkit-scrollbar-thumb { background: #4a90e2; border-radius: 10px; }
