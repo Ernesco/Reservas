@@ -144,7 +144,7 @@ input[readonly] {
 }
 
 .btn-azul, button[type="submit"] {
-    width: 100%;
+    width: 50%;
     padding: 15px;
     background-color: #4a90e2; 
     color: white;
