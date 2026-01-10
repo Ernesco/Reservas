@@ -53,13 +53,13 @@ app.get('/productos/:codigo', (req, res) => {
     });
 });
 
-// 1. GUARDAR NUEVA RESERVA (Sincronizado con los nuevos nombres de campos)
+// 1. GUARDAR NUEVA RESERVA
 app.post('/reservar', (req, res) => {
     const { 
         cliente_nombre, cliente_telefono, cliente_email,
         prod_codigo, descripcion, prod_cantidad, total_reserva,
-        local_destino, contacto_sucursal, // Nuevos nombres
-        local_origen, operador_nombre, comentarios // local_origen es la sucursal que gestiona
+        local_destino, contacto_sucursal,
+        local_origen, operador_nombre, comentarios 
     } = req.body;
     
     const sql = `
@@ -73,7 +73,7 @@ app.post('/reservar', (req, res) => {
         prod_codigo, descripcion, prod_cantidad, total_reserva, 
         local_destino, contacto_sucursal, 
         operador_nombre, comentarios,
-        local_origen // Este valor filtrará la lista para cada local
+        local_origen 
     ];
 
     db.query(sql, valores, (err) => {
@@ -86,22 +86,22 @@ app.post('/reservar', (req, res) => {
     });
 });
 
-// 2. LISTAR RESERVAS (Seguridad reforzada para sucursales)
+// 2. LISTAR RESERVAS (Sincronizado con usuario 'admin')
 app.get('/reservas', (req, res) => {
     const termino = req.query.q || ''; 
     const sucursalUsuario = req.query.sucursal; 
     const rol = req.query.rol || 'local'; 
     const filtro = `%${termino}%`;
 
-    // Consulta base: el administrador busca en todo
+    // Consulta base
     let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ?)`;
     let parametros = [filtro, filtro, filtro];
 
-    // Si NO es admin, solo puede ver lo que SU LOCAL originó
+    // Lógica de privacidad: El admin ve TODO. El local solo lo propio.
     if (rol !== 'admin') {
         sql += " AND local_origen = ?";
         parametros.push(sucursalUsuario);
-        sql += " AND borrado = 0"; // El local no ve sus borrados
+        sql += " AND borrado = 0";
     }
 
     sql += " ORDER BY id DESC";
