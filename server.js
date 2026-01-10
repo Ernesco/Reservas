@@ -7,7 +7,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Sirve los archivos estáticos desde la carpeta 'public'
 app.use(express.static(path.join(__dirname, 'public')));
 
 // CONFIGURACIÓN PARA LA NUBE
@@ -17,15 +16,12 @@ const db = mysql.createPool({
     password: process.env.MYSQLPASSWORD,
     database: process.env.MYSQLDATABASE,
     port: process.env.MYSQLPORT || 4000,
-    ssl: {
-        rejectUnauthorized: false 
-    },
+    ssl: { rejectUnauthorized: false },
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0
 });
 
-// Prueba de conexión inicial
 db.getConnection((err, connection) => {
     if (err) {
         console.error('❌ Error conectando a TiDB:', err.message);
@@ -39,17 +35,10 @@ db.getConnection((err, connection) => {
 app.get('/productos/:codigo', (req, res) => {
     const { codigo } = req.params;
     const sql = "SELECT descripcion, precio_unitario FROM productos WHERE codigo = ?";
-
     db.query(sql, [codigo], (err, results) => {
-        if (err) {
-            console.error(err);
-            return res.status(500).send('Error al buscar producto');
-        }
-        if (results.length > 0) {
-            res.json(results[0]);
-        } else {
-            res.status(404).send('Producto no encontrado');
-        }
+        if (err) return res.status(500).send('Error');
+        if (results.length > 0) res.json(results[0]);
+        else res.status(404).send('No encontrado');
     });
 });
 
@@ -72,43 +61,38 @@ app.post('/reservar', (req, res) => {
         cliente_nombre, cliente_telefono, cliente_email, 
         prod_codigo, descripcion, prod_cantidad, total_reserva, 
         local_destino, contacto_sucursal, 
-        operador_nombre, comentarios,
-        local_origen 
+        operador_nombre, comentarios, local_origen 
     ];
 
     db.query(sql, valores, (err) => {
-        if (err) { 
-            console.error(err); 
-            res.status(500).send('Error al guardar la reserva'); 
-        } else {
-            res.send('Guardado OK');
-        }
+        if (err) { console.error(err); res.status(500).send('Error'); }
+        else res.send('Guardado OK');
     });
 });
 
-// 2. LISTAR RESERVAS (Sincronizado con usuario 'admin')
+// 2. LISTAR RESERVAS (MODIFICADO PARA ASEGURAR VISTA ADMIN)
 app.get('/reservas', (req, res) => {
     const termino = req.query.q || ''; 
     const sucursalUsuario = req.query.sucursal; 
-    const rol = req.query.rol || 'local'; 
+    const rol = req.query.rol ? req.query.rol.trim().toLowerCase() : 'local'; 
     const filtro = `%${termino}%`;
 
-    // Consulta base
-    let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ?)`;
-    let parametros = [filtro, filtro, filtro];
+    // El admin busca en todos los campos, incluso por local de origen
+    let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ? OR local_origen LIKE ?)`;
+    let parametros = [filtro, filtro, filtro, filtro];
 
-    // Lógica de privacidad: El admin ve TODO. El local solo lo propio.
+    // LÓGICA DE PRIVACIDAD: Si NO es admin, filtramos estrictamente
     if (rol !== 'admin') {
         sql += " AND local_origen = ?";
         parametros.push(sucursalUsuario);
-        sql += " AND borrado = 0";
+        sql += " AND borrado = 0"; 
     }
 
     sql += " ORDER BY id DESC";
 
     db.query(sql, parametros, (err, results) => {
         if (err) {
-            console.error(err);
+            console.error("Error en query:", err);
             res.status(500).send('Error al leer datos');
         } else {
             res.json(results);
@@ -121,7 +105,6 @@ app.put('/reservas/:id/estado', (req, res) => {
     const id = req.params.id;
     const { estado, borrado } = req.body;
     let sql, valor;
-
     if (borrado !== undefined) {
         sql = "UPDATE reservas SET borrado = ? WHERE id = ?";
         valor = borrado;
@@ -129,50 +112,32 @@ app.put('/reservas/:id/estado', (req, res) => {
         sql = "UPDATE reservas SET estado = ? WHERE id = ?";
         valor = estado;
     }
-
     db.query(sql, [valor, id], (err) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Error al actualizar');
-        } else {
-            res.send('Actualizado correctamente');
-        }
+        if (err) res.status(500).send('Error');
+        else res.send('OK');
     });
 });
 
 // 4. BORRADO LÓGICO
 app.delete('/reservas/:id', (req, res) => {
     const id = req.params.id;
-    const sql = "UPDATE reservas SET borrado = 1 WHERE id = ?";
-    
-    db.query(sql, [id], (err) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Error al marcar como borrado');
-        } else {
-            res.send('Registro enviado a eliminados');
-        }
+    db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [id], (err) => {
+        if (err) res.status(500).send('Error');
+        else res.send('OK');
     });
 });
 
 // 5. LOGIN
 app.post('/login', (req, res) => {
     const { usuario, password } = req.body;
-    const sql = "SELECT * FROM usuarios WHERE usuario = ? AND password = ?";
-
-    db.query(sql, [usuario, password], (err, results) => {
-        if (err) {
-            console.error(err);
-            res.status(500).send('Error del servidor');
-            return;
-        }
+    db.query("SELECT * FROM usuarios WHERE usuario = ? AND password = ?", [usuario, password], (err, results) => {
+        if (err) return res.status(500).send('Error');
         if (results.length > 0) {
-            const encontrado = results[0];
             res.json({
                 success: true,
-                nombre: encontrado.usuario,
-                rol: encontrado.rol,
-                sucursal: encontrado.sucursal 
+                nombre: results[0].usuario,
+                rol: results[0].rol,
+                sucursal: results[0].sucursal 
             });
         } else {
             res.json({ success: false, message: 'Usuario o clave incorrectos' });
@@ -180,7 +145,6 @@ app.post('/login', (req, res) => {
     });
 });
 
-// INICIAR SERVIDOR
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 Sistema funcionando en puerto ${PORT}`);
