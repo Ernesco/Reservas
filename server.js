@@ -65,27 +65,30 @@ app.post('/reservar', (req, res) => {
     ];
 
     db.query(sql, valores, (err) => {
-        if (err) { console.error(err); res.status(500).send('Error'); }
+        if (err) { console.error("Error al guardar:", err); res.status(500).send('Error'); }
         else res.send('Guardado OK');
     });
 });
 
-// 2. LISTAR RESERVAS (MODIFICADO PARA ASEGURAR VISTA ADMIN)
+// 2. LISTAR RESERVAS (CORREGIDO: FILTRADO FLEXIBLE PARA LOCALES)
 app.get('/reservas', (req, res) => {
     const termino = req.query.q || ''; 
-    const sucursalUsuario = req.query.sucursal; 
+    const sucursalUsuario = req.query.sucursal ? req.query.sucursal.trim() : ''; 
     const rol = req.query.rol ? req.query.rol.trim().toLowerCase() : 'local'; 
-    const filtro = `%${termino}%`;
+    const filtroBusqueda = `%${termino}%`;
 
-    // El admin busca en todos los campos, incluso por local de origen
-    let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ? OR local_origen LIKE ?)`;
-    let parametros = [filtro, filtro, filtro, filtro];
+    // Consulta base
+    let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ?)`;
+    let parametros = [filtroBusqueda, filtroBusqueda, filtroBusqueda];
 
-    // LÓGICA DE PRIVACIDAD: Si NO es admin, filtramos estrictamente
+    // LÓGICA DE PRIVACIDAD MEJORADA
     if (rol !== 'admin') {
-        sql += " AND local_origen = ?";
+        // El local solo ve lo que generó su sucursal
+        sql += " AND local_origen = ? AND borrado = 0";
         parametros.push(sucursalUsuario);
-        sql += " AND borrado = 0"; 
+        console.log(`Filtrando para LOCAL: ${sucursalUsuario}`);
+    } else {
+        console.log("Acceso ADMIN: viendo todas las sucursales");
     }
 
     sql += " ORDER BY id DESC";
