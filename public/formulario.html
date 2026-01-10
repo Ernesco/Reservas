@@ -18,14 +18,19 @@
         
         <fieldset>
             <legend>👤 Cliente</legend>
-            <label>Nombre *</label><input type="text" id="cliente_nombre" required>
-            <label>Teléfono *</label><input type="tel" id="cliente_telefono" required>
-            <label>Email (opcional)</label><input type="email" id="cliente_email">
+            <label>Nombre <span class="requerido">*</span></label>
+            <input type="text" id="cliente_nombre" required>
+            
+            <label>Teléfono <span class="requerido">*</span></label>
+            <input type="tel" id="cliente_telefono" required>
+            
+            <label>Email (opcional)</label>
+            <input type="email" id="cliente_email">
         </fieldset>
 
         <fieldset>
             <legend>🛒 Producto</legend>
-            <label>Código *</label>
+            <label>Código <span class="requerido">*</span></label>
             <input type="text" id="prod_codigo" placeholder="Ingrese código y presione TAB" required>
             
             <label>Descripción</label>
@@ -37,7 +42,7 @@
                     <input type="number" id="precio_unitario" readonly style="background-color: #f8f9fa; color: #666;">
                 </div>
                 <div style="flex: 1;">
-                    <label>Cantidad *</label>
+                    <label>Cantidad <span class="requerido">*</span></label>
                     <input type="number" id="prod_cantidad" required min="1" value="1">
                 </div>
             </div>
@@ -49,20 +54,22 @@
         <fieldset>
             <legend>🏢 Sucursal</legend>
             <label for="local_destino">Local a quien se le pide el artículo <span class="requerido">*</span></label>
-            <input type="text" id="local_destino" name="local_destino" placeholder="Ej: Alto Palermo" required>
+            <input type="text" id="local_destino" placeholder="Ej: Alto Palermo" required>
 
             <label for="contacto_sucursal">Con quién hablaste <span class="requerido">*</span></label>
-            <input type="text" id="contacto_sucursal" name="contacto_sucursal" placeholder="Nombre del contacto en el local" required>
+            <input type="text" id="contacto_sucursal" placeholder="Nombre del contacto en el local" required>
         </fieldset>
 
         <fieldset>
             <legend>📝 Operador</legend>
             <label>Local que gestiona (Tu Local)</label>
-            <input type="text" id="local_origen" name="local_origen" readonly> <label for="nombre_operador">Tu Nombre <span class="requerido">*</span></label>
-            <input type="text" id="nombre_operador" name="nombre_operador" placeholder="Tu nombre y apellido" required>
+            <input type="text" id="local_origen" readonly style="background-color: #e9ecef;">
+
+            <label for="nombre_operador">Nombre <span class="requerido">*</span></label>
+            <input type="text" id="nombre_operador" placeholder="Escriba su nombre" required>
 
             <label for="comentarios">Comentarios</label>
-            <textarea id="comentarios" name="comentarios" placeholder="Notas adicionales..."></textarea>
+            <textarea id="comentarios" placeholder="Notas adicionales..."></textarea>
         </fieldset>
 
         <button type="submit" class="btn-azul">💾 GUARDAR RESERVA</button>
@@ -102,13 +109,11 @@
         const inputCantidad = document.getElementById('prod_cantidad');
         const inputPrecio = document.getElementById('precio_unitario');
         const inputTotal = document.getElementById('total_reserva');
-        const inputDescripcion = document.getElementById('prod_descripcion'); // Capturamos la descripción
+        const inputDescripcion = document.getElementById('prod_descripcion');
 
-        // Buscar producto al salir del campo código
         inputCodigo.addEventListener('blur', async () => {
             const codigo = inputCodigo.value.trim();
             if (!codigo) return;
-
             try {
                 const response = await fetch(`/productos/${codigo}`);
                 if (response.ok) {
@@ -117,12 +122,10 @@
                     inputPrecio.value = producto.precio_unitario;
                     calcularTotal();
                 } else {
-                    mostrarError('⚠️ Código de producto no encontrado en la base de datos.');
+                    mostrarError('⚠️ Código de producto no encontrado.');
                     limpiarCamposProducto();
                 }
-            } catch (error) {
-                console.error("Error:", error);
-            }
+            } catch (error) { console.error("Error:", error); }
         });
 
         inputCantidad.addEventListener('input', calcularTotal);
@@ -139,43 +142,39 @@
             inputTotal.value = "";
         }
 
+        // CARGA INICIAL DE DATOS DE SESIÓN
         document.addEventListener('DOMContentLoaded', () => {
             const rol = sessionStorage.getItem('usuario_rol');
-            const sucursal = sessionStorage.getItem('usuario_sucursal');
-            const operador = sessionStorage.getItem('usuario_nombre');
+            const sucursalLogueada = sessionStorage.getItem('usuario_sucursal');
             
             if (!rol) {
                 window.location.href = 'index.html';
                 return;
             }
 
-            const inputSucursal = document.getElementById('sucursal_nombre');
-            if (rol !== 'admin') {
-                inputSucursal.value = sucursal;
-                inputSucursal.readOnly = true; 
-                inputSucursal.style.backgroundColor = '#e9ecef'; 
-            }
-
-            if (operador) {
-                document.getElementById('operador_nombre').value = operador;
-            }
+            // El campo "Local que gestiona" se llena solo y no se toca
+            document.getElementById('local_origen').value = sucursalLogueada || "Admin";
+            
+            // El campo "Tu nombre" queda vacío para que el usuario lo complete
+            document.getElementById('nombre_operador').value = "";
         });
 
         document.getElementById('formReservas').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // CONSTRUIMOS EL OBJETO DATOS (Incluyendo la descripción para el server.js)
             const datos = {
                 cliente_nombre: document.getElementById('cliente_nombre').value,
                 cliente_telefono: document.getElementById('cliente_telefono').value,
                 cliente_email: document.getElementById('cliente_email').value,
                 prod_codigo: inputCodigo.value,
-                descripcion: inputDescripcion.value, // <-- SE ENVÍA LA DESCRIPCIÓN
+                descripcion: inputDescripcion.value,
                 prod_cantidad: inputCantidad.value,
                 total_reserva: inputTotal.value, 
-                sucursal_nombre: document.getElementById('sucursal_nombre').value,
-                sucursal_contacto: document.getElementById('sucursal_contacto').value,
-                operador_nombre: document.getElementById('operador_nombre').value,
+                // Nuevos mapeos de campos:
+                local_destino: document.getElementById('local_destino').value,
+                contacto_sucursal: document.getElementById('contacto_sucursal').value,
+                local_origen: document.getElementById('local_origen').value,
+                nombre_operador: document.getElementById('nombre_operador').value,
                 comentarios: document.getElementById('comentarios').value
             };
 
@@ -188,15 +187,12 @@
                 if (res.ok) {
                     const modal = document.getElementById('miModal');
                     modal.style.display = 'flex';
-
                     document.getElementById('modalAceptar').onclick = () => window.location.href = 'lista.html';
                     document.getElementById('modalCancelar').onclick = () => {
                         modal.style.display = 'none';
                         document.getElementById('formReservas').reset();
-                        document.getElementById('operador_nombre').value = sessionStorage.getItem('usuario_nombre');
-                        if (sessionStorage.getItem('usuario_rol') !== 'admin') {
-                            document.getElementById('sucursal_nombre').value = sessionStorage.getItem('usuario_sucursal');
-                        }
+                        // Al resetear, volvemos a poner el local de origen
+                        document.getElementById('local_origen').value = sessionStorage.getItem('usuario_sucursal') || "Admin";
                     };
                 } else {
                     mostrarError('No se pudo guardar la reserva.');
