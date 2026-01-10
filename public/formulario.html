@@ -48,14 +48,21 @@
 
         <fieldset>
             <legend>🏢 Sucursal</legend>
-            <label>Local</label><input type="text" id="sucursal_nombre">
-            <label>Contacto</label><input type="text" id="sucursal_contacto">
+            <label for="local_destino">Local a quien se le pide el artículo <span class="requerido">*</span></label>
+            <input type="text" id="local_destino" name="local_destino" placeholder="Ej: Alto Palermo" required>
+
+            <label for="contacto_sucursal">Con quién hablaste <span class="requerido">*</span></label>
+            <input type="text" id="contacto_sucursal" name="contacto_sucursal" placeholder="Nombre del contacto en el local" required>
         </fieldset>
 
         <fieldset>
             <legend>📝 Operador</legend>
-            <label>Tu Nombre *</label><input type="text" id="operador_nombre" required>
-            <label>Comentarios</label><textarea id="comentarios" rows="3"></textarea>
+            <label>Local que gestiona (Tu Local)</label>
+            <input type="text" id="local_origen" name="local_origen" readonly> <label for="nombre_operador">Tu Nombre <span class="requerido">*</span></label>
+            <input type="text" id="nombre_operador" name="nombre_operador" placeholder="Tu nombre y apellido" required>
+
+            <label for="comentarios">Comentarios</label>
+            <textarea id="comentarios" name="comentarios" placeholder="Notas adicionales..."></textarea>
         </fieldset>
 
         <button type="submit" class="btn-azul">💾 GUARDAR RESERVA</button>

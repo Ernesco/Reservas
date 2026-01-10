@@ -155,6 +155,13 @@ input[readonly] {
     transition: 0.3s;
 }
 
+/* Color rojo para asteriscos obligatorios */
+.requerido {
+    color: #ff4d4d;
+    font-weight: bold;
+    margin-left: 2px;
+}
+
 /* --- TABLA ( lista.html ) - RESTAURADO --- */
 .contenedor-lista {
     width: 95%;
