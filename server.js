@@ -35,7 +35,7 @@ db.getConnection((err, connection) => {
     connection.release();
 });
 
-// --- NUEVA RUTA: BUSCAR PRODUCTO POR CÓDIGO ---
+// --- RUTA: BUSCAR PRODUCTO POR CÓDIGO ---
 app.get('/productos/:codigo', (req, res) => {
     const { codigo } = req.params;
     const sql = "SELECT descripcion, precio_unitario FROM productos WHERE codigo = ?";
@@ -53,26 +53,27 @@ app.get('/productos/:codigo', (req, res) => {
     });
 });
 
-// 1. GUARDAR NUEVA RESERVA (Actualizado con total_reserva y descripcion)
+// 1. GUARDAR NUEVA RESERVA (Sincronizado con los nuevos nombres de campos)
 app.post('/reservar', (req, res) => {
     const { 
         cliente_nombre, cliente_telefono, cliente_email,
-        prod_codigo, descripcion, prod_cantidad, total_reserva, // Agregado: descripcion
-        sucursal_nombre, sucursal_contacto,
-        operador_nombre, comentarios
+        prod_codigo, descripcion, prod_cantidad, total_reserva,
+        local_destino, contacto_sucursal, // Nuevos nombres
+        local_origen, operador_nombre, comentarios // local_origen es la sucursal que gestiona
     } = req.body;
     
     const sql = `
         INSERT INTO reservas 
-        (cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva, sucursal_nombre, sucursal_contacto, operador_nombre, comentarios, estado, borrado) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'En Tránsito', 0)
+        (cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva, sucursal_nombre, sucursal_contacto, operador_nombre, comentarios, estado, borrado, local_origen) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'En Tránsito', 0, ?)
     `;
     
     const valores = [
         cliente_nombre, cliente_telefono, cliente_email, 
-        prod_codigo, descripcion, prod_cantidad, total_reserva, // Agregado: descripcion
-        sucursal_nombre, sucursal_contacto, 
-        operador_nombre, comentarios
+        prod_codigo, descripcion, prod_cantidad, total_reserva, 
+        local_destino, contacto_sucursal, 
+        operador_nombre, comentarios,
+        local_origen // Este valor filtrará la lista para cada local
     ];
 
     db.query(sql, valores, (err) => {
@@ -85,23 +86,22 @@ app.post('/reservar', (req, res) => {
     });
 });
 
-// 2. LISTAR RESERVAS
+// 2. LISTAR RESERVAS (Seguridad reforzada para sucursales)
 app.get('/reservas', (req, res) => {
     const termino = req.query.q || ''; 
-    const sucursalUsuario = req.query.sucursal || 'Todas'; 
+    const sucursalUsuario = req.query.sucursal; 
     const rol = req.query.rol || 'local'; 
     const filtro = `%${termino}%`;
 
+    // Consulta base: el administrador busca en todo
     let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ?)`;
     let parametros = [filtro, filtro, filtro];
 
+    // Si NO es admin, solo puede ver lo que SU LOCAL originó
     if (rol !== 'admin') {
-        sql += " AND borrado = 0";
-    }
-
-    if (sucursalUsuario !== 'Todas') {
-        sql += " AND sucursal_nombre = ?";
+        sql += " AND local_origen = ?";
         parametros.push(sucursalUsuario);
+        sql += " AND borrado = 0"; // El local no ve sus borrados
     }
 
     sql += " ORDER BY id DESC";

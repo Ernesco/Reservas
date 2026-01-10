@@ -142,7 +142,6 @@
             inputTotal.value = "";
         }
 
-        // CARGA INICIAL DE DATOS DE SESIÓN
         document.addEventListener('DOMContentLoaded', () => {
             const rol = sessionStorage.getItem('usuario_rol');
             const sucursalLogueada = sessionStorage.getItem('usuario_sucursal');
@@ -152,16 +151,14 @@
                 return;
             }
 
-            // El campo "Local que gestiona" se llena solo y no se toca
             document.getElementById('local_origen').value = sucursalLogueada || "Admin";
-            
-            // El campo "Tu nombre" queda vacío para que el usuario lo complete
             document.getElementById('nombre_operador').value = "";
         });
 
         document.getElementById('formReservas').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // CORRECCIÓN: Mapeo de nombres de variables para que coincidan con la DB
             const datos = {
                 cliente_nombre: document.getElementById('cliente_nombre').value,
                 cliente_telefono: document.getElementById('cliente_telefono').value,
@@ -170,11 +167,11 @@
                 descripcion: inputDescripcion.value,
                 prod_cantidad: inputCantidad.value,
                 total_reserva: inputTotal.value, 
-                // Nuevos mapeos de campos:
                 local_destino: document.getElementById('local_destino').value,
                 contacto_sucursal: document.getElementById('contacto_sucursal').value,
                 local_origen: document.getElementById('local_origen').value,
-                nombre_operador: document.getElementById('nombre_operador').value,
+                // CAMBIO CLAVE: Enviamos como 'operador_nombre' para evitar el NULL en la lista
+                operador_nombre: document.getElementById('nombre_operador').value,
                 comentarios: document.getElementById('comentarios').value
             };
 
@@ -191,7 +188,6 @@
                     document.getElementById('modalCancelar').onclick = () => {
                         modal.style.display = 'none';
                         document.getElementById('formReservas').reset();
-                        // Al resetear, volvemos a poner el local de origen
                         document.getElementById('local_origen').value = sessionStorage.getItem('usuario_sucursal') || "Admin";
                     };
                 } else {

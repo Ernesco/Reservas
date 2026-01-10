@@ -249,3 +249,39 @@ th { background-color: #45475a; color: #89b4fa; }
     max-width: 400px;
     width: 90%;
 }
+
+/* --- BOTONES DEL MODAL (RESERVAS GUARDADAS) --- */
+.modal-botones {
+    display: flex;
+    flex-direction: column; /* Uno debajo del otro como en el Panel */
+    gap: 12px;
+    align-items: center;
+    margin-top: 20px;
+}
+
+#modalAceptar, #modalCancelar {
+    width: 100%;
+    max-width: 280px; /* Ancho controlado */
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+}
+
+#modalAceptar {
+    background-color: #4a90e2;
+    color: white;
+}
+
+#modalCancelar {
+    background-color: #313244; /* Color oscuro como el fondo de inputs */
+    color: #bac2de;
+    border: 1px solid #45475a;
+}
+
+#modalCancelar:hover {
+    background-color: #f38ba8; /* Un rojo suave al pasar el mouse */
+    color: white;
+}

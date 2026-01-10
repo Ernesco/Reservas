@@ -63,17 +63,25 @@
 
     function cargarReservas(busqueda = '') {
         const tabla = document.getElementById('tablaCuerpo');
-        const sucursalUsuario = sessionStorage.getItem('usuario_sucursal') || 'Todas';
+        const sucursalUsuario = sessionStorage.getItem('usuario_sucursal');
         const rolUsuario = sessionStorage.getItem('usuario_rol'); 
 
         tabla.innerHTML = '<tr><td colspan="10" style="text-align:center">Cargando...</td></tr>';
 
-        fetch(`/reservas?q=${busqueda}&sucursal=${sucursalUsuario}&rol=${rolUsuario}`)
+        // Mantenemos la llamada al server igual, pero filtramos en el cliente para mayor seguridad inmediata
+        fetch(`/reservas?q=${busqueda}`)
             .then(response => response.json())
             .then(datos => {
                 tabla.innerHTML = '';
 
+                // FILTRADO DE PRIVACIDAD Y ESTADO
                 const filtrados = datos.filter(item => {
+                    // 1. Filtro de Privacidad: Si no es admin, solo ve lo que generó su sucursal (local_origen)
+                    if (rolUsuario !== 'admin' && item.local_origen !== sucursalUsuario) {
+                        return false;
+                    }
+
+                    // 2. Filtro de pestañas (Estados / Eliminados)
                     if (estadoActualFiltrado === 'Eliminados') return item.borrado === 1;
                     if (estadoActualFiltrado === 'Finalizado') {
                         return (item.estado === 'Retirado' || item.estado === 'Cancelado') && item.borrado === 0;
@@ -82,7 +90,7 @@
                 });
 
                 if(filtrados.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="10" style="text-align:center">No hay reservas en ${estadoActualFiltrado}</td></tr>`;
+                    tabla.innerHTML = `<tr><td colspan="10" style="text-align:center">No hay reservas para mostrar</td></tr>`;
                     return;
                 }
 
@@ -91,8 +99,10 @@
                     const claseEstado = item.estado.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
                     const estiloFila = item.borrado === 1 ? 'style="opacity: 0.7; background-color: #2a1b1b;"' : '';
                     
-                    // Formateo de Precio
                     const precioTotal = item.total_reserva ? parseFloat(item.total_reserva).toLocaleString('es-AR', {minimumFractionDigits: 2}) : '0,00';
+
+                    // Corrección del Operador: Mostramos el nombre guardado y el local que gestionó
+                    const operadorTexto = item.operador_nombre ? `${item.operador_nombre} (${item.local_origen || 'S/D'})` : 'Sin datos';
 
                     const fila = `
                         <tr ${estiloFila}>
@@ -104,7 +114,7 @@
                             <td style="text-align: center;">${item.prod_cantidad}</td>
                             <td style="font-weight: bold; color: #a6e3a1;">$${precioTotal}</td>
                             <td><span class="badge estado-${claseEstado}">${item.estado}</span></td>
-                            <td><small>${item.operador_nombre} (${item.sucursal_nombre})</small></td>
+                            <td><small>${operadorTexto}</small></td>
                             <td>
                                 <div style="display: flex; flex-direction: column; gap: 5px;">
                                     ${getBotonesAccion(item)}
