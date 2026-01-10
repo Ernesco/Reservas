@@ -144,7 +144,7 @@ input[readonly] {
 }
 
 .btn-azul, button[type="submit"] {
-    width: 50%;
+    width: 100%;
     padding: 15px;
     background-color: #4a90e2; 
     color: white;
@@ -176,11 +176,15 @@ th, td { padding: 15px; text-align: left; border-bottom: 1px solid #45475a;}
 th { background-color: #45475a; color: #89b4fa; }
 
 /* --- FILTROS Y ESTADOS --- */
+/* --- ALINEACIÓN DE CONTROLES EN LISTA --- */
 .fila-controles {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: space-between; /* Empuja los estados a la izquierda y el buscador a la derecha */
+    align-items: flex-end;         /* Alinea ambos elementos por su base (fondo) */
     width: 100%;
+    margin-bottom: 20px;
+    flex-wrap: wrap;               /* Permite que se acomoden en pantallas chicas si es necesario */
+    gap: 15px;
 }
 
 .btn-filtro {
@@ -194,6 +198,11 @@ th { background-color: #45475a; color: #89b4fa; }
 
 .btn-filtro.active {
     background: #4a90e2;
+}
+
+/* Asegura que los grupos internos no tengan márgenes que rompan la línea */
+.filtros-estados, #buscador {
+    margin: 0 !important;
 }
 
 .badge {
