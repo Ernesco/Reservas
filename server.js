@@ -70,25 +70,19 @@ app.post('/reservar', (req, res) => {
     });
 });
 
-// 2. LISTAR RESERVAS (CORREGIDO: FILTRADO FLEXIBLE PARA LOCALES)
+// 2. LISTAR RESERVAS
 app.get('/reservas', (req, res) => {
     const termino = req.query.q || ''; 
     const sucursalUsuario = req.query.sucursal ? req.query.sucursal.trim() : ''; 
     const rol = req.query.rol ? req.query.rol.trim().toLowerCase() : 'local'; 
     const filtroBusqueda = `%${termino}%`;
 
-    // Consulta base
     let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ?)`;
     let parametros = [filtroBusqueda, filtroBusqueda, filtroBusqueda];
 
-    // LÓGICA DE PRIVACIDAD MEJORADA
     if (rol !== 'admin') {
-        // El local solo ve lo que generó su sucursal
         sql += " AND local_origen = ? AND borrado = 0";
         parametros.push(sucursalUsuario);
-        console.log(`Filtrando para LOCAL: ${sucursalUsuario}`);
-    } else {
-        console.log("Acceso ADMIN: viendo todas las sucursales");
     }
 
     sql += " ORDER BY id DESC";
@@ -103,25 +97,42 @@ app.get('/reservas', (req, res) => {
     });
 });
 
-// 3. ACTUALIZAR ESTADO O RESTAURAR
+// 3. ACTUALIZAR ESTADO O RESTAURAR (Con Trazabilidad)
 app.put('/reservas/:id/estado', (req, res) => {
     const id = req.params.id;
-    const { estado, borrado } = req.body;
-    let sql, valor;
+    const { estado, borrado, responsable } = req.body;
+
     if (borrado !== undefined) {
-        sql = "UPDATE reservas SET borrado = ? WHERE id = ?";
-        valor = borrado;
+        // Lógica para Restaurar: Quita el borrado y permite cambiar el estado simultáneamente
+        const sqlRestaurar = "UPDATE reservas SET borrado = ?, estado = ? WHERE id = ?";
+        db.query(sqlRestaurar, [borrado, estado, id], (err) => {
+            if (err) return res.status(500).send('Error');
+            res.send('OK');
+        });
     } else {
-        sql = "UPDATE reservas SET estado = ? WHERE id = ?";
-        valor = estado;
+        // Lógica de cambio de estado con firma de responsable
+        let campoResponsable = "";
+        let valores = [estado];
+
+        if (estado === 'Pendiente de Retiro') {
+            campoResponsable = ", responsable_recibo = ?";
+            valores.push(responsable);
+        } else if (estado === 'Retirado' || estado === 'Cancelado') {
+            campoResponsable = ", responsable_finalizado = ?";
+            valores.push(responsable);
+        }
+
+        valores.push(id);
+        const sql = `UPDATE reservas SET estado = ? ${campoResponsable} WHERE id = ?`;
+
+        db.query(sql, valores, (err) => {
+            if (err) { console.error(err); res.status(500).send('Error'); }
+            else res.send('OK');
+        });
     }
-    db.query(sql, [valor, id], (err) => {
-        if (err) res.status(500).send('Error');
-        else res.send('OK');
-    });
 });
 
-// 4. BORRADO LÓGICO
+// 4. BORRADO LÓGICO (Papelera)
 app.delete('/reservas/:id', (req, res) => {
     const id = req.params.id;
     db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [id], (err) => {
@@ -130,7 +141,28 @@ app.delete('/reservas/:id', (req, res) => {
     });
 });
 
-// 5. LOGIN
+// 5. ELIMINACIÓN DEFINITIVA (Mueve a tabla borrados_definitivos y elimina de reservas)
+app.delete('/reservas_definitivas/:id', (req, res) => {
+    const id = req.params.id;
+
+    // Paso 1: Mover a la tabla de respaldo
+    const sqlRespaldo = "INSERT INTO borrados_definitivos SELECT * FROM reservas WHERE id = ?";
+    
+    db.query(sqlRespaldo, [id], (err) => {
+        if (err) {
+            console.error("Error al respaldar:", err);
+            return res.status(500).send('Error al respaldar reserva');
+        }
+
+        // Paso 2: Eliminar definitivamente de la tabla activa
+        db.query("DELETE FROM reservas WHERE id = ?", [id], (err) => {
+            if (err) return res.status(500).send('Error al eliminar');
+            res.send('Eliminado permanentemente y respaldado en SQL');
+        });
+    });
+});
+
+// 6. LOGIN
 app.post('/login', (req, res) => {
     const { usuario, password } = req.body;
     db.query("SELECT * FROM usuarios WHERE usuario = ? AND password = ?", [usuario, password], (err, results) => {
