@@ -1,4 +1,4 @@
-/* --- ESTILOS GENERALES --- */
+/* --- 1. ESTILOS GENERALES Y RESET --- */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #1e1e2e; 
@@ -11,10 +11,9 @@ body {
     align-items: center;
     min-height: 100vh;
     box-sizing: border-box;
-    font-size: 16px;
 }
 
-/* --- HEADER --- */
+/* --- 2. HEADER --- */
 header {
     position: fixed; 
     top: 0; left: 0;
@@ -27,13 +26,11 @@ header {
     align-items: center;
     padding: 0 5%; 
     z-index: 1000; 
-    box-sizing: border-box;
 }
 
 header a, .btn-header {
     background-color: #313244;
     color: #fff !important;
-    border: 1px solid #45475a;
     text-decoration: none !important;
     padding: 8px 18px;
     border-radius: 20px; 
@@ -49,7 +46,7 @@ header a:hover {
     color: #11111b !important;
 }
 
-/* --- CAJAS CENTRALES --- */
+/* --- 3. FORMULARIOS (Corrección Nueva Reserva) --- */
 .caja-central {
     background-color: #ffffff; 
     padding: 2.5rem; 
@@ -59,14 +56,12 @@ header a:hover {
     flex-direction: column;
     align-items: center; 
     width: 90%;
-    max-width: 450px;
+    max-width: 500px; /* Ancho corregido para formularios */
     margin: auto; 
 }
 
 .caja-central h1, .caja-central h2, legend {
     text-align: center !important;
-    align-self: center; 
-    display: block;
     width: 100%;
     color: #313244;
     margin-bottom: 1rem;
@@ -82,11 +77,32 @@ label {
     font-weight: 500;
 }
 
-/* --- TABLA DE RESERVAS Y SOLAPAS --- */
+fieldset {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 1.5rem; 
+    margin-bottom: 1.5rem; 
+    background-color: #fcfcfc; /* Fondo suave para fieldsets */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input, select, textarea {
+    padding: 12px; 
+    width: 100%;   
+    border-radius: 6px;
+    border: 1px solid #ccc; /* Borde más suave para fondo blanco */
+    background-color: #fff; /* Fondo blanco para escritura clara */
+    color: #333; /* Texto oscuro en formularios */
+    margin-bottom: 15px; 
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+/* --- 4. LISTA Y SOLAPAS --- */
 .contenedor-lista {
     width: 95%;
     max-width: 1800px;
-    margin: 0 auto; 
 }
 
 .fila-controles {
@@ -99,7 +115,7 @@ label {
     flex-wrap: wrap;
 }
 
-.btn-filtro, #btnVerBorrados {
+.btn-filtro, #btnTabEliminados {
     background: #313244;
     color: white;
     border: 1px solid #45475a;
@@ -114,6 +130,7 @@ label {
     background-color: #4a90e2 !important; 
     color: white !important;
     border-color: #89b4fa;
+    box-shadow: 0 0 10px rgba(74, 144, 226, 0.4);
 }
 
 .tabla-scroll-container {
@@ -143,40 +160,38 @@ td {
     color: #bac2de; 
 }
 
-/* ACCIONES (Botones uno abajo del otro) */
+/* ACCIONES (Verticales y Cortos) */
 .celda-acciones {
     display: flex;
-    flex-direction: column; 
+    flex-direction: column; /* Apilado solicitado */
     align-items: center;
-    gap: 6px;
-    padding: 5px 0;
+    gap: 8px;
 }
 
 td .btn-azul, td .btn-borrar {
     display: flex !important;
     justify-content: center;
     align-items: center;
-    width: 130px !important; 
-    padding: 6px 10px !important;
-    font-size: 10px !important;
+    width: 130px !important; /* Ancho fijo para uniformidad */
+    padding: 8px 10px !important;
+    font-size: 11px !important;
     margin: 0 !important;
-    border-radius: 4px;
+    border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
     border: none;
     transition: 0.3s;
 }
 
-td .btn-azul[onclick*="Retirado"] {
-    background-color: #2e7d32 !important; 
-    color: white !important;
-}
+/* Botón Verde para Retirado */
+td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; }
 td .btn-azul[onclick*="Retirado"]:hover { background-color: #1b5e20 !important; }
 
+/* Otros colores de tabla */
 td .btn-azul { background-color: #4a90e2 !important; color: white !important; }
 td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
 
-/* --- MODALES / ALERTAS (Botones largos y uniformes) --- */
+/* --- 5. MODALES (Largos y Uniformes) --- */
 .modal-overlay {
     display: none; 
     position: fixed;
@@ -202,51 +217,32 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     align-items: center;
 }
 
-/* Estilo para que todos los botones de alerta sean iguales y largos */
 .modal-caja button {
     display: flex !important;
     justify-content: center;
     align-items: center;
-    width: 100% !important; /* Asegura que ocupe el ancho disponible */
-    max-width: 250px; /* Ancho máximo para que se vean larguitos como en la imagen */
+    width: 100% !important;
+    max-width: 280px; /* Estilo largo solicitado */
     padding: 14px;
     margin: 10px auto 0;
     border-radius: 8px;
     font-weight: bold;
-    cursor: pointer;
     font-size: 1rem;
     border: none;
-    text-transform: uppercase;
+    cursor: pointer;
     transition: 0.3s;
 }
 
-/* Botón principal (Aceptar / Confirmar) */
-#modalAceptar, #btnConfirmarFirma, .btn-confirmar-modal, button[onclick*="confirmar"] { 
-    background-color: #4a90e2 !important; 
-    color: white !important; 
-}
+#modalAceptar, #btnConfirmarFirma { background-color: #4a90e2 !important; color: white !important; }
+#modalCancelar { background-color: #313244 !important; color: #e0e6f8 !important; border: 1px solid #45475a !important; }
 
-#modalAceptar:hover, #btnConfirmarFirma:hover {
-    background-color: #357abd !important;
-}
-
-/* Botón secundario (Cancelar) */
-#modalCancelar, button[onclick*="cerrar"] {
-    background-color: #313244 !important;
-    color: #e0e6f8 !important;
-    border: 1px solid #45475a !important;
-}
-
-#modalCancelar:hover {
-    background-color: #45475a !important;
-}
-
-/* Ocultar cualquier otro botón basura */
-.modal-caja button:not(#modalAceptar):not(#modalCancelar):not(#btnConfirmarFirma):not(.btn-confirmar-modal):not([onclick*="confirmar"]):not([onclick*="cerrar"]) {
+/* Ocultar botones extra */
+.modal-caja button:not(#modalAceptar):not(#modalCancelar):not(#btnConfirmarFirma):not(.btn-confirmar-modal) {
     display: none !important;
 }
 
-/* --- MEDIA QUERIES --- */
+/* --- 6. MEDIA QUERIES --- */
 @media (max-width: 768px) {
     .fila-controles { flex-direction: column; align-items: stretch; }
+    #buscador { width: 100% !important; }
 }
