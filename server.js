@@ -9,12 +9,18 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 1. CONFIGURACIÓN DE NODEMAILER (Gmail)
+// 1. CONFIGURACIÓN DE NODEMAILER (Optimizada para Render/Nube)
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Forzamos el uso de SSL/TLS en puerto 465
     auth: {
         user: 'reserva.conf@gmail.com', 
-        pass: 'ggsowoxpduxbkzf'  
+        pass: 'ggsowoxpduxbkzf' // Contraseña de aplicación sin espacios
+    },
+    tls: {
+        // Esto ayuda a que la conexión no se caiga por certificados en la nube
+        rejectUnauthorized: false 
     }
 });
 
@@ -34,7 +40,8 @@ function enviarAvisoEmail(reserva, tipo) {
             <div style="font-family: sans-serif; border: 1px solid #ddd; padding: 20px; border-radius: 10px;">
                 <h2 style="color: #4a90e2;">¡Hola ${reserva.cliente_nombre}!</h2>
                 <p>Tu reserva ha sido registrada correctamente y ya está <strong>en camino</strong> hacia la sucursal.</p>
-                <p><strong>Producto:</strong> ${reserva.descripcion} <br> <strong>Sucursal de retiro:</strong> ${reserva.sucursal_nombre || reserva.local_destino}</p>
+                <p><strong>Producto:</strong> ${reserva.descripcion} <br> 
+                   <strong>Sucursal de retiro:</strong> ${reserva.sucursal_nombre || reserva.local_destino}</p>
                 <p>Te avisaremos por este medio cuando llegue al local para que puedas retirarlo.</p>
             </div>`;
     } else if (tipo === 'DISPONIBLE') {
@@ -49,15 +56,15 @@ function enviarAvisoEmail(reserva, tipo) {
     }
 
     const mailOptions = {
-        from: '"Sistema de Reservas 🛒" <reserva.conf@gmail.com>', // CORREGIDO AQUÍ
+        from: '"Sistema de Reservas 🛒" <reserva.conf@gmail.com>',
         to: reserva.cliente_email,
         subject: asunto,
         html: mensajeHtml
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
-        if (error) console.error("Error al enviar email:", error);
-        else console.log("Email enviado con éxito a:", reserva.cliente_email);
+        if (error) console.error("❌ Error de Nodemailer:", error);
+        else console.log("✅ Email enviado con éxito a:", reserva.cliente_email);
     });
 }
 
@@ -74,7 +81,7 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
-// --- RUTAS ---
+// --- RUTAS (Se mantienen igual) ---
 
 app.get('/productos/:codigo', (req, res) => {
     const { codigo } = req.params;
