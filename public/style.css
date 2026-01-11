@@ -165,21 +165,19 @@ input, select, textarea {
     flex-wrap: wrap;
 }
 
-/* Estilo para las SOLAPAS (Botones de estado) */
 .btn-filtro, #btnVerBorrados {
     background: #313244;
     color: white;
     border: 1px solid #45475a;
-    padding: 10px 18px; /* Un poco más de aire */
-    border-radius: 8px; /* Bordes más suaves */
+    padding: 10px 18px;
+    border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
     transition: 0.3s;
 }
 
-/* ESTADO ACTIVO: Resalta la solapa seleccionada */
 .btn-filtro.active {
-    background-color: #4a90e2 !important; /* Azul brillante */
+    background-color: #4a90e2 !important; 
     color: white !important;
     border-color: #89b4fa;
     box-shadow: 0 0 10px rgba(74, 144, 226, 0.4);
@@ -190,7 +188,6 @@ input, select, textarea {
     color: #f38ba8;
 }
 
-/* Resaltado para el botón de eliminados cuando está activo */
 #btnVerBorrados.active {
     background-color: #f38ba8 !important;
     color: #1e1e2e !important;
@@ -226,22 +223,29 @@ td {
     font-size: 0.9rem;
 }
 
-/* ACCIONES COMPACTAS */
+/* ACCIONES (Botones uno abajo del otro y prolijos) */
+.celda-acciones {
+    display: flex;
+    flex-direction: column; /* Apila botones verticalmente */
+    align-items: center;
+    gap: 6px;
+    padding: 5px 0;
+}
+
 td:last-child {
     white-space: nowrap;
-    width: 180px; 
+    width: 150px; 
     text-align: center;
 }
 
 td .btn-azul, td .btn-borrar {
-    display: inline-flex !important;
+    display: flex !important;
     justify-content: center;
     align-items: center;
-    width: auto !important;
-    min-width: 110px;
-    padding: 8px 16px !important;
+    width: 130px !important; /* Ancho fijo para uniformidad */
+    padding: 8px 10px !important;
     font-size: 11px !important;
-    margin: 4px !important; 
+    margin: 0 !important; 
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
@@ -249,8 +253,19 @@ td .btn-azul, td .btn-borrar {
     transition: 0.3s;
 }
 
+/* Color VERDE para el botón de Retirado */
+td .btn-azul[onclick*="Retirado"] {
+    background-color: #2e7d32 !important; 
+    color: white !important;
+}
+td .btn-azul[onclick*="Retirado"]:hover { background-color: #1b5e20 !important; }
+
+/* Colores estándar */
 td .btn-azul { background-color: #4a90e2 !important; color: white !important; }
+td .btn-azul:hover { background-color: #357abd !important; }
+
 td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
+td .btn-borrar:hover { background-color: #e64553 !important; color: white !important; }
 
 /* --- MODALES Y ALERTAS --- */
 .modal-overlay {
