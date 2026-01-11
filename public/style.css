@@ -331,8 +331,63 @@ button[onclick*="Cancelar"] {
     display: none !important;
 }
 
-/* --- MEDIA QUERIES --- */
+/* --- MEDIA QUERIES (RESPONSIVIDAD) --- */
+
+/* Celulares y Tablets */
 @media (max-width: 768px) {
-    .fila-controles { flex-direction: column; align-items: stretch; }
-    #buscador { max-width: 100%; }
+    body {
+        padding-top: 85px; /* Menos espacio arriba en móviles */
+    }
+
+    header {
+        height: 60px;
+        padding: 0 15px;
+    }
+
+    header a, .btn-header {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+
+    .caja-central {
+        padding: 1.5rem;
+        width: 95%;
+    }
+
+    .fila-controles {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    #buscador {
+        max-width: 100% !important;
+    }
+
+    .btn-filtro, #btnVerBorrados {
+        width: 100%;
+        text-align: center;
+    }
+    
+    /* Ajuste de alertas en móvil */
+    .modal-caja {
+        padding: 20px !important;
+        width: 95% !important;
+    }
+    
+    .modal-caja button {
+        max-width: 100% !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 480px) {
+    header {
+        justify-content: space-around;
+    }
+    
+    .logo-texto {
+        display: none; /* Ocultamos logo texto si no hay espacio */
+    }
 }
