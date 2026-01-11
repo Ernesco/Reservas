@@ -1,4 +1,4 @@
-/* --- 1. ESTILOS GENERALES Y RESET --- */
+/* --- ESTILOS GENERALES --- */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #1e1e2e; 
@@ -11,9 +11,10 @@ body {
     align-items: center;
     min-height: 100vh;
     box-sizing: border-box;
+    font-size: 16px;
 }
 
-/* --- 2. HEADER --- */
+/* --- HEADER MEJORADO --- */
 header {
     position: fixed; 
     top: 0; left: 0;
@@ -26,11 +27,13 @@ header {
     align-items: center;
     padding: 0 5%; 
     z-index: 1000; 
+    box-sizing: border-box;
 }
 
 header a, .btn-header {
     background-color: #313244;
     color: #fff !important;
+    border: 1px solid #45475a;
     text-decoration: none !important;
     padding: 8px 18px;
     border-radius: 20px; 
@@ -46,7 +49,13 @@ header a:hover {
     color: #11111b !important;
 }
 
-/* --- 3. FORMULARIOS (Corrección Nueva Reserva) --- */
+.logo-texto {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: bold;
+    color: #fff;
+}
+
+/* --- CAJAS CENTRALES --- */
 .caja-central {
     background-color: #ffffff; 
     padding: 2.5rem; 
@@ -56,12 +65,16 @@ header a:hover {
     flex-direction: column;
     align-items: center; 
     width: 90%;
-    max-width: 500px; /* Ancho corregido para formularios */
+    max-width: 450px;
     margin: auto; 
 }
 
-.caja-central h1, .caja-central h2, legend {
+.caja-central h1, 
+.caja-central h2, 
+legend {
     text-align: center !important;
+    align-self: center; 
+    display: block;
     width: 100%;
     color: #313244;
     margin-bottom: 1rem;
@@ -77,12 +90,36 @@ label {
     font-weight: 500;
 }
 
+/* --- BOTONES DEL MENÚ / PANEL --- */
+.contenedor-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+}
+
+.btn-menu {
+    width: 100%;
+    max-width: 320px;
+    padding: 18px;
+    background-color: #313244;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid #45475a;
+    transition: 0.3s;
+}
+
+/* --- FORMULARIOS --- */
 fieldset {
     border: 1px solid #ddd;
     border-radius: 10px;
     padding: 1.5rem; 
     margin-bottom: 1.5rem; 
-    background-color: #fcfcfc; /* Fondo suave para fieldsets */
+    background-color: rgba(0, 0, 0, 0.02);
     width: 100%;
     box-sizing: border-box;
 }
@@ -91,18 +128,31 @@ input, select, textarea {
     padding: 12px; 
     width: 100%;   
     border-radius: 6px;
-    border: 1px solid #ccc; /* Borde más suave para fondo blanco */
-    background-color: #fff; /* Fondo blanco para escritura clara */
-    color: #333; /* Texto oscuro en formularios */
+    border: 1px solid #45475a;
+    background-color: #313244;
+    color: white;
     margin-bottom: 15px; 
     box-sizing: border-box;
     font-size: 1rem;
 }
 
-/* --- 4. LISTA Y SOLAPAS --- */
+.btn-azul, button[type="submit"] {
+    width: 100%;
+    padding: 15px;
+    background-color: #4a90e2; 
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* --- TABLA DE RESERVAS Y SOLAPAS --- */
 .contenedor-lista {
     width: 95%;
     max-width: 1800px;
+    margin: 0 auto; 
 }
 
 .fila-controles {
@@ -115,7 +165,7 @@ input, select, textarea {
     flex-wrap: wrap;
 }
 
-.btn-filtro, #btnTabEliminados {
+.btn-filtro, #btnVerBorrados {
     background: #313244;
     color: white;
     border: 1px solid #45475a;
@@ -133,11 +183,22 @@ input, select, textarea {
     box-shadow: 0 0 10px rgba(74, 144, 226, 0.4);
 }
 
+#btnVerBorrados {
+    border-color: #f38ba8;
+    color: #f38ba8;
+}
+
+#btnVerBorrados.active {
+    background-color: #f38ba8 !important;
+    color: #1e1e2e !important;
+}
+
 .tabla-scroll-container {
     overflow-x: auto;
     border-radius: 12px;
     background-color: #313244;
     padding: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
 table {
@@ -151,6 +212,7 @@ th {
     color: #89b4fa; 
     padding: 15px;
     text-transform: uppercase;
+    font-size: 0.85rem;
 }
 
 td { 
@@ -158,14 +220,22 @@ td {
     text-align: center; 
     border-bottom: 1px solid #45475a;
     color: #bac2de; 
+    font-size: 0.9rem;
 }
 
-/* ACCIONES (Verticales y Cortos) */
+/* ACCIONES (Botones uno abajo del otro y prolijos) */
 .celda-acciones {
     display: flex;
-    flex-direction: column; /* Apilado solicitado */
+    flex-direction: column; /* Apila botones verticalmente */
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    padding: 5px 0;
+}
+
+td:last-child {
+    white-space: nowrap;
+    width: 150px; 
+    text-align: center;
 }
 
 td .btn-azul, td .btn-borrar {
@@ -175,7 +245,7 @@ td .btn-azul, td .btn-borrar {
     width: 130px !important; /* Ancho fijo para uniformidad */
     padding: 8px 10px !important;
     font-size: 11px !important;
-    margin: 0 !important;
+    margin: 0 !important; 
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
@@ -183,15 +253,21 @@ td .btn-azul, td .btn-borrar {
     transition: 0.3s;
 }
 
-/* Botón Verde para Retirado */
-td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; }
+/* Color VERDE para el botón de Retirado */
+td .btn-azul[onclick*="Retirado"] {
+    background-color: #2e7d32 !important; 
+    color: white !important;
+}
 td .btn-azul[onclick*="Retirado"]:hover { background-color: #1b5e20 !important; }
 
-/* Otros colores de tabla */
+/* Colores estándar */
 td .btn-azul { background-color: #4a90e2 !important; color: white !important; }
-td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
+td .btn-azul:hover { background-color: #357abd !important; }
 
-/* --- 5. MODALES (Largos y Uniformes) --- */
+td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
+td .btn-borrar:hover { background-color: #e64553 !important; color: white !important; }
+
+/* --- MODALES Y ALERTAS --- */
 .modal-overlay {
     display: none; 
     position: fixed;
@@ -222,27 +298,33 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     justify-content: center;
     align-items: center;
     width: 100% !important;
-    max-width: 280px; /* Estilo largo solicitado */
+    max-width: 220px;
     padding: 14px;
-    margin: 10px auto 0;
+    margin: 15px auto 0;
     border-radius: 8px;
     font-weight: bold;
+    cursor: pointer;
     font-size: 1rem;
     border: none;
-    cursor: pointer;
-    transition: 0.3s;
 }
 
-#modalAceptar, #btnConfirmarFirma { background-color: #4a90e2 !important; color: white !important; }
-#modalCancelar { background-color: #313244 !important; color: #e0e6f8 !important; border: 1px solid #45475a !important; }
+#modalAceptar { 
+    background-color: #4a90e2 !important; 
+    color: white !important; 
+}
 
-/* Ocultar botones extra */
-.modal-caja button:not(#modalAceptar):not(#modalCancelar):not(#btnConfirmarFirma):not(.btn-confirmar-modal) {
+#modalCancelar {
+    background-color: #313244 !important;
+    color: #e0e6f8 !important;
+    border: 1px solid #45475a !important;
+}
+
+.modal-caja button:not(#modalAceptar):not(#modalCancelar):not(.btn-confirmar-modal):not([onclick*="confirmar"]) {
     display: none !important;
 }
 
-/* --- 6. MEDIA QUERIES --- */
+/* --- MEDIA QUERIES --- */
 @media (max-width: 768px) {
     .fila-controles { flex-direction: column; align-items: stretch; }
-    #buscador { width: 100% !important; }
+    #buscador { max-width: 100%; }
 }
