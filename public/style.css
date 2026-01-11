@@ -14,7 +14,7 @@ body {
     font-size: 16px;
 }
 
-/* --- HEADER (Corregido con estilo para el enlace de Inicio) --- */
+/* --- HEADER MEJORADO --- */
 header {
     position: fixed; 
     top: 0; left: 0;
@@ -30,22 +30,22 @@ header {
     box-sizing: border-box;
 }
 
-/* Estilo para el botón/enlace de INICIO en el header */
+/* Estilo para que el enlace de INICIO parezca un botón real */
 header a, .btn-header {
     background-color: #313244;
     color: #fff !important;
     border: 1px solid #45475a;
-    text-decoration: none; 
-    padding: 8px 20px;
+    text-decoration: none !important; /* Quita el subrayado */
+    padding: 8px 18px;
     border-radius: 20px; 
     font-weight: bold;
-    transition: 0.3s;
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: 0.3s;
 }
 
-header a:hover, .btn-header:hover {
+header a:hover {
     background-color: #89b4fa;
     color: #11111b !important;
 }
