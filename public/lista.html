@@ -31,8 +31,7 @@
         <div class="tabla-scroll-container">
             <table id="tablaReservas">
                 <thead>
-                    <tr id="encabezadoTabla">
-                        </tr>
+                    <tr id="encabezadoTabla"></tr>
                 </thead>
                 <tbody id="tablaCuerpo"></tbody>
             </table>
@@ -46,23 +45,24 @@
         const header = document.getElementById('encabezadoTabla');
         const rol = sessionStorage.getItem('usuario_rol');
         
-        let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th>`;
-        
-        // MOSTRAR ORIGEN SOLO AL ADMIN
-        if (rol === 'admin') {
-            columnas += `<th>Origen</th>`;
+        // ORDEN ESTRICTO PARTE 1: ID hasta Estado
+        let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th><th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
+
+        // ORDEN ESTRICTO PARTE 2: Columnas dinámicas según estado
+        if (estadoActualFiltrado === 'En Tránsito') {
+            columnas += `<th>Pedido a</th><th>Contacto</th>`;
+        } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
+            columnas += `<th>Ingresó al Local</th>`;
+        } else if (estadoActualFiltrado === 'Finalizado') {
+            columnas += `<th>Cerrado por</th>`;
+        } else if (estadoActualFiltrado === 'Eliminados') {
+            columnas += `<th>Recibió</th><th>Finalizó</th>`;
         }
 
-        columnas += `<th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
-
-        if (estadoActualFiltrado === 'En Tránsito') {
-            columnas += `<th>Pedido a</th><th>Contacto</th><th>Operador</th>`;
-        } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
-            columnas += `<th>Ingresó al Local</th><th>Operador Original</th>`;
-        } else if (estadoActualFiltrado === 'Finalizado') {
-            columnas += `<th>Cerrado por</th><th>Operador Original</th>`;
-        } else if (estadoActualFiltrado === 'Eliminados') {
-            columnas += `<th>Recibió</th><th>Finalizó</th><th>Op. Original</th>`;
+        // ORDEN ESTRICTO PARTE 3: Operador y Origen (Juntos)
+        columnas += `<th>Operador</th>`;
+        if (rol === 'admin') {
+            columnas += `<th>Origen</th>`;
         }
         
         columnas += `<th>Acciones</th>`;
@@ -100,31 +100,34 @@
 
                 filtrados.forEach(item => {
                     const fecha = new Date(item.fecha_registro).toLocaleDateString('es-AR');
+                    
+                    // CELDA PARTE 1: Datos fijos (Debe coincidir con Partes 1 del encabezado)
                     let fila = `<tr>
                         <td>#${item.id}</td>
                         <td style="font-size: 0.9em;">${fecha}</td>
-                        <td><strong>${item.cliente_nombre}</strong><br><small>${item.cliente_telefono}</small></td>`;
-                    
-                    // CELDA DE ORIGEN SOLO PARA ADMIN
-                    if (rol === 'admin') {
-                        fila += `<td style="color: #89b4fa; font-weight: bold;">${item.local_origen || 'S/D'}</td>`;
-                    }
-
-                    fila += `<td><small>${item.cliente_email || '---'}</small></td>
+                        <td><strong>${item.cliente_nombre}</strong><br><small>${item.cliente_telefono}</small></td>
+                        <td><small>${item.cliente_email || '---'}</small></td>
                         <td><code>${item.prod_codigo}</code></td>
                         <td style="font-size: 0.85em;">${item.descripcion}</td>
                         <td style="text-align:center">${item.prod_cantidad}</td>
                         <td style="font-weight:bold">$${item.total_reserva}</td>
                         <td><span class="badge">${item.estado}</span></td>`;
 
+                    // CELDA PARTE 2: Datos dinámicos (Debe coincidir con Parte 2 del encabezado)
                     if (estadoActualFiltrado === 'En Tránsito') {
-                        fila += `<td>${item.sucursal_nombre}</td><td>${item.sucursal_contacto}</td><td>${item.operador_nombre}</td>`;
+                        fila += `<td>${item.sucursal_nombre}</td><td>${item.sucursal_contacto}</td>`;
                     } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
-                        fila += `<td>${item.responsable_recibo || '---'}</td><td>${item.operador_nombre}</td>`;
+                        fila += `<td>${item.responsable_recibo || '---'}</td>`;
                     } else if (estadoActualFiltrado === 'Finalizado') {
-                        fila += `<td>${item.responsable_finalizado || '---'}</td><td>${item.operador_nombre}</td>`;
+                        fila += `<td>${item.responsable_finalizado || '---'}</td>`;
                     } else if (estadoActualFiltrado === 'Eliminados') {
-                        fila += `<td>${item.responsable_recibo || '---'}</td><td>${item.responsable_finalizado || '---'}</td><td>${item.operador_nombre}</td>`;
+                        fila += `<td>${item.responsable_recibo || '---'}</td><td>${item.responsable_finalizado || '---'}</td>`;
+                    }
+
+                    // CELDA PARTE 3: Operador y Origen (Debe coincidir con Parte 3 del encabezado)
+                    fila += `<td>${item.operador_nombre}</td>`;
+                    if (rol === 'admin') {
+                        fila += `<td style="color: #89b4fa; font-weight: bold;">${item.local_origen || 'S/D'}</td>`;
                     }
 
                     fila += `<td><div style="display:flex; flex-direction:column; gap:5px;">${getBotonesAccion(item)}</div></td></tr>`;
@@ -205,6 +208,5 @@
 
     document.getElementById('buscador').addEventListener('input', (e) => cargarReservas(e.target.value));
 </script>
-
 </body>
 </html>
