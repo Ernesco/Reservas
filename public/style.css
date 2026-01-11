@@ -11,14 +11,13 @@ body {
     align-items: center;
     min-height: 100vh;
     box-sizing: border-box;
-    font-size: 16px; /* Base para que rem funcione igual en todas las PC */
+    font-size: 16px;
 }
 
-/* --- HEADER (Barra Superior Adaptable) --- */
+/* --- HEADER --- */
 header {
     position: fixed; 
-    top: 0;
-    left: 0;
+    top: 0; left: 0;
     width: 100%;
     height: 70px;
     background-color: #11111b; 
@@ -26,17 +25,16 @@ header {
     display: flex;
     justify-content: space-between; 
     align-items: center;
-    padding: 0 5%; /* Padding elástico */
+    padding: 0 5%; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.5);
     z-index: 1000; 
     box-sizing: border-box;
 }
 
 .logo-texto {
-    font-size: clamp(1.1rem, 2vw, 1.5rem); /* Se achica solo en pantallas chicas */
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
     font-weight: bold;
     color: #fff;
-    letter-spacing: 1px;
 }
 
 .btn-header {
@@ -50,7 +48,7 @@ header {
     transition: 0.3s;
 }
 
-/* --- CAJAS (Login y Formularios) --- */
+/* --- CAJAS CENTRALES (Login / Menú) --- */
 .caja-central {
     background-color: #ffffff; 
     padding: 2.5rem; 
@@ -61,7 +59,7 @@ header {
     align-items: center;
     text-align: center;
     width: 90%;
-    max-width: 450px; /* Tamaño ideal para cualquier monitor */
+    max-width: 450px;
     margin: auto; 
 }
 
@@ -70,7 +68,6 @@ header {
     margin-top: 0;
 }
 
-/* --- BOTONES DEL MENÚ --- */
 .contenedor-menu {
     display: flex;
     flex-direction: column;
@@ -96,11 +93,6 @@ header {
     transition: 0.3s;
 }
 
-.btn-menu:hover {
-    background-color: #89b4fa;
-    color: #1e1e2e;
-}
-
 /* --- FORMULARIOS --- */
 fieldset {
     border: 1px solid #45475a;
@@ -112,19 +104,6 @@ fieldset {
     box-sizing: border-box;
 }
 
-legend {
-    padding: 0 10px;
-    color: #89b4fa;
-    font-weight: bold;
-}
-
-label {
-    margin-bottom: 8px; 
-    display: block;
-    color: #5e616b;
-    text-align: left;
-}
-
 input, select, textarea {
     padding: 12px; 
     width: 100%;   
@@ -134,13 +113,6 @@ input, select, textarea {
     color: white;
     margin-bottom: 15px; 
     box-sizing: border-box;
-    font-size: 1rem;
-}
-
-input[readonly] {
-    background-color: #11111b;
-    color: #89b4fa;
-    cursor: not-allowed;
 }
 
 .btn-azul, button[type="submit"] {
@@ -151,16 +123,14 @@ input[readonly] {
     border: none;
     border-radius: 8px;
     font-weight: bold;
-    font-size: 1rem;
     cursor: pointer;
     transition: 0.3s;
-    margin-top: 10px;
 }
 
-/* --- TABLA (lista.html) --- */
+/* --- TABLA (lista.html) CORREGIDA --- */
 .contenedor-lista {
     width: 95%;
-    max-width: 1600px; /* Evita que se estire demasiado en monitores ultra-wide */
+    max-width: 1600px;
     margin: 0 auto; 
 }
 
@@ -170,37 +140,33 @@ input[readonly] {
     background-color: #313244;
     padding: 10px;
     box-sizing: border-box;
-    width: 100%;
 }
 
 table {
     width: 100%; 
     border-collapse: collapse;
-    min-width: 1000px; /* Se adapta mejor a laptops comunes */
+    min-width: 1100px; 
 }
 
 th, td { 
     padding: 12px 10px; 
     text-align: center; 
     border-bottom: 1px solid #45475a;
-    white-space: normal; /* Permite que el texto baje de renglón si es necesario */
-    word-break: break-word;
     font-size: 0.9rem;
 }
 
-th { 
-    background-color: #45475a; 
-    color: #89b4fa; 
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
+/* ARREGLO DE BOTONES EN TABLA */
 td .btn-azul, td .btn-borrar {
     width: auto !important;
-    min-width: 120px;
+    display: inline-block !important; /* Para que no ocupen todo el ancho de la celda */
+    min-width: 110px;
     padding: 8px 12px !important;
     font-size: 11px !important;
+    margin: 4px;
+    border-radius: 6px;
 }
+
+.btn-borrar { background-color: #f38ba8; color: #1e1e2e; border: none; font-weight: bold; cursor: pointer; }
 
 /* --- FILA DE CONTROLES --- */
 .fila-controles {
@@ -210,34 +176,61 @@ td .btn-azul, td .btn-borrar {
     width: 100%;
     margin-bottom: 20px;
     gap: 15px;
-    flex-wrap: wrap; /* Importante para pantallas chicas */
+    flex-wrap: wrap;
 }
 
-#buscador {
-    margin: 0 !important;
-    flex-grow: 1;
+.btn-filtro {
+    background: #313244;
+    color: white;
+    border: 1px solid #45475a;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.btn-filtro.active { background: #4a90e2; }
+
+/* --- MODALES (OCULTOS POR DEFECTO) --- */
+.modal-overlay {
+    display: none; /* CORRECCIÓN: Ahora se ocultan al cargar */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-caja {
+    background: #1e1e2e;
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid #4a90e2;
+    text-align: center;
     max-width: 400px;
+    width: 90%;
 }
 
-/* --- MEDIA QUERIES PARA ADAPTACIÓN --- */
+.modal-botones {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
 
-/* Ajustes para Laptops (1366px o menos) */
+/* --- MEDIA QUERIES --- */
 @media (max-width: 1366px) {
     body { padding-top: 85px; }
-    header { height: 60px; }
-    th, td { font-size: 0.8rem; padding: 10px 5px; }
-    .caja-central { padding: 1.5rem; max-width: 400px; }
+    th, td { font-size: 0.8rem; }
+    .caja-central { padding: 1.5rem; }
 }
 
-/* Ajustes para Tablets y Celulares (768px o menos) */
 @media (max-width: 768px) {
-    .fila-controles { flex-direction: column; align-items: stretch; }
-    #buscador { max-width: 100%; }
-    header { padding: 0 15px; }
-    .btn-header { padding: 5px 12px; font-size: 0.8rem; }
+    .fila-controles { flex-direction: column; }
+    .btn-header { padding: 5px 10px; font-size: 0.8rem; }
 }
 
-/* Estilo para barra de scroll estética */
+/* Scrollbar estética */
 .tabla-scroll-container::-webkit-scrollbar { height: 8px; }
-.tabla-scroll-container::-webkit-scrollbar-track { background: #1e1e2e; }
 .tabla-scroll-container::-webkit-scrollbar-thumb { background: #4a90e2; border-radius: 10px; }
