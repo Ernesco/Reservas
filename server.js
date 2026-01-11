@@ -51,7 +51,7 @@ async function enviarAvisoEmail(reserva, tipo) {
     try {
         await resend.emails.send({
             // Esto hará que el cliente vea "Reservas MO" como remitente
-            from: 'Reservas MO <onboarding@resend.dev>', 
+            from: 'Reservas MO <reservas.mo@reload.net.ar>', 
             to: reserva.cliente_email,
             subject: asunto,
             html: mensajeHtml,
