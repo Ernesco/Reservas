@@ -2,14 +2,66 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
+const nodemailer = require('nodemailer');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-
 app.use(express.static(path.join(__dirname, 'public')));
 
-// CONFIGURACIÓN PARA LA NUBE
+// 1. CONFIGURACIÓN DE NODEMAILER (Gmail)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'reserva.conf@gmail.com', 
+        pass: 'ggso woxp duxb kzf'  
+    }
+});
+
+// 2. FUNCIÓN AUXILIAR: Enviar Correo
+function enviarAvisoEmail(reserva, tipo) {
+    if (!reserva.cliente_email || reserva.cliente_email === '---' || !reserva.cliente_email.includes('@')) {
+        console.log(`Reserva #${reserva.id}: Sin email válido. Omitiendo envío.`);
+        return;
+    }
+
+    let asunto = "";
+    let mensajeHtml = "";
+
+    if (tipo === 'CONFIRMACION') {
+        asunto = `Confirmación de Reserva #${reserva.id} - En Tránsito`;
+        mensajeHtml = `
+            <div style="font-family: sans-serif; border: 1px solid #ddd; padding: 20px; border-radius: 10px;">
+                <h2 style="color: #4a90e2;">¡Hola ${reserva.cliente_nombre}!</h2>
+                <p>Tu reserva ha sido registrada correctamente y ya está <strong>en camino</strong> hacia la sucursal.</p>
+                <p><strong>Producto:</strong> ${reserva.descripcion} <br> <strong>Sucursal de retiro:</strong> ${reserva.sucursal_nombre || reserva.local_destino}</p>
+                <p>Te avisaremos por este medio cuando llegue al local para que puedas retirarlo.</p>
+            </div>`;
+    } else if (tipo === 'DISPONIBLE') {
+        asunto = `¡Tu pedido ya llegó! Reserva #${reserva.id}`;
+        mensajeHtml = `
+            <div style="font-family: sans-serif; border: 1px solid #a6e3a1; padding: 20px; border-radius: 10px;">
+                <h2 style="color: #2e7d32;">¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
+                <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible en la sucursal <strong>${reserva.sucursal_nombre}</strong>.</p>
+                <p>Puedes pasar a retirarlo en el horario habitual del local.</p>
+                <p>¡Te esperamos!</p>
+            </div>`;
+    }
+
+    const mailOptions = {
+        from: '"Sistema de Reservas 🛒" <reserva.conf@gmail.com>', // CORREGIDO AQUÍ
+        to: reserva.cliente_email,
+        subject: asunto,
+        html: mensajeHtml
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+        if (error) console.error("Error al enviar email:", error);
+        else console.log("Email enviado con éxito a:", reserva.cliente_email);
+    });
+}
+
+// CONFIGURACIÓN PARA LA NUBE (TiDB)
 const db = mysql.createPool({
     host: process.env.MYSQLHOST,
     user: process.env.MYSQLUSER,
@@ -22,16 +74,8 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
-db.getConnection((err, connection) => {
-    if (err) {
-        console.error('❌ Error conectando a TiDB:', err.message);
-        return;
-    }
-    console.log('✅ Conexión exitosa a TiDB Cloud');
-    connection.release();
-});
+// --- RUTAS ---
 
-// --- RUTA: BUSCAR PRODUCTO POR CÓDIGO ---
 app.get('/productos/:codigo', (req, res) => {
     const { codigo } = req.params;
     const sql = "SELECT descripcion, precio_unitario FROM productos WHERE codigo = ?";
@@ -42,42 +86,36 @@ app.get('/productos/:codigo', (req, res) => {
     });
 });
 
-// 1. GUARDAR NUEVA RESERVA
 app.post('/reservar', (req, res) => {
-    const { 
-        cliente_nombre, cliente_telefono, cliente_email,
-        prod_codigo, descripcion, prod_cantidad, total_reserva,
-        local_destino, contacto_sucursal,
-        local_origen, operador_nombre, comentarios 
-    } = req.body;
-    
-    const sql = `
-        INSERT INTO reservas 
+    const data = req.body;
+    const sql = `INSERT INTO reservas 
         (cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva, sucursal_nombre, sucursal_contacto, operador_nombre, comentarios, estado, borrado, local_origen) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'En Tránsito', 0, ?)
-    `;
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'En Tránsito', 0, ?)`;
     
     const valores = [
-        cliente_nombre, cliente_telefono, cliente_email, 
-        prod_codigo, descripcion, prod_cantidad, total_reserva, 
-        local_destino, contacto_sucursal, 
-        operador_nombre, comentarios, local_origen 
+        data.cliente_nombre, data.cliente_telefono, data.cliente_email, 
+        data.prod_codigo, data.descripcion, data.prod_cantidad, data.total_reserva, 
+        data.local_destino, data.contacto_sucursal, 
+        data.operador_nombre, data.comentarios, data.local_origen 
     ];
 
-    db.query(sql, valores, (err) => {
-        if (err) { console.error("Error al guardar:", err); res.status(500).send('Error'); }
-        else res.send('Guardado OK');
+    db.query(sql, valores, (err, result) => {
+        if (err) {
+            console.error("Error al guardar:", err);
+            res.status(500).send('Error');
+        } else {
+            enviarAvisoEmail({ id: result.insertId, ...data, sucursal_nombre: data.local_destino }, 'CONFIRMACION');
+            res.send('Guardado OK');
+        }
     });
 });
 
-// 2. LISTAR RESERVAS (ACTUALIZADO: Búsqueda por LOCAL para Admin)
 app.get('/reservas', (req, res) => {
     const termino = req.query.q || ''; 
     const sucursalUsuario = req.query.sucursal ? req.query.sucursal.trim() : ''; 
     const rol = req.query.rol ? req.query.rol.trim().toLowerCase() : 'local'; 
     const filtroBusqueda = `%${termino}%`;
 
-    // Mejorado: Ahora el buscador también filtra por 'local_origen' para que el Admin encuentre por sucursal
     let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ? OR local_origen LIKE ?)`;
     let parametros = [filtroBusqueda, filtroBusqueda, filtroBusqueda, filtroBusqueda];
 
@@ -98,7 +136,6 @@ app.get('/reservas', (req, res) => {
     });
 });
 
-// 3. ACTUALIZAR ESTADO O RESTAURAR (Con Trazabilidad)
 app.put('/reservas/:id/estado', (req, res) => {
     const id = req.params.id;
     const { estado, borrado, responsable } = req.body;
@@ -125,13 +162,23 @@ app.put('/reservas/:id/estado', (req, res) => {
         const sql = `UPDATE reservas SET estado = ? ${campoResponsable} WHERE id = ?`;
 
         db.query(sql, valores, (err) => {
-            if (err) { console.error(err); res.status(500).send('Error'); }
-            else res.send('OK');
+            if (err) {
+                console.error(err);
+                res.status(500).send('Error');
+            } else {
+                if (estado === 'Pendiente de Retiro') {
+                    db.query("SELECT * FROM reservas WHERE id = ?", [id], (err, results) => {
+                        if (!err && results.length > 0) {
+                            enviarAvisoEmail(results[0], 'DISPONIBLE');
+                        }
+                    });
+                }
+                res.send('OK');
+            }
         });
     }
 });
 
-// 4. BORRADO LÓGICO
 app.delete('/reservas/:id', (req, res) => {
     const id = req.params.id;
     db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [id], (err) => {
@@ -140,24 +187,18 @@ app.delete('/reservas/:id', (req, res) => {
     });
 });
 
-// 5. ELIMINACIÓN DEFINITIVA
 app.delete('/reservas_definitivas/:id', (req, res) => {
     const id = req.params.id;
     const sqlRespaldo = "INSERT INTO borrados_definitivos SELECT * FROM reservas WHERE id = ?";
-    
     db.query(sqlRespaldo, [id], (err) => {
-        if (err) {
-            console.error("Error al respaldar:", err);
-            return res.status(500).send('Error al respaldar reserva');
-        }
+        if (err) return res.status(500).send('Error al respaldar');
         db.query("DELETE FROM reservas WHERE id = ?", [id], (err) => {
             if (err) return res.status(500).send('Error al eliminar');
-            res.send('Eliminado permanentemente y respaldado en SQL');
+            res.send('Eliminado permanentemente');
         });
     });
 });
 
-// 6. LOGIN
 app.post('/login', (req, res) => {
     const { usuario, password } = req.body;
     db.query("SELECT * FROM usuarios WHERE usuario = ? AND password = ?", [usuario, password], (err, results) => {
