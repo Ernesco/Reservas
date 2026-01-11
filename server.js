@@ -9,8 +9,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 1. CONFIGURACIÓN DE RESEND (Segura mediante Variables de Entorno)
-// IMPORTANTE: Debes agregar la variable RESEND_API_KEY en el panel de Render
+// 1. CONFIGURACIÓN DE RESEND (Segura mediante Variables de Envío)
 const resend = new Resend(process.env.RESEND_API_KEY); 
 
 // 2. FUNCIÓN AUXILIAR: Enviar Correo
@@ -22,6 +21,23 @@ async function enviarAvisoEmail(reserva, tipo) {
 
     let asunto = "";
     let mensajeHtml = "";
+    
+    // Pie de página unificado (Footer)
+    const footerHtml = `
+        <br>
+        <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+        <footer style="color: #666666; font-family: sans-serif;">
+            <p style="font-size: 14px; margin: 0; font-weight: bold; color: #333;">
+                Gestión de Reservas MO
+            </p>
+            <p style="font-size: 11px; color: #999999; margin-top: 10px;">
+                Este es un mensaje automático enviado por el sistema de Reservas MO - reload.net.ar
+            </p>
+            <p style="font-size: 10px; color: #bbb; margin-top: 5px;">
+                Por favor, no responda a este correo.
+            </p>
+        </footer>
+    `;
 
     if (tipo === 'CONFIRMACION') {
         asunto = `Confirmación de Reserva #${reserva.id} - En Tránsito`;
@@ -32,8 +48,7 @@ async function enviarAvisoEmail(reserva, tipo) {
                 <p><strong>Producto:</strong> ${reserva.descripcion} <br> 
                 <strong>Sucursal de retiro:</strong> ${reserva.sucursal_nombre || reserva.local_destino}</p>
                 <p>Te avisaremos por este medio cuando llegue al local para que puedas retirarlo.</p>
-                <hr>
-                <p style="font-size: 12px; color: #777;">Este es un mensaje automático de Reservas MO.</p>
+                ${footerHtml}
             </div>`;
     } else if (tipo === 'DISPONIBLE') {
         asunto = `¡Tu pedido ya llegó! Reserva #${reserva.id}`;
@@ -43,15 +58,13 @@ async function enviarAvisoEmail(reserva, tipo) {
                 <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible en la sucursal <strong>${reserva.sucursal_nombre}</strong>.</p>
                 <p>Puedes pasar a retirarlo en el horario habitual del local.</p>
                 <p>¡Te esperamos!</p>
-                <hr>
-                <p style="font-size: 12px; color: #777;">Este es un mensaje automático de Reservas MO.</p>
+                ${footerHtml}
             </div>`;
     }
 
     try {
         await resend.emails.send({
-            // Esto hará que el cliente vea "Reservas MO" como remitente
-            from: 'Reservas Mo <reservas.mo@reload.net.ar>', 
+            from: 'Reservas MO <reservas.mo@reload.net.ar>', 
             to: reserva.cliente_email,
             subject: asunto,
             html: mensajeHtml,
@@ -75,7 +88,7 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
-// --- RUTAS ---
+// --- RUTAS (Se mantienen igual) ---
 
 app.get('/productos/:codigo', (req, res) => {
     const { codigo } = req.params;
