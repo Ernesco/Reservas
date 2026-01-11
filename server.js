@@ -9,18 +9,17 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 1. CONFIGURACIÓN DE NODEMAILER (Optimizada para Render/Nube)
+// CONFIGURACIÓN DE NODEMAILER (Blindada para Render usando puerto 465)
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 465,
-    secure: true, // Forzamos el uso de SSL/TLS en puerto 465
+    secure: true, // true para puerto 465
     auth: {
         user: 'reserva.conf@gmail.com', 
-        pass: 'ggsowoxpduxbkzf' // Contraseña de aplicación sin espacios
+        pass: 'ggsowoxpduxbkzf' // Asegúrate de que NO tenga espacios
     },
     tls: {
-        // Esto ayuda a que la conexión no se caiga por certificados en la nube
-        rejectUnauthorized: false 
+        rejectUnauthorized: false // Evita errores de certificados en entornos de nube
     }
 });
 
