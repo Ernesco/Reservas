@@ -14,7 +14,7 @@ body {
     font-size: 16px;
 }
 
-/* --- HEADER (Modificado solo estilos de botón) --- */
+/* --- HEADER (Corregido con estilo para el enlace de Inicio) --- */
 header {
     position: fixed; 
     top: 0; left: 0;
@@ -30,28 +30,30 @@ header {
     box-sizing: border-box;
 }
 
-.logo-texto {
-    font-size: clamp(1.1rem, 2vw, 1.5rem);
-    font-weight: bold;
-    color: #fff;
-}
-
-.btn-header {
+/* Estilo para el botón/enlace de INICIO en el header */
+header a, .btn-header {
     background-color: #313244;
-    color: #fff;
+    color: #fff !important;
     border: 1px solid #45475a;
     text-decoration: none; 
     padding: 8px 20px;
     border-radius: 20px; 
     font-weight: bold;
-    transition: 0.3s ease; /* Transición suave */
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
-/* Efecto hover agregado para profesionalismo */
-.btn-header:hover {
+header a:hover, .btn-header:hover {
     background-color: #89b4fa;
-    color: #11111b;
-    border-color: #fff;
+    color: #11111b !important;
+}
+
+.logo-texto {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: bold;
+    color: #fff;
 }
 
 /* --- CAJAS CENTRALES (Index, Panel, Formulario) --- */
@@ -89,7 +91,7 @@ label {
     font-weight: 500;
 }
 
-/* --- BOTONES DEL MENÚ / PANEL --- */
+/* --- BOTONES DEL MENÚ / PANEL (Centrados) --- */
 .contenedor-menu {
     display: flex;
     flex-direction: column;
@@ -170,6 +172,22 @@ input, select, textarea {
     gap: 10px;
 }
 
+/* Botón Eliminados - Estilo recuperado */
+.btn-filtro, #btnVerBorrados {
+    background: #313244;
+    color: white;
+    border: 1px solid #45475a;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#btnVerBorrados {
+    border-color: #f38ba8;
+    color: #f38ba8;
+}
+
 .tabla-scroll-container {
     overflow-x: auto;
     border-radius: 12px;
@@ -200,12 +218,13 @@ td {
     font-size: 0.9rem;
 }
 
-/* BOTONES DE LISTA (Modificados solo estilos visuales) */
-td:last-child {
+/* BOTONES DE ACCIÓN (Corregidos con colores y nivelación) */
+td:last-child, .celda-acciones {
     white-space: nowrap;
     width: 250px; 
 }
 
+/* Estilo real para los botones dentro de la tabla */
 td .btn-azul, td .btn-borrar {
     display: inline-flex !important;
     justify-content: center;
@@ -220,28 +239,23 @@ td .btn-azul, td .btn-borrar {
     font-weight: bold;
     cursor: pointer;
     border: none;
-    transition: 0.3s ease;
+    transition: 0.3s;
 }
 
-/* Estilo específico para los botones de acción */
-.btn-azul { 
-    background-color: #4a90e2; 
-    color: white; 
+/* Colores específicos para los botones de la tabla */
+td .btn-azul { 
+    background-color: #4a90e2 !important; 
+    color: white !important; 
 }
-.btn-azul:hover { 
-    background-color: #357abd; 
-}
+td .btn-azul:hover { background-color: #357abd !important; }
 
-.btn-borrar { 
-    background-color: #f38ba8; 
-    color: #1e1e2e; 
+td .btn-borrar { 
+    background-color: #f38ba8 !important; 
+    color: #1e1e2e !important; 
 }
-.btn-borrar:hover { 
-    background-color: #e64553; 
-    color: white;
-}
+td .btn-borrar:hover { background-color: #e64553 !important; color: white !important; }
 
-/* --- MODALES (Ocultos) --- */
+/* --- MODALES --- */
 .modal-overlay {
     display: none; 
     position: fixed;
