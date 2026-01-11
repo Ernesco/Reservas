@@ -43,22 +43,21 @@
             <h3 id="tituloFirma" style="color: #89b4fa;">⚠️ Confirmación</h3>
             <p id="mensajeFirma" style="margin-bottom: 20px;"></p>
             
-            <div id="contenedorInputFirma" style="margin-bottom: 20px;">
+            <div id="contenedorInputFirma" style="margin-bottom: 20px; width: 100%;">
                 <label style="color: #cdd6f4; display: block; margin-bottom: 10px; text-align: left;">Ingrese su nombre para registrar la acción:</label>
                 <input type="text" id="inputNombreResponsable" placeholder="Su nombre aquí..." 
                        style="background: #313244; color: white; border: 1px solid #45475a; padding: 12px; width: 100%; border-radius: 6px; box-sizing: border-box;">
             </div>
 
-            <div class="modal-botones">
-                <button id="btnConfirmarFirma" class="btn-azul">CONFIRMAR</button>
-                <button onclick="cerrarModalFirma()" class="btn-secundario" style="background: #313244; color: #bac2de; border: 1px solid #45475a; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">CANCELAR</button>
+            <div class="modal-botones" style="width: 100%;">
+                <button id="modalAceptar" class="btn-azul">CONFIRMAR</button>
+                <button onclick="cerrarModalFirma()" id="modalCancelar">CANCELAR</button>
             </div>
         </div>
     </div>
 
 <script>
     let estadoActualFiltrado = 'En Tránsito';
-    let datosEstadoTemporal = null;
 
     function actualizarEncabezados() {
         const header = document.getElementById('encabezadoTabla');
@@ -83,8 +82,13 @@
 
     function filtrarEstado(estado) {
         estadoActualFiltrado = estado;
+        // Lógica de resaltado de solapas (tabs)
         document.querySelectorAll('.btn-filtro').forEach(btn => {
-            btn.classList.toggle('active', btn.textContent.trim().includes(estado));
+            if (btn.textContent.trim().includes(estado)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
         });
         actualizarEncabezados();
         cargarReservas(document.getElementById('buscador').value);
@@ -136,7 +140,8 @@
                     fila += `<td>${item.operador_nombre}</td>`;
                     if (rol === 'admin') fila += `<td style="color: #89b4fa; font-weight: bold;">${item.local_origen || 'S/D'}</td>`;
 
-                    fila += `<td><div style="display:flex; flex-direction:column; gap:5px;">${getBotonesAccion(item)}</div></td></tr>`;
+                    // Los botones ahora se generan dentro de un contenedor para que el CSS los controle mejor
+                    fila += `<td><div class="celda-acciones">${getBotonesAccion(item)}</div></td></tr>`;
                     tabla.innerHTML += fila;
                 });
             });
@@ -145,7 +150,7 @@
     function getBotonesAccion(item) {
         if (item.borrado === 1) {
             return `
-                <select onchange="restaurarEspecial(${item.id}, this.value)" style="padding:5px; border-radius:5px; font-size:11px;">
+                <select onchange="restaurarEspecial(${item.id}, this.value)" style="padding:5px; border-radius:5px; font-size:11px; background:#313244; color:white;">
                     <option value="">Restaurar a...</option>
                     <option value="En Tránsito">En Tránsito</option>
                     <option value="Pendiente de Retiro">Pendiente de Retiro</option>
@@ -166,14 +171,14 @@
         return `<button class="btn-borrar" onclick="confirmarBorrarReserva(${item.id})">ELIMINAR</button>`;
     }
 
-    // --- LÓGICA DE MODAL DE FIRMA ---
     function abrirModalFirma(pregunta, requiereInput = true, accionCallback) {
         document.getElementById('mensajeFirma').textContent = pregunta;
         document.getElementById('contenedorInputFirma').style.display = requiereInput ? 'block' : 'none';
         document.getElementById('modalFirma').style.display = 'flex';
+        
         if(requiereInput) document.getElementById('inputNombreResponsable').focus();
         
-        document.getElementById('btnConfirmarFirma').onclick = accionCallback;
+        document.getElementById('modalAceptar').onclick = accionCallback;
     }
 
     function cerrarModalFirma() {
@@ -182,7 +187,6 @@
     }
 
     function cambiarEstadoConFirma(id, nuevoEstado, pregunta) {
-        datosEstadoTemporal = { id, nuevoEstado };
         abrirModalFirma(pregunta, true, () => {
             const responsable = document.getElementById('inputNombreResponsable').value.trim();
             if (responsable === "") {
@@ -224,7 +228,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const rol = sessionStorage.getItem('usuario_rol');
-        if (rol === 'admin') document.getElementById('btnTabEliminados').style.display = 'block';
+        if (rol === 'admin') document.getElementById('btnTabEliminados').style.display = 'inline-block';
         actualizarEncabezados();
         cargarReservas();
     });

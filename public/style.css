@@ -148,7 +148,7 @@ input, select, textarea {
     transition: 0.3s;
 }
 
-/* --- TABLA DE RESERVAS (lista.html) --- */
+/* --- TABLA DE RESERVAS Y SOLAPAS --- */
 .contenedor-lista {
     width: 95%;
     max-width: 1800px;
@@ -165,25 +165,35 @@ input, select, textarea {
     flex-wrap: wrap;
 }
 
-.filtros-estados {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
+/* Estilo para las SOLAPAS (Botones de estado) */
 .btn-filtro, #btnVerBorrados {
     background: #313244;
     color: white;
     border: 1px solid #45475a;
-    padding: 8px 15px;
-    border-radius: 6px;
+    padding: 10px 18px; /* Un poco más de aire */
+    border-radius: 8px; /* Bordes más suaves */
     cursor: pointer;
     font-weight: bold;
+    transition: 0.3s;
+}
+
+/* ESTADO ACTIVO: Resalta la solapa seleccionada */
+.btn-filtro.active {
+    background-color: #4a90e2 !important; /* Azul brillante */
+    color: white !important;
+    border-color: #89b4fa;
+    box-shadow: 0 0 10px rgba(74, 144, 226, 0.4);
 }
 
 #btnVerBorrados {
     border-color: #f38ba8;
     color: #f38ba8;
+}
+
+/* Resaltado para el botón de eliminados cuando está activo */
+#btnVerBorrados.active {
+    background-color: #f38ba8 !important;
+    color: #1e1e2e !important;
 }
 
 .tabla-scroll-container {
@@ -216,19 +226,19 @@ td {
     font-size: 0.9rem;
 }
 
-/* BOTONES DE ACCIÓN MEJORADOS (Cortos y centrados) */
-td:last-child, .celda-acciones {
+/* ACCIONES COMPACTAS */
+td:last-child {
     white-space: nowrap;
     width: 180px; 
     text-align: center;
 }
 
 td .btn-azul, td .btn-borrar {
-    display: inline-flex !important; /* Cambiado para evitar que se estiren */
+    display: inline-flex !important;
     justify-content: center;
     align-items: center;
-    width: auto !important; /* El ancho se adapta al texto */
-    min-width: 110px; /* Tamaño mínimo prolijo */
+    width: auto !important;
+    min-width: 110px;
     padding: 8px 16px !important;
     font-size: 11px !important;
     margin: 4px !important; 
@@ -237,19 +247,10 @@ td .btn-azul, td .btn-borrar {
     cursor: pointer;
     border: none;
     transition: 0.3s;
-    text-align: center;
 }
 
-td .btn-azul { 
-    background-color: #4a90e2 !important; 
-    color: white !important; 
-}
-td .btn-azul:hover { background-color: #357abd !important; }
-
-td .btn-borrar { 
-    background-color: #f38ba8 !important; 
-    color: #1e1e2e !important; 
-}
+td .btn-azul { background-color: #4a90e2 !important; color: white !important; }
+td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
 
 /* --- MODALES Y ALERTAS --- */
 .modal-overlay {
@@ -278,10 +279,13 @@ td .btn-borrar {
 }
 
 .modal-caja button {
-    width: 100%;
-    max-width: 200px; /* Botones de alerta más cortos */
-    padding: 12px;
-    margin-top: 10px;
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    width: 100% !important;
+    max-width: 220px;
+    padding: 14px;
+    margin: 15px auto 0;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
@@ -290,12 +294,17 @@ td .btn-borrar {
 }
 
 #modalAceptar { 
-    background-color: #4a90e2; 
-    color: white; 
+    background-color: #4a90e2 !important; 
+    color: white !important; 
 }
 
-/* Ocultar botones de sistema extra */
-.modal-caja button:not(#modalAceptar):not(#modalCancelar) {
+#modalCancelar {
+    background-color: #313244 !important;
+    color: #e0e6f8 !important;
+    border: 1px solid #45475a !important;
+}
+
+.modal-caja button:not(#modalAceptar):not(#modalCancelar):not(.btn-confirmar-modal):not([onclick*="confirmar"]) {
     display: none !important;
 }
 
