@@ -46,7 +46,7 @@ async function enviarAvisoEmail(reserva, tipo) {
                 <h2 style="color: #4a90e2;">¡Hola ${reserva.cliente_nombre}!</h2>
                 <p>Tu reserva ha sido registrada correctamente y ya está <strong>en camino</strong> hacia la sucursal.</p>
                 <p><strong>Producto:</strong> ${reserva.descripcion} <br> 
-                <strong>Sucursal de retiro:</strong> ${reserva.sucursal_nombre || reserva.local_destino}</p>
+                <strong>Sucursal de retiro:</strong> ${reserva.sucursal_nombre}</p>
                 <p>Te avisaremos por este medio cuando llegue al local para que puedas retirarlo.</p>
                 ${footerHtml}
             </div>`;
@@ -88,7 +88,7 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
-// --- RUTAS (Se mantienen igual) ---
+// --- RUTAS ---
 
 app.get('/productos/:codigo', (req, res) => {
     const { codigo } = req.params;
@@ -118,7 +118,12 @@ app.post('/reservar', (req, res) => {
             console.error("Error al guardar:", err);
             res.status(500).send('Error');
         } else {
-            enviarAvisoEmail({ id: result.insertId, ...data, sucursal_nombre: data.local_destino }, 'CONFIRMACION');
+            // Cambio clave: sucursal_nombre ahora es local_origen para el email
+            enviarAvisoEmail({ 
+                id: result.insertId, 
+                ...data, 
+                sucursal_nombre: data.local_origen 
+            }, 'CONFIRMACION');
             res.send('Guardado OK');
         }
     });
@@ -183,7 +188,10 @@ app.put('/reservas/:id/estado', (req, res) => {
                 if (estado === 'Pendiente de Retiro') {
                     db.query("SELECT * FROM reservas WHERE id = ?", [id], (err, results) => {
                         if (!err && results.length > 0) {
-                            enviarAvisoEmail(results[0], 'DISPONIBLE');
+                            const reserva = results[0];
+                            // Nos aseguramos de usar el origen guardado en DB para el email
+                            reserva.sucursal_nombre = reserva.local_origen;
+                            enviarAvisoEmail(reserva, 'DISPONIBLE');
                         }
                     });
                 }
