@@ -24,11 +24,11 @@
                     <button class="btn-filtro" onclick="filtrarEstado('Finalizado')">Finalizado</button>
                     <button id="btnTabEliminados" class="btn-filtro" onclick="filtrarEstado('Eliminados')" style="display: none; border-color: #f38ba8; color: #f38ba8;">🗑️ Eliminados</button>
                 </div>
-                <input type="text" id="buscador" placeholder="🔍 Buscar cliente o producto..." style="margin: 0; width: 300px;">
+                <input type="text" id="buscador" placeholder="🔍 Buscar cliente, código o local..." style="margin: 0; width: 300px;">
             </div>
         </div>
 
-        <div style="overflow-x: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border-radius: 10px;">
+        <div class="tabla-scroll-container">
             <table id="tablaReservas">
                 <thead>
                     <tr id="encabezadoTabla">
@@ -42,10 +42,18 @@
 <script>
     let estadoActualFiltrado = 'En Tránsito';
 
-    // 1. Configuración de columnas dinámicas según el estado
     function actualizarEncabezados() {
         const header = document.getElementById('encabezadoTabla');
-        let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th><th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
+        const rol = sessionStorage.getItem('usuario_rol');
+        
+        let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th>`;
+        
+        // MOSTRAR ORIGEN SOLO AL ADMIN
+        if (rol === 'admin') {
+            columnas += `<th>Origen</th>`;
+        }
+
+        columnas += `<th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
 
         if (estadoActualFiltrado === 'En Tránsito') {
             columnas += `<th>Pedido a</th><th>Contacto</th><th>Operador</th>`;
@@ -86,7 +94,7 @@
                 });
 
                 if(filtrados.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="20" style="text-align:center; padding: 20px;">No hay registros para mostrar en este estado.</td></tr>`;
+                    tabla.innerHTML = `<tr><td colspan="25" style="text-align:center; padding: 20px;">No hay registros para mostrar.</td></tr>`;
                     return;
                 }
 
@@ -95,15 +103,20 @@
                     let fila = `<tr>
                         <td>#${item.id}</td>
                         <td style="font-size: 0.9em;">${fecha}</td>
-                        <td><strong>${item.cliente_nombre}</strong><br><small>${item.cliente_telefono}</small></td>
-                        <td><small>${item.cliente_email || '---'}</small></td>
+                        <td><strong>${item.cliente_nombre}</strong><br><small>${item.cliente_telefono}</small></td>`;
+                    
+                    // CELDA DE ORIGEN SOLO PARA ADMIN
+                    if (rol === 'admin') {
+                        fila += `<td style="color: #89b4fa; font-weight: bold;">${item.local_origen || 'S/D'}</td>`;
+                    }
+
+                    fila += `<td><small>${item.cliente_email || '---'}</small></td>
                         <td><code>${item.prod_codigo}</code></td>
                         <td style="font-size: 0.85em;">${item.descripcion}</td>
                         <td style="text-align:center">${item.prod_cantidad}</td>
                         <td style="font-weight:bold">$${item.total_reserva}</td>
                         <td><span class="badge">${item.estado}</span></td>`;
 
-                    // Celdas dinámicas según el estado actual
                     if (estadoActualFiltrado === 'En Tránsito') {
                         fila += `<td>${item.sucursal_nombre}</td><td>${item.sucursal_contacto}</td><td>${item.operador_nombre}</td>`;
                     } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
@@ -192,16 +205,6 @@
 
     document.getElementById('buscador').addEventListener('input', (e) => cargarReservas(e.target.value));
 </script>
-
-    <div id="modalError" class="modal-overlay">
-        <div class="modal-caja" style="border-color: #f38ba8;">
-            <h3 style="color: #f38ba8;">❌ Error</h3>
-            <p id="mensajeErrorTexto"></p>
-            <div class="modal-botones">
-                <button onclick="document.getElementById('modalError').style.display='none'" class="btn-azul">Aceptar</button>
-            </div>
-        </div>
-    </div>
 
 </body>
 </html>

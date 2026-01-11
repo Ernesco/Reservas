@@ -70,15 +70,16 @@ app.post('/reservar', (req, res) => {
     });
 });
 
-// 2. LISTAR RESERVAS
+// 2. LISTAR RESERVAS (ACTUALIZADO: Búsqueda por LOCAL para Admin)
 app.get('/reservas', (req, res) => {
     const termino = req.query.q || ''; 
     const sucursalUsuario = req.query.sucursal ? req.query.sucursal.trim() : ''; 
     const rol = req.query.rol ? req.query.rol.trim().toLowerCase() : 'local'; 
     const filtroBusqueda = `%${termino}%`;
 
-    let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ?)`;
-    let parametros = [filtroBusqueda, filtroBusqueda, filtroBusqueda];
+    // Mejorado: Ahora el buscador también filtra por 'local_origen' para que el Admin encuentre por sucursal
+    let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ? OR local_origen LIKE ?)`;
+    let parametros = [filtroBusqueda, filtroBusqueda, filtroBusqueda, filtroBusqueda];
 
     if (rol !== 'admin') {
         sql += " AND local_origen = ? AND borrado = 0";
@@ -103,14 +104,12 @@ app.put('/reservas/:id/estado', (req, res) => {
     const { estado, borrado, responsable } = req.body;
 
     if (borrado !== undefined) {
-        // Lógica para Restaurar: Quita el borrado y permite cambiar el estado simultáneamente
         const sqlRestaurar = "UPDATE reservas SET borrado = ?, estado = ? WHERE id = ?";
         db.query(sqlRestaurar, [borrado, estado, id], (err) => {
             if (err) return res.status(500).send('Error');
             res.send('OK');
         });
     } else {
-        // Lógica de cambio de estado con firma de responsable
         let campoResponsable = "";
         let valores = [estado];
 
@@ -132,7 +131,7 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
-// 4. BORRADO LÓGICO (Papelera)
+// 4. BORRADO LÓGICO
 app.delete('/reservas/:id', (req, res) => {
     const id = req.params.id;
     db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [id], (err) => {
@@ -141,11 +140,9 @@ app.delete('/reservas/:id', (req, res) => {
     });
 });
 
-// 5. ELIMINACIÓN DEFINITIVA (Mueve a tabla borrados_definitivos y elimina de reservas)
+// 5. ELIMINACIÓN DEFINITIVA
 app.delete('/reservas_definitivas/:id', (req, res) => {
     const id = req.params.id;
-
-    // Paso 1: Mover a la tabla de respaldo
     const sqlRespaldo = "INSERT INTO borrados_definitivos SELECT * FROM reservas WHERE id = ?";
     
     db.query(sqlRespaldo, [id], (err) => {
@@ -153,8 +150,6 @@ app.delete('/reservas_definitivas/:id', (req, res) => {
             console.error("Error al respaldar:", err);
             return res.status(500).send('Error al respaldar reserva');
         }
-
-        // Paso 2: Eliminar definitivamente de la tabla activa
         db.query("DELETE FROM reservas WHERE id = ?", [id], (err) => {
             if (err) return res.status(500).send('Error al eliminar');
             res.send('Eliminado permanentemente y respaldado en SQL');
