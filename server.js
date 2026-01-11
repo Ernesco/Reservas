@@ -31,7 +31,7 @@ async function enviarAvisoEmail(reserva, tipo) {
                 Gestión de Reservas MO
             </p>
             <p style="font-size: 11px; color: #999999; margin-top: 10px;">
-                Este es un mensaje automático enviado por el sistema de Reservas MO - reload.net.ar
+                Este es un mensaje automático enviado por el sistema de Reservas Mo - reload.net.ar
             </p>
             <p style="font-size: 10px; color: #bbb; margin-top: 5px;">
                 Por favor, no responda a este correo.
@@ -64,7 +64,7 @@ async function enviarAvisoEmail(reserva, tipo) {
 
     try {
         await resend.emails.send({
-            from: 'Reservas MO <reservas.mo@reload.net.ar>', 
+            from: 'Reservas Mo <reservas.mo@reload.net.ar>', 
             to: reserva.cliente_email,
             subject: asunto,
             html: mensajeHtml,
