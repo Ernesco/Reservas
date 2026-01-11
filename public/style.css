@@ -14,7 +14,7 @@ body {
     font-size: 16px;
 }
 
-/* --- HEADER --- */
+/* --- HEADER (Modificado solo estilos de botón) --- */
 header {
     position: fixed; 
     top: 0; left: 0;
@@ -36,6 +36,24 @@ header {
     color: #fff;
 }
 
+.btn-header {
+    background-color: #313244;
+    color: #fff;
+    border: 1px solid #45475a;
+    text-decoration: none; 
+    padding: 8px 20px;
+    border-radius: 20px; 
+    font-weight: bold;
+    transition: 0.3s ease; /* Transición suave */
+}
+
+/* Efecto hover agregado para profesionalismo */
+.btn-header:hover {
+    background-color: #89b4fa;
+    color: #11111b;
+    border-color: #fff;
+}
+
 /* --- CAJAS CENTRALES (Index, Panel, Formulario) --- */
 .caja-central {
     background-color: #ffffff; 
@@ -44,13 +62,12 @@ header {
     box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra el contenido interno (como botones de panel) */
+    align-items: center; 
     width: 90%;
     max-width: 450px;
     margin: auto; 
 }
 
-/* Títulos y Leyendas CENTRADOS (Index, Formulario y Panel) */
 .caja-central h1, 
 .caja-central h2, 
 legend {
@@ -62,7 +79,6 @@ legend {
     margin-bottom: 1rem;
 }
 
-/* Labels a la IZQUIERDA (Nombre, Teléfono, Email, etc.) */
 label {
     text-align: left !important;
     align-self: flex-start;
@@ -73,7 +89,7 @@ label {
     font-weight: 500;
 }
 
-/* --- BOTONES DEL MENÚ / PANEL (Centrados) --- */
+/* --- BOTONES DEL MENÚ / PANEL --- */
 .contenedor-menu {
     display: flex;
     flex-direction: column;
@@ -138,11 +154,10 @@ input, select, textarea {
     margin: 0 auto; 
 }
 
-/* FILA DE CONTROLES: Nivelación de Eliminados, Filtros y Buscador */
 .fila-controles {
     display: flex;
     justify-content: space-between;
-    align-items: center; /* Alinea todos los elementos al mismo nivel horizontal */
+    align-items: center; 
     width: 100%;
     margin-bottom: 20px;
     gap: 15px;
@@ -185,10 +200,10 @@ td {
     font-size: 0.9rem;
 }
 
-/* BOTONES AL MISMO NIVEL (Sin saltos de línea) */
+/* BOTONES DE LISTA (Modificados solo estilos visuales) */
 td:last-child {
     white-space: nowrap;
-    width: 250px; /* Asegura espacio suficiente para los botones */
+    width: 250px; 
 }
 
 td .btn-azul, td .btn-borrar {
@@ -199,12 +214,32 @@ td .btn-azul, td .btn-borrar {
     min-width: 110px;
     padding: 8px 12px !important;
     font-size: 11px !important;
-    margin: 0 5px !important; /* Margen horizontal para nivelar */
+    margin: 0 5px !important; 
     border-radius: 6px;
     vertical-align: middle;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    transition: 0.3s ease;
 }
 
-.btn-borrar { background-color: #f38ba8; color: #1e1e2e; font-weight: bold; border: none; }
+/* Estilo específico para los botones de acción */
+.btn-azul { 
+    background-color: #4a90e2; 
+    color: white; 
+}
+.btn-azul:hover { 
+    background-color: #357abd; 
+}
+
+.btn-borrar { 
+    background-color: #f38ba8; 
+    color: #1e1e2e; 
+}
+.btn-borrar:hover { 
+    background-color: #e64553; 
+    color: white;
+}
 
 /* --- MODALES (Ocultos) --- */
 .modal-overlay {
