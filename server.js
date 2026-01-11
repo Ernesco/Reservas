@@ -2,29 +2,18 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
-const nodemailer = require('nodemailer');
+const { Resend } = require('resend'); // 1. Cambiamos nodemailer por Resend
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// CONFIGURACIÓN DE NODEMAILER (Blindada para Render usando puerto 465)
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // true para puerto 465
-    auth: {
-        user: 'reserva.conf@gmail.com', 
-        pass: 'ggsowoxpduxbkzf' // Asegúrate de que NO tenga espacios
-    },
-    tls: {
-        rejectUnauthorized: false // Evita errores de certificados en entornos de nube
-    }
-});
+// 2. CONFIGURACIÓN DE RESEND (API vía Puerto 443 - No se bloquea en Render)
+const resend = new Resend('re_VgUtq2Q5_4nnwxWbX4kQ7mvGBxpEGPFuY'); 
 
-// 2. FUNCIÓN AUXILIAR: Enviar Correo
-function enviarAvisoEmail(reserva, tipo) {
+// 3. FUNCIÓN AUXILIAR: Enviar Correo corregida para Resend
+async function enviarAvisoEmail(reserva, tipo) {
     if (!reserva.cliente_email || reserva.cliente_email === '---' || !reserva.cliente_email.includes('@')) {
         console.log(`Reserva #${reserva.id}: Sin email válido. Omitiendo envío.`);
         return;
@@ -40,7 +29,7 @@ function enviarAvisoEmail(reserva, tipo) {
                 <h2 style="color: #4a90e2;">¡Hola ${reserva.cliente_nombre}!</h2>
                 <p>Tu reserva ha sido registrada correctamente y ya está <strong>en camino</strong> hacia la sucursal.</p>
                 <p><strong>Producto:</strong> ${reserva.descripcion} <br> 
-                   <strong>Sucursal de retiro:</strong> ${reserva.sucursal_nombre || reserva.local_destino}</p>
+                <strong>Sucursal de retiro:</strong> ${reserva.sucursal_nombre || reserva.local_destino}</p>
                 <p>Te avisaremos por este medio cuando llegue al local para que puedas retirarlo.</p>
             </div>`;
     } else if (tipo === 'DISPONIBLE') {
@@ -54,17 +43,17 @@ function enviarAvisoEmail(reserva, tipo) {
             </div>`;
     }
 
-    const mailOptions = {
-        from: '"Sistema de Reservas 🛒" <reserva.conf@gmail.com>',
-        to: reserva.cliente_email,
-        subject: asunto,
-        html: mensajeHtml
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) console.error("❌ Error de Nodemailer:", error);
-        else console.log("✅ Email enviado con éxito a:", reserva.cliente_email);
-    });
+    try {
+        await resend.emails.send({
+            from: 'Sistema de Reservas <onboarding@resend.dev>', // Deja este remitente para pruebas
+            to: reserva.cliente_email,
+            subject: asunto,
+            html: mensajeHtml,
+        });
+        console.log("✅ Email enviado vía API Resend a:", reserva.cliente_email);
+    } catch (error) {
+        console.error("❌ Error al enviar vía Resend:", error);
+    }
 }
 
 // CONFIGURACIÓN PARA LA NUBE (TiDB)

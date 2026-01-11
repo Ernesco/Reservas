@@ -16,7 +16,8 @@
     "electron-squirrel-startup": "^1.0.1",
     "express": "^5.2.1",
     "mysql2": "^3.16.0",
-    "nodemailer": "^7.0.12"
+    "nodemailer": "^7.0.12",
+    "resend": "^6.7.0"
   },
   "devDependencies": {
     "@electron-forge/cli": "^7.10.2",
