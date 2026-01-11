@@ -2,7 +2,7 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #1e1e2e; 
-    color: #e0e6f8; /* Texto de base más claro */
+    color: #e0e6f8; 
     margin: 0;
     padding-top: 100px; 
     padding-bottom: 40px;
@@ -36,18 +36,7 @@ header {
     color: #fff;
 }
 
-.btn-header {
-    background-color: #313244;
-    color: #fff;
-    border: 1px solid #45475a;
-    text-decoration: none; 
-    padding: 8px 20px;
-    border-radius: 20px; 
-    font-weight: bold;
-    transition: 0.3s;
-}
-
-/* --- FORMULARIOS (Labels y Títulos a la izquierda) --- */
+/* --- CAJAS CENTRALES (Index, Panel, Formulario) --- */
 .caja-central {
     background-color: #ffffff; 
     padding: 2.5rem; 
@@ -55,21 +44,59 @@ header {
     box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: center; /* Centra el contenido interno (como botones de panel) */
     width: 90%;
     max-width: 450px;
     margin: auto; 
 }
 
-/* Forzar alineación a la izquierda para labels y leyendas */
-label, legend, .caja-central h1, .caja-central h2 {
-    text-align: left !important;
-    align-self: flex-start; /* Asegura que en el contenedor flex se peguen a la izquierda */
+/* Títulos y Leyendas CENTRADOS (Index, Formulario y Panel) */
+.caja-central h1, 
+.caja-central h2, 
+legend {
+    text-align: center !important;
+    align-self: center; 
     display: block;
     width: 100%;
     color: #313244;
+    margin-bottom: 1rem;
 }
 
+/* Labels a la IZQUIERDA (Nombre, Teléfono, Email, etc.) */
+label {
+    text-align: left !important;
+    align-self: flex-start;
+    display: block;
+    width: 100%;
+    color: #5e616b;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+/* --- BOTONES DEL MENÚ / PANEL (Centrados) --- */
+.contenedor-menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 15px;
+}
+
+.btn-menu {
+    width: 100%;
+    max-width: 320px;
+    padding: 18px;
+    background-color: #313244;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid #45475a;
+    transition: 0.3s;
+}
+
+/* --- FORMULARIOS --- */
 fieldset {
     border: 1px solid #ddd;
     border-radius: 10px;
@@ -78,12 +105,6 @@ fieldset {
     background-color: rgba(0, 0, 0, 0.02);
     width: 100%;
     box-sizing: border-box;
-}
-
-legend {
-    padding: 0 10px;
-    color: #4a90e2 !important;
-    font-weight: bold;
 }
 
 input, select, textarea {
@@ -117,6 +138,23 @@ input, select, textarea {
     margin: 0 auto; 
 }
 
+/* FILA DE CONTROLES: Nivelación de Eliminados, Filtros y Buscador */
+.fila-controles {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Alinea todos los elementos al mismo nivel horizontal */
+    width: 100%;
+    margin-bottom: 20px;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filtros-estados {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .tabla-scroll-container {
     overflow-x: auto;
     border-radius: 12px;
@@ -139,57 +177,38 @@ th {
     font-size: 0.85rem;
 }
 
-/* Color de texto de cada reserva más claro */
 td { 
     padding: 12px 10px; 
     text-align: center; 
     border-bottom: 1px solid #45475a;
-    color: #bac2de; /* Gris azulado claro para mejor lectura */
+    color: #bac2de; 
     font-size: 0.9rem;
 }
 
-/* BOTONES AL MISMO NIVEL */
-.celda-acciones {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px; /* Espacio entre botones */
+/* BOTONES AL MISMO NIVEL (Sin saltos de línea) */
+td:last-child {
     white-space: nowrap;
+    width: 250px; /* Asegura espacio suficiente para los botones */
 }
 
 td .btn-azul, td .btn-borrar {
+    display: inline-flex !important;
+    justify-content: center;
+    align-items: center;
     width: auto !important;
     min-width: 110px;
     padding: 8px 12px !important;
     font-size: 11px !important;
-    margin: 0 !important;
-    display: inline-flex;
-    justify-content: center;
+    margin: 0 5px !important; /* Margen horizontal para nivelar */
     border-radius: 6px;
+    vertical-align: middle;
 }
 
 .btn-borrar { background-color: #f38ba8; color: #1e1e2e; font-weight: bold; border: none; }
 
-/* --- FILA DE CONTROLES --- */
-.fila-controles {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    margin-bottom: 20px;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-#buscador {
-    margin: 0 !important;
-    flex-grow: 1;
-    max-width: 400px;
-}
-
-/* --- MODALES (OCULTOS POR DEFECTO) --- */
+/* --- MODALES (Ocultos) --- */
 .modal-overlay {
-    display: none; /* Asegura que no se vean al entrar */
+    display: none; 
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
@@ -199,26 +218,8 @@ td .btn-azul, td .btn-borrar {
     align-items: center;
 }
 
-.modal-caja {
-    background: #1e1e2e;
-    padding: 30px;
-    border-radius: 15px;
-    border: 1px solid #4a90e2;
-    max-width: 400px;
-    width: 90%;
-}
-
 /* --- MEDIA QUERIES --- */
-@media (max-width: 1366px) {
-    body { padding-top: 85px; }
-    th, td { font-size: 0.8rem; }
-    .caja-central { padding: 1.5rem; }
-}
-
 @media (max-width: 768px) {
     .fila-controles { flex-direction: column; align-items: stretch; }
+    #buscador { max-width: 100%; }
 }
-
-/* Scrollbar estética */
-.tabla-scroll-container::-webkit-scrollbar { height: 8px; }
-.tabla-scroll-container::-webkit-scrollbar-thumb { background: #4a90e2; border-radius: 10px; }
