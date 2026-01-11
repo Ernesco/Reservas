@@ -223,10 +223,10 @@ td {
     font-size: 0.9rem;
 }
 
-/* ACCIONES (Botones uno abajo del otro y prolijos) */
+/* ACCIONES COMPACTAS VERTICALES */
 .celda-acciones {
     display: flex;
-    flex-direction: column; /* Apila botones verticalmente */
+    flex-direction: column;
     align-items: center;
     gap: 6px;
     padding: 5px 0;
@@ -242,7 +242,7 @@ td .btn-azul, td .btn-borrar {
     display: flex !important;
     justify-content: center;
     align-items: center;
-    width: 130px !important; /* Ancho fijo para uniformidad */
+    width: 130px !important;
     padding: 8px 10px !important;
     font-size: 11px !important;
     margin: 0 !important; 
@@ -253,21 +253,11 @@ td .btn-azul, td .btn-borrar {
     transition: 0.3s;
 }
 
-/* Color VERDE para el botón de Retirado */
-td .btn-azul[onclick*="Retirado"] {
-    background-color: #2e7d32 !important; 
-    color: white !important;
-}
-td .btn-azul[onclick*="Retirado"]:hover { background-color: #1b5e20 !important; }
-
-/* Colores estándar */
+td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; color: white !important; }
 td .btn-azul { background-color: #4a90e2 !important; color: white !important; }
-td .btn-azul:hover { background-color: #357abd !important; }
-
 td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
-td .btn-borrar:hover { background-color: #e64553 !important; color: white !important; }
 
-/* --- MODALES Y ALERTAS --- */
+/* --- MODALES Y ALERTAS (OPTIMIZADO) --- */
 .modal-overlay {
     display: none; 
     position: fixed;
@@ -293,33 +283,44 @@ td .btn-borrar:hover { background-color: #e64553 !important; color: white !impor
     align-items: center;
 }
 
+/* Estilo uniforme para botones de alerta: Largos y centrados */
 .modal-caja button {
     display: flex !important;
     justify-content: center;
     align-items: center;
     width: 100% !important;
-    max-width: 220px;
+    max-width: 280px; /* Ancho alargado profesional */
     padding: 14px;
-    margin: 15px auto 0;
+    margin: 10px auto 0;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
     font-size: 1rem;
     border: none;
+    text-transform: uppercase;
+    transition: 0.3s;
 }
 
-#modalAceptar { 
+/* Estilo azul para confirmar */
+#modalAceptar, 
+#btnConfirmarFirma, 
+.btn-confirmar-modal, 
+button[onclick*="confirmar"] { 
     background-color: #4a90e2 !important; 
     color: white !important; 
 }
 
-#modalCancelar {
+/* Estilo oscuro para cancelar */
+#modalCancelar, 
+button[onclick*="cerrar"],
+button[onclick*="cerrarModalFirma"] {
     background-color: #313244 !important;
     color: #e0e6f8 !important;
     border: 1px solid #45475a !important;
 }
 
-.modal-caja button:not(#modalAceptar):not(#modalCancelar):not(.btn-confirmar-modal):not([onclick*="confirmar"]) {
+/* Limpieza de botones de sistema intrusos */
+.modal-caja button:not(#modalAceptar):not(#modalCancelar):not(#btnConfirmarFirma):not(.btn-confirmar-modal):not([onclick*="confirmar"]):not([onclick*="cerrar"]):not([onclick*="cerrarModalFirma"]) {
     display: none !important;
 }
 
