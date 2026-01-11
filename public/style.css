@@ -261,10 +261,10 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
 .modal-overlay {
     display: none; 
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important; height: 100% !important;
     background: rgba(0, 0, 0, 0.85) !important;
-    z-index: 9999 !important; /* Prioridad máxima */
+    z-index: 9999 !important; /* Prioridad máxima para que no quede bajo el formulario */
     justify-content: center;
     align-items: center;
 }
@@ -274,7 +274,7 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     padding: 35px !important;
     border-radius: 20px !important;
     border: 1px solid #4a90e2 !important;
-    text-align: center;
+    text-align: center !important;
     max-width: 450px !important;
     width: 90% !important;
     color: #fff !important;
@@ -283,15 +283,15 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     align-items: center !important;
 }
 
-/* Estilo de botones largos y uniformes para TODAS las alertas */
+/* Forzar botones largos y uniformes en TODAS las alertas de todas las páginas */
 .modal-caja button {
-    display: flex !important; /* Garantiza visibilidad en errores y éxitos */
+    display: flex !important; /* Fuerza visibilidad en errores y éxitos */
     justify-content: center !important;
     align-items: center !important;
     width: 100% !important;
-    max-width: 320px !important; /* Ancho alargado profesional */
+    max-width: 320px !important; /* Ancho alargado profesional solicitado */
     height: 50px !important;
-    margin: 12px auto 0 !important;
+    margin: 15px auto 0 !important;
     border-radius: 12px !important;
     font-weight: bold !important;
     cursor: pointer !important;
@@ -301,18 +301,18 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     transition: 0.3s !important;
 }
 
-/* Botón principal (Aceptar, Confirmar, OK) */
+/* Estilo azul para confirmar y para los botones de "OK" de error */
 #modalAceptar, 
 #btnConfirmarFirma, 
 .btn-confirmar-modal, 
 button[onclick*="confirmar"],
-button[onclick*="Aceptar"],
-button[onclick*="cerrar"] { 
+button[onclick*="cerrar"],
+button[onclick*="Aceptar"] { 
     background-color: #4a90e2 !important; 
     color: white !important; 
 }
 
-/* Botón secundario (Cancelar o Cerrar Secundario) */
+/* Estilo oscuro para cancelar */
 #modalCancelar, 
 button[onclick*="cerrarModalFirma"],
 button[onclick*="Cancelar"] {
@@ -321,8 +321,8 @@ button[onclick*="Cancelar"] {
     border: 1px solid #45475a !important;
 }
 
-/* Limpieza de botones extra y solución para el error de cierre */
-.modal-caja button:not(#modalAceptar):not(#modalCancelar):not(#btnConfirmarFirma):not(.btn-confirmar-modal):not([onclick*="confirmar"]):not([onclick*="cerrar"]):not([onclick*="cerrarModalFirma"]):not([onclick*="Aceptar"]) {
+/* Limpieza de botones extra y solución para el error de cierre en formulario.html */
+.modal-caja button:not(#modalAceptar):not(#modalCancelar):not(#btnConfirmarFirma):not(.btn-confirmar-modal):not([onclick*="confirmar"]):not([onclick*="cerrar"]):not([onclick*="cerrarModalFirma"]):not([onclick*="Aceptar"]):not([onclick*="Cancelar"]) {
     display: none !important;
 }
 
