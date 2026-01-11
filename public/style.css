@@ -141,53 +141,69 @@ input[readonly] {
     cursor: not-allowed;
 }
 
-/* --- TABLA (lista.html) - VERSIÓN CORREGIDA --- */
+/* Ajuste: Botón de Login (Index) y Formularios ahora ocupan el 100% y son grandes */
+.btn-azul, button[type="submit"] {
+    width: 100% !important;
+    max-width: 100%;
+    padding: 15px;
+    background-color: #4a90e2; 
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 10px;
+}
+
+/* --- TABLA (lista.html) - VERSIÓN ULTRA-WIDE --- */
 .contenedor-lista {
-    width: 95%;
-    max-width: 1400px; 
+    width: 98%;
+    max-width: 1800px; 
     margin: 0 auto; 
     display: flex;
     flex-direction: column;
 }
 
-/* Contenedor con scroll horizontal */
 .contenedor-lista > div {
     overflow-x: auto;
-    border-radius: 10px;
+    border-radius: 12px;
     background-color: #313244;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    padding: 15px; /* Espacio para que el botón no pegue al borde */
+    box-sizing: border-box;
 }
 
 table {
     width: 100%; 
     border-collapse: collapse;
-    min-width: 1200px; /* Asegura que la tabla no se aplaste */
+    min-width: 1500px; /* Ancho forzado para evitar amontonamiento */
 }
 
 th, td { 
-    padding: 15px; 
-    text-align: center; /* Centrado de datos */
+    padding: 15px 20px; 
+    text-align: center; 
     border-bottom: 1px solid #45475a;
-    white-space: nowrap; /* Evita saltos de línea */
+    white-space: nowrap; /* Prohíbe el salto de línea */
     vertical-align: middle;
 }
 
 th { 
     background-color: #45475a; 
     color: #89b4fa; 
-    font-size: 0.95rem;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-/* Botones dentro de la tabla */
-.btn-azul, .btn-borrar {
+/* Botones específicos dentro de la tabla */
+td .btn-azul, td .btn-borrar {
     width: auto !important;
-    padding: 8px 15px !important;
-    font-size: 11px;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-    transition: 0.3s;
+    min-width: 130px;
+    padding: 10px 15px !important;
+    font-size: 11px !important;
+    margin: 0 auto;
 }
 
 .btn-azul { background-color: #4a90e2; color: white; }
@@ -217,6 +233,7 @@ th {
     padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
+    font-weight: bold;
 }
 
 .btn-filtro.active { background: #4a90e2; }
@@ -226,13 +243,13 @@ th {
     min-width: 250px;
 }
 
-/* --- MODALES --- */
+/* --- MODALES (Alertas) --- */
 .modal-overlay {
     display: none;
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.85);
     z-index: 2000;
     justify-content: center;
     align-items: center;
@@ -240,45 +257,47 @@ th {
 
 .modal-caja {
     background: #1e1e2e;
-    padding: 30px;
+    padding: 35px;
     border-radius: 15px;
     border: 1px solid #4a90e2;
     text-align: center;
-    max-width: 400px;
+    max-width: 450px;
     width: 90%;
 }
 
 .modal-botones {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    align-items: center;
-    margin-top: 20px;
+    gap: 15px;
+    margin-top: 25px;
+    width: 100%;
 }
 
-#modalAceptar, #modalCancelar {
-    width: 100%;
-    max-width: 280px;
-    padding: 12px;
+/* Ajuste: Botones de alerta ahora son grandes y ocupan el ancho */
+#modalAceptar, #modalCancelar, #modalBorrar button {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 14px;
     border-radius: 8px;
     font-weight: bold;
+    font-size: 1rem;
     cursor: pointer;
-    transition: 0.3s;
     border: none;
+    transition: 0.3s;
 }
 
 #modalAceptar { background-color: #4a90e2; color: white; }
 #modalCancelar { background-color: #313244; color: #bac2de; border: 1px solid #45475a; }
 #modalCancelar:hover { background-color: #f38ba8; color: white; }
 
-/* Color rojo para asteriscos obligatorios */
+/* --- OTROS --- */
 .requerido {
     color: #ff4d4d;
     font-weight: bold;
     margin-left: 2px;
 }
 
-/* Estilo para barra de scroll */
-.contenedor-lista > div::-webkit-scrollbar { height: 8px; }
+/* Estilo para barra de scroll estética */
+.contenedor-lista > div::-webkit-scrollbar { height: 10px; }
 .contenedor-lista > div::-webkit-scrollbar-track { background: #1e1e2e; }
 .contenedor-lista > div::-webkit-scrollbar-thumb { background: #4a90e2; border-radius: 10px; }
