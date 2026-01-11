@@ -38,17 +38,33 @@
         </div>
     </div>
 
+    <div id="modalFirma" class="modal-overlay">
+        <div class="modal-caja">
+            <h3 id="tituloFirma" style="color: #89b4fa;">⚠️ Confirmación</h3>
+            <p id="mensajeFirma" style="margin-bottom: 20px;"></p>
+            
+            <div id="contenedorInputFirma" style="margin-bottom: 20px;">
+                <label style="color: #cdd6f4; display: block; margin-bottom: 10px; text-align: left;">Ingrese su nombre para registrar la acción:</label>
+                <input type="text" id="inputNombreResponsable" placeholder="Su nombre aquí..." 
+                       style="background: #313244; color: white; border: 1px solid #45475a; padding: 12px; width: 100%; border-radius: 6px; box-sizing: border-box;">
+            </div>
+
+            <div class="modal-botones">
+                <button id="btnConfirmarFirma" class="btn-azul">CONFIRMAR</button>
+                <button onclick="cerrarModalFirma()" class="btn-secundario" style="background: #313244; color: #bac2de; border: 1px solid #45475a; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold;">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
 <script>
     let estadoActualFiltrado = 'En Tránsito';
+    let datosEstadoTemporal = null;
 
     function actualizarEncabezados() {
         const header = document.getElementById('encabezadoTabla');
         const rol = sessionStorage.getItem('usuario_rol');
-        
-        // ORDEN ESTRICTO PARTE 1: ID hasta Estado
         let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th><th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
 
-        // ORDEN ESTRICTO PARTE 2: Columnas dinámicas según estado
         if (estadoActualFiltrado === 'En Tránsito') {
             columnas += `<th>Pedido a</th><th>Contacto</th>`;
         } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
@@ -59,12 +75,8 @@
             columnas += `<th>Recibió</th><th>Finalizó</th>`;
         }
 
-        // ORDEN ESTRICTO PARTE 3: Operador y Origen (Juntos)
         columnas += `<th>Operador</th>`;
-        if (rol === 'admin') {
-            columnas += `<th>Origen</th>`;
-        }
-        
+        if (rol === 'admin') columnas += `<th>Origen</th>`;
         columnas += `<th>Acciones</th>`;
         header.innerHTML = columnas;
     }
@@ -100,8 +112,6 @@
 
                 filtrados.forEach(item => {
                     const fecha = new Date(item.fecha_registro).toLocaleDateString('es-AR');
-                    
-                    // CELDA PARTE 1: Datos fijos (Debe coincidir con Partes 1 del encabezado)
                     let fila = `<tr>
                         <td>#${item.id}</td>
                         <td style="font-size: 0.9em;">${fecha}</td>
@@ -113,7 +123,6 @@
                         <td style="font-weight:bold">$${item.total_reserva}</td>
                         <td><span class="badge">${item.estado}</span></td>`;
 
-                    // CELDA PARTE 2: Datos dinámicos (Debe coincidir con Parte 2 del encabezado)
                     if (estadoActualFiltrado === 'En Tránsito') {
                         fila += `<td>${item.sucursal_nombre}</td><td>${item.sucursal_contacto}</td>`;
                     } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
@@ -124,11 +133,8 @@
                         fila += `<td>${item.responsable_recibo || '---'}</td><td>${item.responsable_finalizado || '---'}</td>`;
                     }
 
-                    // CELDA PARTE 3: Operador y Origen (Debe coincidir con Parte 3 del encabezado)
                     fila += `<td>${item.operador_nombre}</td>`;
-                    if (rol === 'admin') {
-                        fila += `<td style="color: #89b4fa; font-weight: bold;">${item.local_origen || 'S/D'}</td>`;
-                    }
+                    if (rol === 'admin') fila += `<td style="color: #89b4fa; font-weight: bold;">${item.local_origen || 'S/D'}</td>`;
 
                     fila += `<td><div style="display:flex; flex-direction:column; gap:5px;">${getBotonesAccion(item)}</div></td></tr>`;
                     tabla.innerHTML += fila;
@@ -145,7 +151,7 @@
                     <option value="Pendiente de Retiro">Pendiente de Retiro</option>
                     <option value="Finalizado">Finalizado</option>
                 </select>
-                <button class="btn-borrar" onclick="eliminarDefinitivo(${item.id})">ELIMINAR DEF.</button>
+                <button class="btn-borrar" onclick="confirmarEliminarDefinitivo(${item.id})">ELIMINAR DEF.</button>
             `;
         }
         if (item.estado === 'En Tránsito') {
@@ -157,46 +163,63 @@
                 <button class="btn-borrar" onclick="cambiarEstadoConFirma(${item.id}, 'Cancelado', '¿Desea cancelar esta reserva?')">CANCELAR</button>
             `;
         }
-        return `<button class="btn-borrar" onclick="borrarReserva(${item.id})">ELIMINAR</button>`;
+        return `<button class="btn-borrar" onclick="confirmarBorrarReserva(${item.id})">ELIMINAR</button>`;
+    }
+
+    // --- LÓGICA DE MODAL DE FIRMA ---
+    function abrirModalFirma(pregunta, requiereInput = true, accionCallback) {
+        document.getElementById('mensajeFirma').textContent = pregunta;
+        document.getElementById('contenedorInputFirma').style.display = requiereInput ? 'block' : 'none';
+        document.getElementById('modalFirma').style.display = 'flex';
+        if(requiereInput) document.getElementById('inputNombreResponsable').focus();
+        
+        document.getElementById('btnConfirmarFirma').onclick = accionCallback;
+    }
+
+    function cerrarModalFirma() {
+        document.getElementById('modalFirma').style.display = 'none';
+        document.getElementById('inputNombreResponsable').value = '';
     }
 
     function cambiarEstadoConFirma(id, nuevoEstado, pregunta) {
-        if (confirm(pregunta)) {
-            const responsable = prompt("Por favor, ingrese su nombre para registrar el cambio:");
-            if (responsable && responsable.trim() !== "") {
-                fetch(`/reservas/${id}/estado`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ estado: nuevoEstado, responsable: responsable })
-                }).then(() => cargarReservas());
-            } else if (responsable !== null) {
-                alert("Es obligatorio ingresar un nombre para realizar el cambio de estado.");
+        datosEstadoTemporal = { id, nuevoEstado };
+        abrirModalFirma(pregunta, true, () => {
+            const responsable = document.getElementById('inputNombreResponsable').value.trim();
+            if (responsable === "") {
+                alert("Por favor, ingrese su nombre para registrar el cambio.");
+                return;
             }
-        }
+            fetch(`/reservas/${id}/estado`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: nuevoEstado, responsable: responsable })
+            }).then(res => { if(res.ok) { cerrarModalFirma(); cargarReservas(); } });
+        });
+    }
+
+    function confirmarBorrarReserva(id) {
+        abrirModalFirma("¿Está seguro que desea enviar esta reserva a la papelera?", false, () => {
+            fetch(`/reservas/${id}`, { method: 'DELETE' })
+            .then(res => { if(res.ok) { cerrarModalFirma(); cargarReservas(); } });
+        });
+    }
+
+    function confirmarEliminarDefinitivo(id) {
+        abrirModalFirma("⚠️ ¡ADVERTENCIA! Esta reserva se moverá al archivo histórico y desaparecerá de la página.", false, () => {
+            fetch(`/reservas_definitivas/${id}`, { method: 'DELETE' })
+            .then(res => { if(res.ok) { cerrarModalFirma(); cargarReservas(); } });
+        });
     }
 
     function restaurarEspecial(id, estadoDestino) {
         if (!estadoDestino) return;
-        fetch(`/reservas/${id}/estado`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ borrado: 0, estado: estadoDestino })
-        }).then(() => {
-            alert(`Reserva #${id} restaurada a estado: ${estadoDestino}`);
-            cargarReservas();
+        abrirModalFirma(`¿Restaurar reserva #${id} al estado ${estadoDestino}?`, false, () => {
+            fetch(`/reservas/${id}/estado`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ borrado: 0, estado: estadoDestino })
+            }).then(res => { if(res.ok) { cerrarModalFirma(); cargarReservas(); } });
         });
-    }
-
-    function borrarReserva(id) {
-        if (confirm("¿Enviar esta reserva a la papelera?")) {
-            fetch(`/reservas/${id}`, { method: 'DELETE' }).then(() => cargarReservas());
-        }
-    }
-
-    function eliminarDefinitivo(id) {
-        if (confirm("⚠️ ¡ADVERTENCIA! Esta reserva se moverá al archivo histórico y desaparecerá de la página. ¿Continuar?")) {
-            fetch(`/reservas_definitivas/${id}`, { method: 'DELETE' }).then(() => cargarReservas());
-        }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
