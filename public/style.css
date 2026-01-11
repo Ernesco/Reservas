@@ -30,12 +30,11 @@ header {
     box-sizing: border-box;
 }
 
-/* Estilo para que el enlace de INICIO parezca un botón real */
 header a, .btn-header {
     background-color: #313244;
     color: #fff !important;
     border: 1px solid #45475a;
-    text-decoration: none !important; /* Quita el subrayado */
+    text-decoration: none !important;
     padding: 8px 18px;
     border-radius: 20px; 
     font-weight: bold;
@@ -56,7 +55,7 @@ header a:hover {
     color: #fff;
 }
 
-/* --- CAJAS CENTRALES (Index, Panel, Formulario) --- */
+/* --- CAJAS CENTRALES --- */
 .caja-central {
     background-color: #ffffff; 
     padding: 2.5rem; 
@@ -91,7 +90,7 @@ label {
     font-weight: 500;
 }
 
-/* --- BOTONES DEL MENÚ / PANEL (Centrados) --- */
+/* --- BOTONES DEL MENÚ / PANEL --- */
 .contenedor-menu {
     display: flex;
     flex-direction: column;
@@ -172,7 +171,6 @@ input, select, textarea {
     gap: 10px;
 }
 
-/* Botón Eliminados - Estilo recuperado */
 .btn-filtro, #btnVerBorrados {
     background: #313244;
     color: white;
@@ -218,31 +216,27 @@ td {
     font-size: 0.9rem;
 }
 
-/* BOTONES DE ACCIÓN (Corregidos con colores y nivelación) */
-td:last-child, .celda-acciones {
+/* BOTONES DE ACCIÓN COMPACTOS (Evita que sean largos) */
+td:last-child {
     white-space: nowrap;
-    width: 250px; 
+    width: 180px; /* Ajustado para que no estire la columna */
 }
 
-/* Estilo real para los botones dentro de la tabla */
 td .btn-azul, td .btn-borrar {
-    display: inline-flex !important;
-    justify-content: center;
-    align-items: center;
+    display: inline-block !important; /* Cambiado a inline-block para respetar el width: auto */
     width: auto !important;
     min-width: 110px;
-    padding: 8px 12px !important;
+    padding: 8px 14px !important;
     font-size: 11px !important;
-    margin: 0 5px !important; 
+    margin: 4px !important; 
     border-radius: 6px;
-    vertical-align: middle;
     font-weight: bold;
     cursor: pointer;
     border: none;
     transition: 0.3s;
+    text-align: center;
 }
 
-/* Colores específicos para los botones de la tabla */
 td .btn-azul { 
     background-color: #4a90e2 !important; 
     color: white !important; 
@@ -253,9 +247,8 @@ td .btn-borrar {
     background-color: #f38ba8 !important; 
     color: #1e1e2e !important; 
 }
-td .btn-borrar:hover { background-color: #e64553 !important; color: white !important; }
 
-/* --- MODALES --- */
+/* --- MODALES Y ALERTAS (Corregido para eliminar botones basura) --- */
 .modal-overlay {
     display: none; 
     position: fixed;
@@ -265,6 +258,40 @@ td .btn-borrar:hover { background-color: #e64553 !important; color: white !impor
     z-index: 2000;
     justify-content: center;
     align-items: center;
+}
+
+.modal-caja {
+    background: #1e1e2e;
+    padding: 30px;
+    border-radius: 15px;
+    border: 1px solid #4a90e2;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    color: #fff;
+}
+
+/* Botones dentro del modal corregidos */
+.modal-caja button {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    border: none;
+}
+
+#modalAceptar { 
+    background-color: #4a90e2; 
+    color: white; 
+}
+
+/* Ocultar botones de sistema "Cancelar" que aparecen fuera de lugar en capturas */
+.modal-caja button:not(#modalAceptar):not(#modalCancelar) {
+    display: none !important;
 }
 
 /* --- MEDIA QUERIES --- */
