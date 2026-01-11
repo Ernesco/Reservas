@@ -257,70 +257,72 @@ td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; color:
 td .btn-azul { background-color: #4a90e2 !important; color: white !important; }
 td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
 
-/* --- MODALES Y ALERTAS (OPTIMIZADO) --- */
+/* --- MODALES Y ALERTAS (OPTIMIZADO Y BLINDADO) --- */
 .modal-overlay {
     display: none; 
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    z-index: 2000;
+    background: rgba(0, 0, 0, 0.85) !important;
+    z-index: 9999 !important; /* Prioridad máxima */
     justify-content: center;
     align-items: center;
 }
 
 .modal-caja {
-    background: #1e1e2e;
-    padding: 30px;
-    border-radius: 15px;
-    border: 1px solid #4a90e2;
+    background: #1e1e2e !important;
+    padding: 35px !important;
+    border-radius: 20px !important;
+    border: 1px solid #4a90e2 !important;
     text-align: center;
-    max-width: 400px;
-    width: 90%;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-/* Estilo uniforme para botones de alerta: Largos y centrados */
-.modal-caja button {
+    max-width: 450px !important;
+    width: 90% !important;
+    color: #fff !important;
     display: flex !important;
-    justify-content: center;
-    align-items: center;
-    width: 100% !important;
-    max-width: 280px; /* Ancho alargado profesional */
-    padding: 14px;
-    margin: 10px auto 0;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1rem;
-    border: none;
-    text-transform: uppercase;
-    transition: 0.3s;
+    flex-direction: column !important;
+    align-items: center !important;
 }
 
-/* Estilo azul para confirmar */
+/* Estilo de botones largos y uniformes para TODAS las alertas */
+.modal-caja button {
+    display: flex !important; /* Garantiza visibilidad en errores y éxitos */
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 320px !important; /* Ancho alargado profesional */
+    height: 50px !important;
+    margin: 12px auto 0 !important;
+    border-radius: 12px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    font-size: 1rem !important;
+    border: none !important;
+    text-transform: uppercase !important;
+    transition: 0.3s !important;
+}
+
+/* Botón principal (Aceptar, Confirmar, OK) */
 #modalAceptar, 
 #btnConfirmarFirma, 
 .btn-confirmar-modal, 
-button[onclick*="confirmar"] { 
+button[onclick*="confirmar"],
+button[onclick*="Aceptar"],
+button[onclick*="cerrar"] { 
     background-color: #4a90e2 !important; 
     color: white !important; 
 }
 
-/* Estilo oscuro para cancelar */
+/* Botón secundario (Cancelar o Cerrar Secundario) */
 #modalCancelar, 
-button[onclick*="cerrar"],
-button[onclick*="cerrarModalFirma"] {
+button[onclick*="cerrarModalFirma"],
+button[onclick*="Cancelar"] {
     background-color: #313244 !important;
     color: #e0e6f8 !important;
     border: 1px solid #45475a !important;
 }
 
-/* Limpieza de botones de sistema intrusos */
-.modal-caja button:not(#modalAceptar):not(#modalCancelar):not(#btnConfirmarFirma):not(.btn-confirmar-modal):not([onclick*="confirmar"]):not([onclick*="cerrar"]):not([onclick*="cerrarModalFirma"]) {
+/* Limpieza de botones extra y solución para el error de cierre */
+.modal-caja button:not(#modalAceptar):not(#modalCancelar):not(#btnConfirmarFirma):not(.btn-confirmar-modal):not([onclick*="confirmar"]):not([onclick*="cerrar"]):not([onclick*="cerrarModalFirma"]):not([onclick*="Aceptar"]) {
     display: none !important;
 }
 
