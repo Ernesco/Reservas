@@ -2,17 +2,18 @@ const express = require('express');
 const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
-const { Resend } = require('resend'); // 1. Cambiamos nodemailer por Resend
+const { Resend } = require('resend');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 2. CONFIGURACIÓN DE RESEND (API vía Puerto 443 - No se bloquea en Render)
-const resend = new Resend('re_VgUtq2Q5_4nnwxWbX4kQ7mvGBxpEGPFuY'); 
+// 1. CONFIGURACIÓN DE RESEND (Segura mediante Variables de Entorno)
+// IMPORTANTE: Debes agregar la variable RESEND_API_KEY en el panel de Render
+const resend = new Resend(process.env.RESEND_API_KEY); 
 
-// 3. FUNCIÓN AUXILIAR: Enviar Correo corregida para Resend
+// 2. FUNCIÓN AUXILIAR: Enviar Correo
 async function enviarAvisoEmail(reserva, tipo) {
     if (!reserva.cliente_email || reserva.cliente_email === '---' || !reserva.cliente_email.includes('@')) {
         console.log(`Reserva #${reserva.id}: Sin email válido. Omitiendo envío.`);
@@ -31,6 +32,8 @@ async function enviarAvisoEmail(reserva, tipo) {
                 <p><strong>Producto:</strong> ${reserva.descripcion} <br> 
                 <strong>Sucursal de retiro:</strong> ${reserva.sucursal_nombre || reserva.local_destino}</p>
                 <p>Te avisaremos por este medio cuando llegue al local para que puedas retirarlo.</p>
+                <hr>
+                <p style="font-size: 12px; color: #777;">Este es un mensaje automático de Reservas MO.</p>
             </div>`;
     } else if (tipo === 'DISPONIBLE') {
         asunto = `¡Tu pedido ya llegó! Reserva #${reserva.id}`;
@@ -40,12 +43,15 @@ async function enviarAvisoEmail(reserva, tipo) {
                 <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible en la sucursal <strong>${reserva.sucursal_nombre}</strong>.</p>
                 <p>Puedes pasar a retirarlo en el horario habitual del local.</p>
                 <p>¡Te esperamos!</p>
+                <hr>
+                <p style="font-size: 12px; color: #777;">Este es un mensaje automático de Reservas MO.</p>
             </div>`;
     }
 
     try {
         await resend.emails.send({
-            from: 'Sistema de Reservas <onboarding@resend.dev>', // Deja este remitente para pruebas
+            // Esto hará que el cliente vea "Reservas MO" como remitente
+            from: 'Reservas MO <onboarding@resend.dev>', 
             to: reserva.cliente_email,
             subject: asunto,
             html: mensajeHtml,
@@ -56,7 +62,7 @@ async function enviarAvisoEmail(reserva, tipo) {
     }
 }
 
-// CONFIGURACIÓN PARA LA NUBE (TiDB)
+// 3. CONFIGURACIÓN DB (TiDB)
 const db = mysql.createPool({
     host: process.env.MYSQLHOST,
     user: process.env.MYSQLUSER,
@@ -69,7 +75,7 @@ const db = mysql.createPool({
     queueLimit: 0
 });
 
-// --- RUTAS (Se mantienen igual) ---
+// --- RUTAS ---
 
 app.get('/productos/:codigo', (req, res) => {
     const { codigo } = req.params;
