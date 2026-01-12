@@ -10,15 +10,14 @@ body {
     color: #e0e6f8;
     margin: 0;
     padding-top: 100px;
-    padding-bottom: 0; /* El footer ahora maneja su propio espacio */
     display: flex;
-    flex-direction: column; /* Organiza el contenido en columna */
+    flex-direction: column;
     min-height: 100vh;
     box-sizing: border-box;
     font-size: 16px;
 }
 
-/* --- 2. HEADER MEJORADO --- */
+/* --- 2. HEADER --- */
 header {
     position: fixed;
     top: 0; left: 0;
@@ -45,24 +44,11 @@ header a, .btn-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    transition: 0.3s;
 }
 
-header a:hover {
-    background-color: #89b4fa;
-    color: #11111b !important;
-}
-
-.logo-texto {
-    font-size: clamp(1.1rem, 2vw, 1.5rem);
-    font-weight: bold;
-    color: #fff;
-}
-
-/* --- 3. CAJAS CENTRALES Y CONTENIDO --- */
-/* Agregamos una clase contenedora para empujar el footer */
+/* --- 3. CONTENIDO Y PANELES --- */
 main, .contenedor-lista, .caja-central-wrapper {
-    flex: 1 0 auto; /* Esto empuja al footer hacia abajo */
+    flex: 1 0 auto;
 }
 
 .caja-central {
@@ -74,81 +60,109 @@ main, .contenedor-lista, .caja-central-wrapper {
     flex-direction: column;
     align-items: center;
     width: 90%;
-    max-width: 450px;
-    margin: 20px auto; /* Centrado con margen */
+    max-width: 500px;
+    margin: 20px auto;
 }
 
-.caja-central h1, .caja-central h2, legend {
-    text-align: center !important;
-    align-self: center;
-    display: block;
-    width: 100%;
-    color: #313244;
-    margin-bottom: 1rem;
+/* Botones del Panel de Bienvenida (image_6bd94e) */
+.caja-central a {
+    color: #4a90e2 !important;
+    text-decoration: underline !important;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin: 10px 0;
 }
 
-label {
-    text-align: left !important;
-    align-self: flex-start;
-    display: block;
-    width: 100%;
-    color: #5e616b;
-    margin-bottom: 8px;
-    font-weight: 500;
+/* --- 4. FILTROS Y BUSCADOR (image_6bd9eb) --- */
+.fila-controles {
+    display: flex;
+    justify-content: space-between; /* Buscador a la derecha */
+    align-items: center;
+    width: 95%;
+    max-width: 1800px;
+    margin: 0 auto 20px;
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
-/* --- 4. FORMULARIOS --- */
-fieldset {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    background-color: rgba(0, 0, 0, 0.02);
-    width: 100%;
-    box-sizing: border-box;
+.btn-filtro {
+    background-color: #ffffff !important;
+    color: #333 !important;
+    border: 1px solid #ccc !important;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
-input, select, textarea {
-    padding: 12px;
-    width: 100%;  
-    border-radius: 6px;
+.btn-filtro.active {
+    background-color: #4a90e2 !important;
+    color: white !important;
+}
+
+#buscador {
+    padding: 10px 40px 10px 15px;
+    border-radius: 8px;
     border: 1px solid #45475a;
     background-color: #313244;
     color: white;
-    margin-bottom: 15px;
-    box-sizing: border-box;
-    font-size: 1rem;
+    width: 300px;
+    max-width: 100%;
 }
 
-.btn-azul, button[type="submit"] {
-    width: 100%;
-    padding: 15px;
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-/* --- 5. TABLA Y LISTAS --- */
+/* --- 5. TABLA Y ACCIONES (image_6bd9ca) --- */
 .contenedor-lista {
     width: 95%;
     max-width: 1800px;
     margin: 0 auto;
 }
 
+.tabla-scroll-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    background-color: #313244;
+    padding: 10px;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1200px;
 }
 
-th { background-color: #45475a; color: #89b4fa; padding: 15px; text-transform: uppercase; }
-td { padding: 12px 10px; text-align: center; border-bottom: 1px solid #45475a; color: #bac2de; }
+/* Botones de acción en tabla */
+.celda-acciones {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
 
-/* --- 6. ALERTAS (BLINDAJE TOTAL) --- */
+.btn-retirado-tabla {
+    background-color: #a6e3a1 !important; /* Verde claro */
+    color: #1e1e2e !important;
+    width: 180px;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+.btn-cancelar-tabla {
+    background-color: #ffffff !important;
+    color: #333 !important;
+    border: 1px solid #ccc !important;
+    padding: 5px 15px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+/* --- 6. ALERTAS --- */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -181,33 +195,22 @@ td { padding: 12px 10px; text-align: center; border-bottom: 1px solid #45475a; c
     margin: 15px auto 0 !important;
     border-radius: 12px !important;
     font-weight: bold !important;
-    text-transform: uppercase !important;
+    background-color: #4a90e2 !important;
+    color: white !important;
     border: none !important;
 }
 
-#modalAceptar { background-color: #4a90e2 !important; color: white !important; }
-#modalCancelar { background-color: #313244 !important; color: #e0e6f8 !important; border: 1px solid #45475a !important; }
-
-/* --- 7. FOOTER SÓLIDO Y ARREGLADO --- */
+/* --- 7. FOOTER --- */
 footer {
-    flex-shrink: 0; /* Evita que el footer se encoja */
+    flex-shrink: 0;
     width: 100%;
-    background-color: #11111b !important; /* Color oscuro sólido */
+    background-color: #11111b !important;
     border-top: 2px solid #89b4fa;
     padding: 30px 0;
-    margin-top: auto; /* Empuja al final absoluto */
-    z-index: 1001;
+    margin-top: auto;
     display: flex;
     justify-content: center;
     align-items: center;
-}
-
-.footer-contenido {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    text-align: center;
 }
 
 .footer-logo {
@@ -217,14 +220,11 @@ footer {
     margin-bottom: 10px;
 }
 
-footer p { color: #bac2de; font-size: 0.9rem; margin: 0; }
-
-.footer-links a { color: #89b4fa; text-decoration: none; margin: 0 10px; font-size: 0.85rem; }
-
 /* --- 8. MEDIA QUERIES --- */
 @media (max-width: 768px) {
-    body { padding-top: 85px; }
-    .caja-central { width: 95%; padding: 1.5rem; }
-    .fila-controles { flex-direction: column; gap: 10px; }
-    #buscador { max-width: 100% !important; }
+    .fila-controles {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    #buscador { width: 100%; }
 }
