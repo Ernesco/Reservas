@@ -394,60 +394,41 @@ button[onclick*="Cancelar"] {
 
 /* ... (Todo tu código anterior se mantiene igual) ... */
 
-/* --- FOOTER MODERNO --- */
+/* --- AJUSTE AL BODY PARA FOOTER PEGAJOSO --- */
+html, body {
+    height: 100%; /* Obliga al documento a ocupar toda la pantalla */
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column; /* Organiza el contenido en columna */
+    min-height: 100vh;
+}
+
+/* --- ESTILO DEL FOOTER --- */
 footer {
     width: 100%;
-    background-color: #11111b; /* Mismo color que el header */
-    border-top: 2px solid #89b4fa; /* Línea azul superior */
-    padding: 30px 5%;
-    margin-top: auto; /* Empuja el footer al final si hay poco contenido */
-    box-sizing: border-box;
+    background-color: #11111b !important; /* Color sólido para que no se vea lo de atrás */
+    border-top: 2px solid #89b4fa;
+    padding: 20px 0;
+    margin-top: auto; /* ESTO empuja el footer al final absoluto */
+    z-index: 1001; /* Asegura que esté por encima de cualquier otro elemento */
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .footer-contenido {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px;
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
 }
 
 .footer-logo {
-    max-width: 120px; /* Ajusta el tamaño de tu imagen aquí */
+    display: block; /* Asegura que se comporte como bloque */
+    max-width: 150px; /* Tamaño visible */
     height: auto;
-    filter: drop-shadow(0 0 5px rgba(137, 180, 250, 0.3)); /* Brillo sutil azul */
-}
-
-footer p {
-    color: #bac2de;
-    font-size: 0.9rem;
-    margin: 0;
-}
-
-.footer-links {
-    display: flex;
-    gap: 20px;
-}
-
-.footer-links a {
-    color: #89b4fa;
-    text-decoration: none;
-    font-size: 0.85rem;
-    transition: 0.3s;
-}
-
-.footer-links a:hover {
-    color: #f38ba8; /* Color rosa al pasar el mouse */
-}
-
-/* --- AJUSTE MEDIA QUERY PARA EL FOOTER --- */
-@media (max-width: 768px) {
-    footer {
-        padding: 20px 5%;
-    }
-    
-    .footer-logo {
-        max-width: 90px;
-    }
+    margin-bottom: 10px;
 }
