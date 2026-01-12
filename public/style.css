@@ -1,23 +1,20 @@
-/* --- 1. CONFIGURACIÓN BASE (STICKY FOOTER) --- */
-html, body {
-    height: 100%;
-    margin: 0;
-}
-
+/* --- ESTILOS GENERALES --- */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #1e1e2e;
     color: #e0e6f8;
     margin: 0;
     padding-top: 100px;
+    padding-bottom: 40px;
     display: flex;
     flex-direction: column;
+    align-items: center;
     min-height: 100vh;
     box-sizing: border-box;
     font-size: 16px;
 }
 
-/* --- 2. HEADER --- */
+/* --- HEADER MEJORADO --- */
 header {
     position: fixed;
     top: 0; left: 0;
@@ -44,13 +41,21 @@ header a, .btn-header {
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: 0.3s;
 }
 
-/* --- 3. CONTENIDO Y PANELES --- */
-main, .contenedor-lista, .caja-central-wrapper {
-    flex: 1 0 auto;
+header a:hover {
+    background-color: #89b4fa;
+    color: #11111b !important;
 }
 
+.logo-texto {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: bold;
+    color: #fff;
+}
+
+/* --- CAJAS CENTRALES --- */
 .caja-central {
     background-color: #ffffff;
     padding: 2.5rem;
@@ -60,63 +65,130 @@ main, .contenedor-lista, .caja-central-wrapper {
     flex-direction: column;
     align-items: center;
     width: 90%;
-    max-width: 500px;
-    margin: 20px auto;
+    max-width: 450px;
+    margin: auto;
 }
 
-/* Botones del Panel de Bienvenida (image_6bd94e) */
-.caja-central a {
-    color: #4a90e2 !important;
-    text-decoration: underline !important;
-    font-weight: bold;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin: 10px 0;
+.caja-central h1, .caja-central h2, legend {
+    text-align: center !important;
+    align-self: center;
+    display: block;
+    width: 100%;
+    color: #313244;
+    margin-bottom: 1rem;
 }
 
-/* --- 4. FILTROS Y BUSCADOR (image_6bd9eb) --- */
-.fila-controles {
+label {
+    text-align: left !important;
+    align-self: flex-start;
+    display: block;
+    width: 100%;
+    color: #5e616b;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+/* --- BOTONES DEL MENÚ / PANEL --- */
+.contenedor-menu {
     display: flex;
-    justify-content: space-between; /* Buscador a la derecha */
+    flex-direction: column;
     align-items: center;
-    width: 95%;
-    max-width: 1800px;
-    margin: 0 auto 20px;
-    flex-wrap: wrap;
+    width: 100%;
     gap: 15px;
 }
 
-.btn-filtro {
-    background-color: #ffffff !important;
-    color: #333 !important;
-    border: 1px solid #ccc !important;
-    padding: 8px 16px;
-    border-radius: 4px;
+.btn-menu {
+    width: 100%;
+    max-width: 320px;
+    padding: 18px;
+    background-color: #313244;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 12px;
+    text-align: center;
+    border: 2px solid #45475a;
+    transition: 0.3s;
+}
+
+/* --- FORMULARIOS --- */
+fieldset {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input, select, textarea {
+    padding: 12px;
+    width: 100%;   
+    border-radius: 6px;
+    border: 1px solid #45475a;
+    background-color: #313244;
+    color: white;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+.btn-azul, button[type="submit"] {
+    width: 100%;
+    padding: 15px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
+    transition: 0.3s;
+}
+
+/* --- TABLA DE RESERVAS Y SOLAPAS --- */
+.contenedor-lista {
+    width: 95%;
+    max-width: 1800px;
+    margin: 0 auto;
+}
+
+.fila-controles {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 20px;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-filtro, #btnVerBorrados {
+    background: #313244;
+    color: white;
+    border: 1px solid #45475a;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s;
 }
 
 .btn-filtro.active {
     background-color: #4a90e2 !important;
     color: white !important;
+    border-color: #89b4fa;
+    box-shadow: 0 0 10px rgba(74, 144, 226, 0.4);
 }
 
-#buscador {
-    padding: 10px 40px 10px 15px;
-    border-radius: 8px;
-    border: 1px solid #45475a;
-    background-color: #313244;
-    color: white;
-    width: 300px;
-    max-width: 100%;
+#btnVerBorrados {
+    border-color: #f38ba8;
+    color: #f38ba8;
 }
 
-/* --- 5. TABLA Y ACCIONES (image_6bd9ca) --- */
-.contenedor-lista {
-    width: 95%;
-    max-width: 1800px;
-    margin: 0 auto;
+#btnVerBorrados.active {
+    background-color: #f38ba8 !important;
+    color: #1e1e2e !important;
 }
 
 .tabla-scroll-container {
@@ -124,57 +196,81 @@ main, .contenedor-lista, .caja-central-wrapper {
     border-radius: 12px;
     background-color: #313244;
     padding: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 1200px;
 }
 
-/* Botones de acción en tabla */
+th {
+    background-color: #45475a;
+    color: #89b4fa;
+    padding: 15px;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+}
+
+td {
+    padding: 12px 10px;
+    text-align: center;
+    border-bottom: 1px solid #45475a;
+    color: #bac2de;
+    font-size: 0.9rem;
+}
+
+/* ACCIONES COMPACTAS VERTICALES */
 .celda-acciones {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
+    padding: 5px 0;
 }
 
-.btn-retirado-tabla {
-    background-color: #a6e3a1 !important; /* Verde claro */
-    color: #1e1e2e !important;
-    width: 180px;
-    padding: 12px;
-    border-radius: 12px;
+td:last-child {
+    white-space: nowrap;
+    width: 150px;
+    text-align: center;
+}
+
+td .btn-azul, td .btn-borrar {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    width: 130px !important;
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+    margin: 0 !important;
+    border-radius: 6px;
     font-weight: bold;
+    cursor: pointer;
     border: none;
-    cursor: pointer;
-    text-transform: uppercase;
+    transition: 0.3s;
 }
 
-.btn-cancelar-tabla {
-    background-color: #ffffff !important;
-    color: #333 !important;
-    border: 1px solid #ccc !important;
-    padding: 5px 15px;
-    border-radius: 4px;
-    font-weight: bold;
-    cursor: pointer;
-    text-transform: uppercase;
-}
+td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; color: white !important; }
+td .btn-azul { background-color: #4a90e2 !important; color: white !important; }
+td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
 
-/* --- 6. ALERTAS --- */
-.modal-overlay {
+/* --- SECCIÓN UNIVERSAL DE ALERTAS (CORRIGE TODAS LAS PÁGINAS) --- */
+
+/* Blindaje para cualquier overlay de modal */
+.modal-overlay, [class*="modal-overlay"], [id*="modal-overlay"] {
     display: none;
     position: fixed;
     top: 0 !important; left: 0 !important;
     width: 100% !important; height: 100% !important;
     background: rgba(0, 0, 0, 0.85) !important;
-    z-index: 9999 !important;
+    z-index: 9999 !important; /* Prioridad máxima sobre formularios */
     justify-content: center;
     align-items: center;
 }
 
-.modal-caja {
+/* Captura automática de cualquier caja de alerta, incluso sin clases específicas */
+.modal-overlay > div, .modal-caja, [class*="modal-box"], [class*="modal-content"] {
     background: #1e1e2e !important;
     padding: 35px !important;
     border-radius: 20px !important;
@@ -183,48 +279,178 @@ table {
     max-width: 450px !important;
     width: 90% !important;
     color: #fff !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
 }
 
-.modal-caja button {
+/* Estilo FORZADO para que TODOS los botones de alertas sean largos y uniformes */
+.modal-overlay button, .modal-caja button, [class*="modal"] button {
     display: flex !important;
+    visibility: visible !important;
     justify-content: center !important;
     align-items: center !important;
     width: 100% !important;
-    max-width: 320px !important;
+    max-width: 320px !important; /* Estilo alargado profesional solicitado */
     height: 50px !important;
     margin: 15px auto 0 !important;
     border-radius: 12px !important;
     font-weight: bold !important;
+    cursor: pointer !important;
+    font-size: 1rem !important;
+    border: none !important;
+    text-transform: uppercase !important;
+    transition: 0.3s !important;
+    box-sizing: border-box !important;
+}
+
+/* Botón azul para confirmar, aceptar y cerrar errores */
+#modalAceptar,
+#btnConfirmarFirma,
+.btn-confirmar-modal,
+button[onclick*="confirmar"],
+button[onclick*="cerrar"],
+button[onclick*="Aceptar"],
+button[onclick*="location"] {
     background-color: #4a90e2 !important;
     color: white !important;
-    border: none !important;
 }
 
-/* --- 7. FOOTER --- */
-footer {
-    flex-shrink: 0;
-    width: 100%;
-    background-color: #11111b !important;
-    border-top: 2px solid #89b4fa;
-    padding: 30px 0;
-    margin-top: auto;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* Botón oscuro para cancelar o cerrar secundario */
+#modalCancelar,
+button[onclick*="cerrarModalFirma"],
+button[onclick*="Cancelar"] {
+    background-color: #313244 !important;
+    color: #e0e6f8 !important;
+    border: 1px solid #45475a !important;
 }
 
-.footer-logo {
-    display: block !important;
-    max-width: 150px;
-    height: auto;
-    margin-bottom: 10px;
+/* Limpieza de botones fantasma de sistema */
+.modal-caja button:not([onclick]):not([id]):not([class]) {
+    display: none !important;
 }
 
-/* --- 8. MEDIA QUERIES --- */
+/* --- MEDIA QUERIES (RESPONSIVIDAD) --- */
+
+/* Celulares y Tablets */
 @media (max-width: 768px) {
+    body {
+        padding-top: 85px; /* Menos espacio arriba en móviles */
+    }
+
+    header {
+        height: 60px;
+        padding: 0 15px;
+    }
+
+    header a, .btn-header {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+
+    .caja-central {
+        padding: 1.5rem;
+        width: 95%;
+    }
+
     .fila-controles {
         flex-direction: column;
         align-items: stretch;
+        gap: 10px;
     }
-    #buscador { width: 100%; }
+
+    #buscador {
+        max-width: 100% !important;
+    }
+
+    .btn-filtro, #btnVerBorrados {
+        width: 100%;
+        text-align: center;
+    }
+   
+    /* Ajuste de alertas en móvil */
+    .modal-caja {
+        padding: 20px !important;
+        width: 95% !important;
+    }
+   
+    .modal-caja button {
+        max-width: 100% !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 480px) {
+    header {
+        justify-content: space-around;
+    }
+   
+    .logo-texto {
+        display: none; /* Ocultamos logo texto si no hay espacio */
+    }
+}
+
+/* --- AJUSTE AL BODY PARA FOOTER PEGAJOSO --- */
+html, body {
+    height: 100%; /* Obliga al documento a ocupar toda la pantalla */
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column; /* Organiza el contenido en columna */
+    min-height: 100vh;
+}
+
+/* --- ESTILO DEL FOOTER --- */
+footer {
+    width: 100%;
+    background-color: #11111b !important; /* Color sólido para que no se vea lo de atrás */
+    border-top: 2px solid #89b4fa;
+    padding: 30px 0; /* Más espacio vertical */
+    margin-top: auto; /* Empuja el footer al final absoluto */
+    z-index: 1001; /* Asegura que esté por encima de cualquier otro elemento */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0; /* Evita que el footer se encoja en pantallas pequeñas */
+}
+
+.footer-contenido {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    text-align: center;
+}
+
+.footer-logo {
+    display: block !important; /* Asegura visibilidad */
+    max-width: 150px; /* Tamaño solicitado */
+    height: auto;
+    margin-bottom: 15px;
+}
+
+footer p {
+    color: #bac2de;
+    font-size: 0.9rem;
+    margin: 0 0 10px 0;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: #89b4fa;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+.footer-links a:hover {
+    color: #f38ba8;
 }
