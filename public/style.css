@@ -391,3 +391,63 @@ button[onclick*="Cancelar"] {
         display: none; /* Ocultamos logo texto si no hay espacio */
     }
 }
+
+/* ... (Todo tu código anterior se mantiene igual) ... */
+
+/* --- FOOTER MODERNO --- */
+footer {
+    width: 100%;
+    background-color: #11111b; /* Mismo color que el header */
+    border-top: 2px solid #89b4fa; /* Línea azul superior */
+    padding: 30px 5%;
+    margin-top: auto; /* Empuja el footer al final si hay poco contenido */
+    box-sizing: border-box;
+}
+
+.footer-contenido {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-logo {
+    max-width: 120px; /* Ajusta el tamaño de tu imagen aquí */
+    height: auto;
+    filter: drop-shadow(0 0 5px rgba(137, 180, 250, 0.3)); /* Brillo sutil azul */
+}
+
+footer p {
+    color: #bac2de;
+    font-size: 0.9rem;
+    margin: 0;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: #89b4fa;
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+.footer-links a:hover {
+    color: #f38ba8; /* Color rosa al pasar el mouse */
+}
+
+/* --- AJUSTE MEDIA QUERY PARA EL FOOTER --- */
+@media (max-width: 768px) {
+    footer {
+        padding: 20px 5%;
+    }
+    
+    .footer-logo {
+        max-width: 90px;
+    }
+}
