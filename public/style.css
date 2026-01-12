@@ -255,21 +255,19 @@ td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; color:
 td .btn-azul { background-color: #4a90e2 !important; color: white !important; }
 td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
 
-/* --- SECCIÓN UNIVERSAL DE ALERTAS (CORRIGE TODAS LAS PÁGINAS) --- */
+/* --- SECCIÓN UNIVERSAL DE ALERTAS --- */
 
-/* Blindaje para cualquier overlay de modal */
 .modal-overlay, [class*="modal-overlay"], [id*="modal-overlay"] {
     display: none;
     position: fixed;
     top: 0 !important; left: 0 !important;
     width: 100% !important; height: 100% !important;
     background: rgba(0, 0, 0, 0.85) !important;
-    z-index: 9999 !important; /* Prioridad máxima sobre formularios */
+    z-index: 9999 !important;
     justify-content: center;
     align-items: center;
 }
 
-/* Captura automática de cualquier caja de alerta, incluso sin clases específicas */
 .modal-overlay > div, .modal-caja, [class*="modal-box"], [class*="modal-content"] {
     background: #1e1e2e !important;
     padding: 35px !important;
@@ -285,14 +283,13 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     box-sizing: border-box !important;
 }
 
-/* Estilo FORZADO para que TODOS los botones de alertas sean largos y uniformes */
 .modal-overlay button, .modal-caja button, [class*="modal"] button {
     display: flex !important;
     visibility: visible !important;
     justify-content: center !important;
     align-items: center !important;
     width: 100% !important;
-    max-width: 320px !important; /* Estilo alargado profesional solicitado */
+    max-width: 320px !important;
     height: 50px !important;
     margin: 15px auto 0 !important;
     border-radius: 12px !important;
@@ -305,91 +302,37 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     box-sizing: border-box !important;
 }
 
-/* Botón azul para confirmar, aceptar y cerrar errores */
-#modalAceptar,
-#btnConfirmarFirma,
-.btn-confirmar-modal,
-button[onclick*="confirmar"],
-button[onclick*="cerrar"],
-button[onclick*="Aceptar"],
-button[onclick*="location"] {
+#modalAceptar, #btnConfirmarFirma, .btn-confirmar-modal, button[onclick*="confirmar"], button[onclick*="cerrar"], button[onclick*="Aceptar"], button[onclick*="location"] {
     background-color: #4a90e2 !important;
     color: white !important;
 }
 
-/* Botón oscuro para cancelar o cerrar secundario */
-#modalCancelar,
-button[onclick*="cerrarModalFirma"],
-button[onclick*="Cancelar"] {
+#modalCancelar, button[onclick*="cerrarModalFirma"], button[onclick*="Cancelar"] {
     background-color: #313244 !important;
     color: #e0e6f8 !important;
     border: 1px solid #45475a !important;
 }
 
-/* Limpieza de botones fantasma de sistema */
 .modal-caja button:not([onclick]):not([id]):not([class]) {
     display: none !important;
 }
 
-/* --- MEDIA QUERIES (RESPONSIVIDAD) --- */
+/* --- MEDIA QUERIES --- */
 
-/* Celulares y Tablets */
 @media (max-width: 768px) {
-    body {
-        padding-top: 85px; /* Menos espacio arriba en móviles */
-    }
-
-    header {
-        height: 60px;
-        padding: 0 15px;
-    }
-
-    header a, .btn-header {
-        padding: 6px 12px;
-        font-size: 0.85rem;
-    }
-
-    .caja-central {
-        padding: 1.5rem;
-        width: 95%;
-    }
-
-    .fila-controles {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 10px;
-    }
-
-    #buscador {
-        max-width: 100% !important;
-    }
-
-    .btn-filtro, #btnVerBorrados {
-        width: 100%;
-        text-align: center;
-    }
-   
-    /* Ajuste de alertas en móvil */
-    .modal-caja {
-        padding: 20px !important;
-        width: 95% !important;
-    }
-   
-    .modal-caja button {
-        max-width: 100% !important;
-        font-size: 0.9rem !important;
-    }
+    body { padding-top: 85px; }
+    header { height: 60px; padding: 0 15px; }
+    header a, .btn-header { padding: 6px 12px; font-size: 0.85rem; }
+    .caja-central { padding: 1.5rem; width: 95%; }
+    .fila-controles { flex-direction: column; align-items: stretch; gap: 10px; }
+    #buscador { max-width: 100% !important; }
+    .modal-caja { padding: 20px !important; width: 95% !important; }
+    .modal-caja button { max-width: 100% !important; font-size: 0.9rem !important; }
 }
 
-/* Pantallas muy pequeñas */
 @media (max-width: 480px) {
-    header {
-        justify-content: space-around;
-    }
-   
-    .logo-texto {
-        display: none; /* Ocultamos logo texto si no hay espacio */
-    }
+    header { justify-content: space-around; }
+    .logo-texto { display: none; }
 }
 
 /* --- AJUSTE AL BODY PARA FOOTER PEGAJOSO --- */
@@ -404,18 +347,18 @@ body {
     min-height: 100vh;
 }
 
-/* --- ESTILO DEL FOOTER --- */
+/* --- ESTILO DEL FOOTER (PIE DE PÁGINA) --- */
 footer {
     width: 100%;
-    background-color: #11111b !important; /* Color sólido para que no se vea lo de atrás */
+    background-color: #11111b !important; /* Color oscuro sólido para bloquear el fondo */
     border-top: 2px solid #89b4fa;
-    padding: 30px 0; /* Más espacio vertical */
+    padding: 30px 0;
     margin-top: auto; /* Empuja el footer al final absoluto */
-    z-index: 1001; /* Asegura que esté por encima de cualquier otro elemento */
+    z-index: 1001;
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-shrink: 0; /* Evita que el footer se encoja en pantallas pequeñas */
+    flex-shrink: 0; /* Evita que el footer se encoja */
 }
 
 .footer-contenido {
@@ -427,10 +370,10 @@ footer {
 }
 
 .footer-logo {
-    display: block !important; /* Asegura visibilidad */
-    max-width: 150px; /* Tamaño solicitado */
+    display: block !important;
+    max-width: 150px;
     height: auto;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 footer p {
