@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <title>One Box - Gestión de Reservas</title>
 </head>
@@ -83,6 +84,19 @@
         </div>
     </div>
 
+    <div id="modalQR" class="modal-overlay">
+        <div class="modal-caja" style="max-width: 400px; text-align: center;">
+            <h3 style="color: #25d366; margin-bottom: 10px;">📲 Envío de Aviso</h3>
+            <p style="color: #cdd6f4; margin-bottom: 20px; font-size: 0.9em;">Escanee el código con el celular del local para notificar al cliente vía WhatsApp.</p>
+            
+            <div id="contenedorQR" style="background: white; padding: 15px; border-radius: 10px; display: inline-block; margin-bottom: 20px;"></div>
+            
+            <div class="modal-botones" style="width: 100%;">
+                <button onclick="cerrarModalQR()" class="btn-azul">CERRAR Y FINALIZAR</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div class="footer-contenido">
             <img src="img/logo.png" alt="Logo One Box" class="footer-logo">
@@ -100,7 +114,6 @@
     function actualizarEncabezados() {
         const header = document.getElementById('encabezadoTabla');
         const rol = sessionStorage.getItem('usuario_rol');
-        
         let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th><th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
 
         if (estadoActualFiltrado === 'En Tránsito') {
@@ -121,11 +134,7 @@
     function filtrarEstado(estado) {
         estadoActualFiltrado = estado;
         document.querySelectorAll('.btn-filtro').forEach(btn => {
-            if (btn.textContent.trim().includes(estado)) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+            btn.classList.toggle('active', btn.textContent.trim().includes(estado));
         });
         actualizarEncabezados();
         cargarReservas(document.getElementById('buscador').value);
@@ -147,18 +156,18 @@
                 });
 
                 if(filtrados.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="25" style="text-align:center; padding: 20px;">No hay registros para mostrar.</td></tr>`;
+                    tabla.innerHTML = `<tr><td colspan="25" style="text-align:center; padding: 20px;">No hay registros.</td></tr>`;
                     return;
                 }
 
                 filtrados.forEach(item => {
-                    const fechaRegistro = new Date(item.fecha_registro).toLocaleDateString('es-AR');
-                    const fechaIngreso = item.fecha_ingreso ? new Date(item.fecha_ingreso).toLocaleDateString('es-AR') : '---';
-                    const fechaCierre = item.fecha_cierre ? new Date(item.fecha_cierre).toLocaleDateString('es-AR') : '---';
+                    const fReg = new Date(item.fecha_registro).toLocaleDateString('es-AR');
+                    const fIng = item.fecha_ingreso ? new Date(item.fecha_ingreso).toLocaleDateString('es-AR') : '---';
+                    const fCie = item.fecha_cierre ? new Date(item.fecha_cierre).toLocaleDateString('es-AR') : '---';
 
                     let fila = `<tr>
                         <td>#${item.id}</td>
-                        <td style="font-size: 0.9em;">${fechaRegistro}</td>
+                        <td style="font-size: 0.9em;">${fReg}</td>
                         <td><strong>${item.cliente_nombre}</strong><br><small>${item.cliente_telefono}</small></td>
                         <td><small>${item.cliente_email || '---'}</small></td>
                         <td><code>${item.prod_codigo}</code></td>
@@ -170,15 +179,14 @@
                     if (estadoActualFiltrado === 'En Tránsito') {
                         fila += `<td>${item.sucursal_nombre}</td><td>${item.sucursal_contacto}</td><td>${item.operador_nombre}</td>`;
                     } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
-                        fila += `<td>${item.responsable_recibo || '---'}</td><td><small>${fechaIngreso}</small></td>`;
+                        fila += `<td>${item.responsable_recibo || '---'}</td><td><small>${fIng}</small></td>`;
                     } else if (estadoActualFiltrado === 'Finalizado') {
-                        fila += `<td>${item.responsable_finalizado || '---'}</td><td><small>${fechaCierre}</small></td>`;
+                        fila += `<td>${item.responsable_finalizado || '---'}</td><td><small>${fCie}</small></td>`;
                     } else if (estadoActualFiltrado === 'Eliminados') {
                         fila += `<td>${item.responsable_recibo || '---'}</td><td>${item.responsable_finalizado || '---'}</td><td>${item.operador_nombre || '---'}</td>`;
                     }
 
                     if (rol === 'admin') fila += `<td style="color: #89b4fa; font-weight: bold;">${item.local_origen || 'S/D'}</td>`;
-
                     fila += `<td><div class="celda-acciones">${getBotonesAccion(item)}</div></td></tr>`;
                     tabla.innerHTML += fila;
                 });
@@ -187,52 +195,66 @@
 
     function getBotonesAccion(item) {
         const rol = sessionStorage.getItem('usuario_rol');
-        
-        // Configuración WhatsApp
-        const telLimpio = item.cliente_telefono.replace(/\D/g, '');
-        const mensajeWA = `Hola ${item.cliente_nombre}, te contactamos de One Box por tu reserva #${item.id} (${item.descripcion}).`;
-        const urlWA = `https://wa.me/${telLimpio}?text=${encodeURIComponent(mensajeWA)}`;
-
-        let botones = `<a href="${urlWA}" target="_blank" class="btn-azul" style="background:#25d366; color:white; text-decoration:none; display:flex; justify-content:center; align-items:center; width:130px; height:30px; font-size:11px; margin-bottom:5px; border-radius:6px; font-weight:bold;">WHATSAPP</a>`;
+        let botones = "";
 
         if (item.borrado === 1) {
             if (rol === 'admin' || rol === 'encargado') {
-                return botones + `
-                    <select onchange="restaurarEspecial(${item.id}, this.value)" style="width:130px; padding:5px; border-radius:5px; font-size:11px; background:#313244; color:white; margin-bottom:5px;">
+                return `
+                    <select onchange="restaurarEspecial(${item.id}, this.value)" style="width:130px; padding:5px; border-radius:5px; font-size:11px; background:#313244; color:white;">
                         <option value="">Restaurar a...</option>
                         <option value="En Tránsito">En Tránsito</option>
                         <option value="Pendiente de Retiro">Pendiente de Retiro</option>
                     </select>
-                    <button class="btn-borrar" style="width:130px;" onclick="confirmarEliminarDefinitivo(${item.id})">ELIMINAR DEF.</button>
-                `;
+                    <button class="btn-borrar" onclick="confirmarEliminarDefinitivo(${item.id})">ELIMINAR DEF.</button>`;
             }
-            return botones;
+            return "";
         }
 
         if (item.estado === 'En Tránsito') {
-            botones += `<button class="btn-azul" onclick="cambiarEstadoConFirma(${item.id}, 'Pendiente de Retiro', '¿Confirma que el pedido llegó al local?')">LLEGÓ AL LOCAL</button>`;
+            botones += `<button class="btn-azul" onclick="cambiarEstadoConFirma(${item.id}, 'Pendiente de Retiro', '¿Confirmar ingreso al local?', true)">LLEGÓ AL LOCAL</button>`;
             if (rol === 'admin' || rol === 'encargado') {
-                botones += `<button class="btn-azul" style="background:#f39c12;" onclick="abrirModalEditar(${JSON.stringify(item).replace(/"/g, '&quot;')})">EDITAR</button>`;
+                botones += `<button class="btn-azul" style="background:#f39c12;" onclick='abrirModalEditar(${JSON.stringify(item)})'>EDITAR</button>`;
             }
-        } 
-        
-        if (item.estado === 'Pendiente de Retiro') {
-            botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirma que el cliente retiró el producto?')">RETIRADO</button>`;
+        } else if (item.estado === 'Pendiente de Retiro') {
+            botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar retiro del cliente?')">RETIRADO</button>`;
             if (rol === 'admin' || rol === 'encargado') {
-                botones += `<button class="btn-borrar" onclick="cambiarEstadoConFirma(${item.id}, 'Cancelado', '¿Desea cancelar esta reserva?')">CANCELAR</button>`;
+                botones += `<button class="btn-borrar" onclick="cambiarEstadoConFirma(${item.id}, 'Cancelado', '¿Desea cancelar reserva?')">CANCELAR</button>`;
             }
-        }
-        
-        if (item.estado === 'Retirado' || item.estado === 'Cancelado') {
-            if (rol === 'admin' || rol === 'encargado') {
-                botones += `<button class="btn-borrar" onclick="confirmarBorrarReserva(${item.id})">BORRAR</button>`;
-            }
+        } else if (rol === 'admin' || rol === 'encargado') {
+            botones += `<button class="btn-borrar" onclick="confirmarBorrarReserva(${item.id})">BORRAR</button>`;
         }
 
         return botones;
     }
 
-    // --- FUNCIONES DE EDICIÓN ---
+    // --- LÓGICA QR ---
+    function mostrarQR(id) {
+        fetch(`/reservas?q=${id}`)
+        .then(res => res.json())
+        .then(datos => {
+            const item = datos.find(r => r.id == id);
+            if (!item) return;
+
+            const tel = item.cliente_telefono.replace(/\D/g, '');
+            const msg = `Hola ${item.cliente_nombre}, te avisamos de One Box que tu pedido de ${item.descripcion} ya está en el local para retirar.`;
+            const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+
+            document.getElementById('contenedorQR').innerHTML = "";
+            new QRCode(document.getElementById("contenedorQR"), {
+                text: url,
+                width: 200,
+                height: 200
+            });
+            document.getElementById('modalQR').style.display = 'flex';
+        });
+    }
+
+    function cerrarModalQR() {
+        document.getElementById('modalQR').style.display = 'none';
+        cargarReservas();
+    }
+
+    // --- EDICIÓN ---
     function abrirModalEditar(item) {
         document.getElementById('editId').value = item.id;
         document.getElementById('editNombre').value = item.cliente_nombre;
@@ -256,28 +278,19 @@
             prod_cantidad: document.getElementById('editCant').value,
             total_reserva: document.getElementById('editTotal').value
         };
-
         fetch(`/reservas/${id}/editar`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data)
-        }).then(res => {
-            if(res.ok) {
-                document.getElementById('modalEditar').style.display = 'none';
-                cargarReservas();
-            } else {
-                alert("Error al editar. Verifique que la reserva aún esté 'En Tránsito'");
-            }
-        });
+        }).then(res => { if(res.ok) { document.getElementById('modalEditar').style.display = 'none'; cargarReservas(); } });
     }
 
-    // --- FUNCIONES EXISTENTES ---
-    function abrirModalFirma(pregunta, requiereInput = true, accionCallback) {
+    // --- ACCIONES COMUNES ---
+    function abrirModalFirma(pregunta, requiereInput, accion) {
         document.getElementById('mensajeFirma').textContent = pregunta;
         document.getElementById('contenedorInputFirma').style.display = requiereInput ? 'block' : 'none';
         document.getElementById('modalFirma').style.display = 'flex';
-        if(requiereInput) document.getElementById('inputNombreResponsable').focus();
-        document.getElementById('modalAceptar').onclick = accionCallback;
+        document.getElementById('modalAceptar').onclick = accion;
     }
 
     function cerrarModalFirma() {
@@ -285,44 +298,44 @@
         document.getElementById('inputNombreResponsable').value = '';
     }
 
-    function cambiarEstadoConFirma(id, nuevoEstado, pregunta) {
-        abrirModalFirma(pregunta, true, () => {
-            const responsable = document.getElementById('inputNombreResponsable').value.trim();
-            if (responsable === "") {
-                alert("Por favor, ingrese su nombre para registrar el cambio.");
-                return;
-            }
+    function cambiarEstadoConFirma(id, nuevoEstado, preg, activarQR = false) {
+        abrirModalFirma(preg, true, () => {
+            const resp = document.getElementById('inputNombreResponsable').value.trim();
+            if (!resp) return alert("Ingrese su nombre.");
+            
             fetch(`/reservas/${id}/estado`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ estado: nuevoEstado, responsable: responsable })
-            }).then(res => { if(res.ok) { cerrarModalFirma(); cargarReservas(); } });
+                body: JSON.stringify({ estado: nuevoEstado, responsable: resp })
+            }).then(res => { 
+                if(res.ok) { 
+                    cerrarModalFirma();
+                    if(activarQR) mostrarQR(id); 
+                    else cargarReservas();
+                } 
+            });
         });
     }
 
     function confirmarBorrarReserva(id) {
-        abrirModalFirma("¿Está seguro que desea enviar esta reserva a la papelera?", false, () => {
-            fetch(`/reservas/${id}`, { method: 'DELETE' })
-            .then(res => { if(res.ok) { cerrarModalFirma(); cargarReservas(); } });
+        abrirModalFirma("¿Enviar a papelera?", false, () => {
+            fetch(`/reservas/${id}`, { method: 'DELETE' }).then(res => { if(res.ok) { cerrarModalFirma(); cargarReservas(); } });
         });
     }
 
     function confirmarEliminarDefinitivo(id) {
-        abrirModalFirma("⚠️ ¡ADVERTENCIA! Esta reserva se moverá al archivo histórico y desaparecerá de la página.", false, () => {
-            fetch(`/reservas_definitivas/${id}`, { method: 'DELETE' })
-            .then(res => { if(res.ok) { cerrarModalFirma(); cargarReservas(); } });
+        abrirModalFirma("¿Eliminar permanentemente?", false, () => {
+            fetch(`/reservas_definitivas/${id}`, { method: 'DELETE' }).then(res => { if(res.ok) { cerrarModalFirma(); cargarReservas(); } });
         });
     }
 
     function restaurarEspecial(id, estadoDestino) {
         if (!estadoDestino) return;
-        abrirModalFirma(`¿Restaurar reserva #${id} al estado ${estadoDestino}?`, false, () => {
-            fetch(`/reservas/${id}/estado`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ borrado: 0, estado: estadoDestino })
-            }).then(res => { if(res.ok) { cerrarModalFirma(); cargarReservas(); } });
-        });
+        fetch(`/reservas/${id}/estado`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ borrado: 0, estado: estadoDestino })
+        }).then(res => { if(res.ok) cargarReservas(); });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
