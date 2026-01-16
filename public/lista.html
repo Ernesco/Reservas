@@ -213,7 +213,6 @@
         if (item.estado === 'En Tránsito') {
             botones += `<button class="btn-azul" onclick="cambiarEstadoConFirma(${item.id}, 'Pendiente de Retiro', '¿Confirmar ingreso al local?', true)">LLEGÓ AL LOCAL</button>`;
             if (rol === 'admin' || rol === 'encargado') {
-                // Pasamos el item como string seguro
                 const itemData = JSON.stringify(item).replace(/'/g, "&#39;");
                 botones += `<button class="btn-azul" style="background:#f39c12;" onclick='abrirModalEditar(${itemData})'>EDITAR</button>`;
             }
@@ -229,11 +228,13 @@
         return botones;
     }
 
-    // --- LÓGICA QR MEJORADA ---
+    // --- LÓGICA QR DEFINITIVA ---
     function mostrarQR(id) {
-        // Primero abrimos el modal para que el div contenedor exista y sea visible
-        document.getElementById('modalQR').style.display = 'flex';
-        document.getElementById('contenedorQR').innerHTML = "Cargando aviso...";
+        const modal = document.getElementById('modalQR');
+        const contenedor = document.getElementById('contenedorQR');
+        
+        modal.style.display = 'flex';
+        contenedor.innerHTML = "Generando..."; 
 
         fetch(`/reservas?q=${id}`)
         .then(res => res.json())
@@ -245,23 +246,28 @@
             const msg = `Hola ${item.cliente_nombre}, te avisamos de One Box que tu pedido de ${item.descripcion} ya está en el local para retirar.`;
             const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
 
-            // Limpiamos y generamos
-            document.getElementById('contenedorQR').innerHTML = "";
-            new QRCode(document.getElementById("contenedorQR"), {
-                text: url,
-                width: 200,
-                height: 200,
-                correctLevel : QRCode.CorrectLevel.H
-            });
+            contenedor.innerHTML = "";
+            // Pequeña pausa de 150ms para asegurar que el modal terminó de abrirse
+            setTimeout(() => {
+                new QRCode(contenedor, {
+                    text: url,
+                    width: 200,
+                    height: 200,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.H
+                });
+            }, 150);
         })
         .catch(err => {
+            contenedor.innerHTML = "Error al cargar datos";
             console.error(err);
-            document.getElementById('contenedorQR').innerHTML = "Error al generar QR";
         });
     }
 
     function cerrarModalQR() {
         document.getElementById('modalQR').style.display = 'none';
+        document.getElementById('contenedorQR').innerHTML = ""; 
         cargarReservas();
     }
 
@@ -321,9 +327,8 @@
             }).then(res => { 
                 if(res.ok) { 
                     cerrarModalFirma();
-                    // IMPORTANTE: Si es cambio a Pendiente de Retiro, mostramos QR
                     if(activarQR) {
-                        setTimeout(() => mostrarQR(id), 300); 
+                        mostrarQR(id); 
                     } else {
                         cargarReservas();
                     }
