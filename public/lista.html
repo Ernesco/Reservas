@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <title>Gestión de Reservas</title>
+    <title>One Box - Gestión de Reservas</title>
 </head>
 <body>
 
     <header>
-        <div class="logo-texto">🛒 SISTEMA RESERVAS</div>
+        <div class="logo-texto">🛒 ONE BOX</div>
         <a href="panel.html" class="btn-header">🏠 INICIO</a>
     </header>
 
@@ -56,25 +56,39 @@
         </div>
     </div>
 
+    <footer>
+        <div class="footer-contenido">
+            <img src="img/logo.png" alt="Logo One Box" class="footer-logo">
+            <p>&copy; 2026 One Box - Sistema de Reservas. Todos los derechos reservados.</p>
+            <div class="footer-links">
+                <a href="#">Privacidad</a>
+                <a href="#">Soporte</a>
+            </div>
+        </div>
+    </footer>
+
 <script>
     let estadoActualFiltrado = 'En Tránsito';
 
     function actualizarEncabezados() {
         const header = document.getElementById('encabezadoTabla');
         const rol = sessionStorage.getItem('usuario_rol');
+        
+        // Columnas base comunes a todos los estados
         let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th><th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
 
+        // Columnas dinámicas según el requerimiento
         if (estadoActualFiltrado === 'En Tránsito') {
-            columnas += `<th>Pedido a</th><th>Contacto</th>`;
+            columnas += `<th>Pedido a</th><th>Contacto</th><th>Operador</th>`;
         } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
-            columnas += `<th>Ingresó al Local</th>`;
+            // Se quita Operador inicial y se agregan datos de ingreso al local
+            columnas += `<th>Ingresó al Local</th><th>Fecha Ingreso</th>`;
         } else if (estadoActualFiltrado === 'Finalizado') {
-            columnas += `<th>Cerrado por</th>`;
+            columnas += `<th>Cerrado por</th><th>Operador</th>`;
         } else if (estadoActualFiltrado === 'Eliminados') {
-            columnas += `<th>Recibió</th><th>Finalizó</th>`;
+            columnas += `<th>Recibió</th><th>Finalizó</th><th>Operador</th>`;
         }
 
-        columnas += `<th>Operador</th>`;
         if (rol === 'admin') columnas += `<th>Origen</th>`;
         columnas += `<th>Acciones</th>`;
         header.innerHTML = columnas;
@@ -82,7 +96,6 @@
 
     function filtrarEstado(estado) {
         estadoActualFiltrado = estado;
-        // Lógica de resaltado de solapas (tabs)
         document.querySelectorAll('.btn-filtro').forEach(btn => {
             if (btn.textContent.trim().includes(estado)) {
                 btn.classList.add('active');
@@ -115,10 +128,13 @@
                 }
 
                 filtrados.forEach(item => {
-                    const fecha = new Date(item.fecha_registro).toLocaleDateString('es-AR');
+                    const fechaRegistro = new Date(item.fecha_registro).toLocaleDateString('es-AR');
+                    // Formatear fecha de ingreso (del nuevo campo SQL)
+                    const fechaIngreso = item.fecha_ingreso ? new Date(item.fecha_ingreso).toLocaleString('es-AR') : '---';
+
                     let fila = `<tr>
                         <td>#${item.id}</td>
-                        <td style="font-size: 0.9em;">${fecha}</td>
+                        <td style="font-size: 0.9em;">${fechaRegistro}</td>
                         <td><strong>${item.cliente_nombre}</strong><br><small>${item.cliente_telefono}</small></td>
                         <td><small>${item.cliente_email || '---'}</small></td>
                         <td><code>${item.prod_codigo}</code></td>
@@ -127,20 +143,19 @@
                         <td style="font-weight:bold">$${item.total_reserva}</td>
                         <td><span class="badge">${item.estado}</span></td>`;
 
+                    // Celdas dinámicas que coinciden con los encabezados
                     if (estadoActualFiltrado === 'En Tránsito') {
-                        fila += `<td>${item.sucursal_nombre}</td><td>${item.sucursal_contacto}</td>`;
+                        fila += `<td>${item.sucursal_nombre}</td><td>${item.sucursal_contacto}</td><td>${item.operador_nombre}</td>`;
                     } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
-                        fila += `<td>${item.responsable_recibo || '---'}</td>`;
+                        fila += `<td>${item.responsable_recibo || '---'}</td><td><small>${fechaIngreso}</small></td>`;
                     } else if (estadoActualFiltrado === 'Finalizado') {
-                        fila += `<td>${item.responsable_finalizado || '---'}</td>`;
+                        fila += `<td>${item.responsable_finalizado || '---'}</td><td>${item.operador_nombre || '---'}</td>`;
                     } else if (estadoActualFiltrado === 'Eliminados') {
-                        fila += `<td>${item.responsable_recibo || '---'}</td><td>${item.responsable_finalizado || '---'}</td>`;
+                        fila += `<td>${item.responsable_recibo || '---'}</td><td>${item.responsable_finalizado || '---'}</td><td>${item.operador_nombre || '---'}</td>`;
                     }
 
-                    fila += `<td>${item.operador_nombre}</td>`;
                     if (rol === 'admin') fila += `<td style="color: #89b4fa; font-weight: bold;">${item.local_origen || 'S/D'}</td>`;
 
-                    // Los botones ahora se generan dentro de un contenedor para que el CSS los controle mejor
                     fila += `<td><div class="celda-acciones">${getBotonesAccion(item)}</div></td></tr>`;
                     tabla.innerHTML += fila;
                 });

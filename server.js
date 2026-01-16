@@ -58,6 +58,7 @@ async function enviarAvisoEmail(reserva, tipo) {
                 <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible en la sucursal <strong>${reserva.sucursal_nombre}</strong>.</p>
                 <p>Puedes pasar a retirarlo en el horario habitual del local.</p>
                 <p>¡Te esperamos!</p>
+                <p>¡Te esperamos!</p>
                 ${footerHtml}
             </div>`;
     }
@@ -118,7 +119,6 @@ app.post('/reservar', (req, res) => {
             console.error("Error al guardar:", err);
             res.status(500).send('Error');
         } else {
-            // Cambio clave: sucursal_nombre ahora es local_origen para el email
             enviarAvisoEmail({ 
                 id: result.insertId, 
                 ...data, 
@@ -166,21 +166,22 @@ app.put('/reservas/:id/estado', (req, res) => {
             res.send('OK');
         });
     } else {
-        let campoResponsable = "";
-        let valores = [estado];
+        let sqlUpdate = "";
+        let valores = [];
 
         if (estado === 'Pendiente de Retiro') {
-            campoResponsable = ", responsable_recibo = ?";
-            valores.push(responsable);
+            // MODIFICACIÓN: Quita el operador inicial y registra responsable + fecha ingreso
+            sqlUpdate = `UPDATE reservas SET estado = ?, operador_nombre = '', responsable_recibo = ?, fecha_ingreso = NOW() WHERE id = ?`;
+            valores = [estado, responsable, id];
         } else if (estado === 'Retirado' || estado === 'Cancelado') {
-            campoResponsable = ", responsable_finalizado = ?";
-            valores.push(responsable);
+            sqlUpdate = `UPDATE reservas SET estado = ?, responsable_finalizado = ? WHERE id = ?`;
+            valores = [estado, responsable, id];
+        } else {
+            sqlUpdate = `UPDATE reservas SET estado = ? WHERE id = ?`;
+            valores = [estado, id];
         }
 
-        valores.push(id);
-        const sql = `UPDATE reservas SET estado = ? ${campoResponsable} WHERE id = ?`;
-
-        db.query(sql, valores, (err) => {
+        db.query(sqlUpdate, valores, (err) => {
             if (err) {
                 console.error(err);
                 res.status(500).send('Error');
@@ -189,7 +190,6 @@ app.put('/reservas/:id/estado', (req, res) => {
                     db.query("SELECT * FROM reservas WHERE id = ?", [id], (err, results) => {
                         if (!err && results.length > 0) {
                             const reserva = results[0];
-                            // Nos aseguramos de usar el origen guardado en DB para el email
                             reserva.sucursal_nombre = reserva.local_origen;
                             enviarAvisoEmail(reserva, 'DISPONIBLE');
                         }
