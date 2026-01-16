@@ -211,7 +211,7 @@
         }
 
         // Mensaje dinámico con Artículo y Sucursal
-        const msg = `Hola ${item.cliente_nombre}, te avisamos de One Box que tu producto "${item.descripcion}" ya se encuentra disponible para retirar en nuestra sucursal de ${item.local_origen}. ¡Te esperamos!`;
+        const msg = `Hola ${item.cliente_nombre}, te avisamos de Morph que tu producto "${item.descripcion}" ya se encuentra disponible para retirar en nuestra sucursal de ${item.local_origen}. ¡Te esperamos!`;
         const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
 
         document.getElementById('modalQR').style.display = 'flex';
