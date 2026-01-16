@@ -89,7 +89,7 @@
             <h3 style="color: #25d366; margin-bottom: 10px;">📲 Envío de Aviso</h3>
             <p style="color: #cdd6f4; margin-bottom: 20px; font-size: 0.9em;">Escanee el código con el celular del local para notificar al cliente vía WhatsApp.</p>
             
-            <div id="contenedorQR" style="background: white; padding: 15px; border-radius: 10px; display: inline-block; margin-bottom: 20px;"></div>
+            <div id="contenedorQR" style="background: white; padding: 15px; border-radius: 10px; display: inline-block; margin-bottom: 20px; min-width: 200px; min-height: 200px;"></div>
             
             <div class="modal-botones" style="width: 100%;">
                 <button onclick="cerrarModalQR()" class="btn-azul">CERRAR Y FINALIZAR</button>
@@ -213,7 +213,9 @@
         if (item.estado === 'En Tránsito') {
             botones += `<button class="btn-azul" onclick="cambiarEstadoConFirma(${item.id}, 'Pendiente de Retiro', '¿Confirmar ingreso al local?', true)">LLEGÓ AL LOCAL</button>`;
             if (rol === 'admin' || rol === 'encargado') {
-                botones += `<button class="btn-azul" style="background:#f39c12;" onclick='abrirModalEditar(${JSON.stringify(item)})'>EDITAR</button>`;
+                // Pasamos el item como string seguro
+                const itemData = JSON.stringify(item).replace(/'/g, "&#39;");
+                botones += `<button class="btn-azul" style="background:#f39c12;" onclick='abrirModalEditar(${itemData})'>EDITAR</button>`;
             }
         } else if (item.estado === 'Pendiente de Retiro') {
             botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar retiro del cliente?')">RETIRADO</button>`;
@@ -227,8 +229,12 @@
         return botones;
     }
 
-    // --- LÓGICA QR ---
+    // --- LÓGICA QR MEJORADA ---
     function mostrarQR(id) {
+        // Primero abrimos el modal para que el div contenedor exista y sea visible
+        document.getElementById('modalQR').style.display = 'flex';
+        document.getElementById('contenedorQR').innerHTML = "Cargando aviso...";
+
         fetch(`/reservas?q=${id}`)
         .then(res => res.json())
         .then(datos => {
@@ -239,13 +245,18 @@
             const msg = `Hola ${item.cliente_nombre}, te avisamos de One Box que tu pedido de ${item.descripcion} ya está en el local para retirar.`;
             const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
 
+            // Limpiamos y generamos
             document.getElementById('contenedorQR').innerHTML = "";
             new QRCode(document.getElementById("contenedorQR"), {
                 text: url,
                 width: 200,
-                height: 200
+                height: 200,
+                correctLevel : QRCode.CorrectLevel.H
             });
-            document.getElementById('modalQR').style.display = 'flex';
+        })
+        .catch(err => {
+            console.error(err);
+            document.getElementById('contenedorQR').innerHTML = "Error al generar QR";
         });
     }
 
@@ -310,8 +321,12 @@
             }).then(res => { 
                 if(res.ok) { 
                     cerrarModalFirma();
-                    if(activarQR) mostrarQR(id); 
-                    else cargarReservas();
+                    // IMPORTANTE: Si es cambio a Pendiente de Retiro, mostramos QR
+                    if(activarQR) {
+                        setTimeout(() => mostrarQR(id), 300); 
+                    } else {
+                        cargarReservas();
+                    }
                 } 
             });
         });
