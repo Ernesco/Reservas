@@ -30,10 +30,7 @@ async function enviarAvisoEmail(reserva, tipo) {
                 Gestión de Reservas MO
             </p>
             <p style="font-size: 11px; color: #999999; margin-top: 10px;">
-                Este es un mensaje automático enviado por el sistema de Reservas Mo - reload.net.ar
-            </p>
-            <p style="font-size: 10px; color: #bbb; margin-top: 5px;">
-                Por favor, no responda a este correo.
+                Este es un mensaje automático enviado por el sistema de Reservas Mo - One Box
             </p>
         </footer>
     `;
@@ -44,9 +41,7 @@ async function enviarAvisoEmail(reserva, tipo) {
             <div style="font-family: sans-serif; border: 1px solid #ddd; padding: 20px; border-radius: 10px;">
                 <h2 style="color: #4a90e2;">¡Hola ${reserva.cliente_nombre}!</h2>
                 <p>Tu reserva ha sido registrada correctamente y ya está <strong>en camino</strong> hacia la sucursal.</p>
-                <p><strong>Producto:</strong> ${reserva.descripcion} <br> 
-                <strong>Sucursal de retiro:</strong> ${reserva.sucursal_nombre}</p>
-                <p>Te avisaremos por este medio cuando llegue al local para que puedas retirarlo.</p>
+                <p><strong>Producto:</strong> ${reserva.descripcion}</p>
                 ${footerHtml}
             </div>`;
     } else if (tipo === 'DISPONIBLE') {
@@ -55,20 +50,18 @@ async function enviarAvisoEmail(reserva, tipo) {
             <div style="font-family: sans-serif; border: 1px solid #a6e3a1; padding: 20px; border-radius: 10px;">
                 <h2 style="color: #2e7d32;">¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
                 <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible en la sucursal <strong>${reserva.sucursal_nombre}</strong>.</p>
-                <p>Puedes pasar a retirarlo en el horario habitual del local.</p>
-                <p>¡Te esperamos!</p>
                 ${footerHtml}
             </div>`;
     }
 
     try {
         await resend.emails.send({
-            from: 'Reservas Mo <reservas.mo@reload.net.ar>', 
+            from: 'One Box <reservas.mo@reload.net.ar>', 
             to: reserva.cliente_email,
             subject: asunto,
             html: mensajeHtml,
         });
-        console.log("✅ Email enviado vía API Resend a:", reserva.cliente_email);
+        console.log("✅ Email enviado a:", reserva.cliente_email);
     } catch (error) {
         console.error("❌ Error al enviar vía Resend:", error);
     }
@@ -83,8 +76,7 @@ const db = mysql.createPool({
     port: process.env.MYSQLPORT || 4000,
     ssl: { rejectUnauthorized: false },
     waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
+    connectionLimit: 10
 });
 
 // --- RUTAS ---
@@ -113,17 +105,9 @@ app.post('/reservar', (req, res) => {
     ];
 
     db.query(sql, valores, (err, result) => {
-        if (err) {
-            console.error("Error al guardar:", err);
-            res.status(500).send('Error');
-        } else {
-            enviarAvisoEmail({ 
-                id: result.insertId, 
-                ...data, 
-                sucursal_nombre: data.local_origen 
-            }, 'CONFIRMACION');
-            res.send('Guardado OK');
-        }
+        if (err) return res.status(500).send('Error');
+        enviarAvisoEmail({ id: result.insertId, ...data, sucursal_nombre: data.local_origen }, 'CONFIRMACION');
+        res.send('Guardado OK');
     });
 });
 
@@ -136,7 +120,14 @@ app.get('/reservas', (req, res) => {
     let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ? OR local_origen LIKE ?)`;
     let parametros = [filtroBusqueda, filtroBusqueda, filtroBusqueda, filtroBusqueda];
 
-    if (rol !== 'admin') {
+    if (rol === 'admin') {
+        // Admin ve todo globalmente
+    } else if (rol === 'encargado') {
+        // Encargado ve borrados y no borrados pero SOLO de su sucursal
+        sql += " AND local_origen = ?";
+        parametros.push(sucursalUsuario);
+    } else {
+        // Operador local solo ve lo no borrado de su sucursal
         sql += " AND local_origen = ? AND borrado = 0";
         parametros.push(sucursalUsuario);
     }
@@ -144,12 +135,8 @@ app.get('/reservas', (req, res) => {
     sql += " ORDER BY id DESC";
 
     db.query(sql, parametros, (err, results) => {
-        if (err) {
-            console.error("Error en query:", err);
-            res.status(500).send('Error al leer datos');
-        } else {
-            res.json(results);
-        }
+        if (err) return res.status(500).send('Error al leer datos');
+        res.json(results);
     });
 });
 
@@ -168,11 +155,9 @@ app.put('/reservas/:id/estado', (req, res) => {
         let valores = [];
 
         if (estado === 'Pendiente de Retiro') {
-            // Limpia operador, registra ingreso y fecha ingreso
             sqlUpdate = `UPDATE reservas SET estado = ?, operador_nombre = '', responsable_recibo = ?, fecha_ingreso = NOW() WHERE id = ?`;
             valores = [estado, responsable, id];
         } else if (estado === 'Retirado' || estado === 'Cancelado') {
-            // MODIFICACIÓN: Limpia operador, registra cierre y fecha cierre
             sqlUpdate = `UPDATE reservas SET estado = ?, operador_nombre = '', responsable_finalizado = ?, fecha_cierre = NOW() WHERE id = ?`;
             valores = [estado, responsable, id];
         } else {
@@ -181,23 +166,32 @@ app.put('/reservas/:id/estado', (req, res) => {
         }
 
         db.query(sqlUpdate, valores, (err) => {
-            if (err) {
-                console.error(err);
-                res.status(500).send('Error');
-            } else {
-                if (estado === 'Pendiente de Retiro') {
-                    db.query("SELECT * FROM reservas WHERE id = ?", [id], (err, results) => {
-                        if (!err && results.length > 0) {
-                            const reserva = results[0];
-                            reserva.sucursal_nombre = reserva.local_origen;
-                            enviarAvisoEmail(reserva, 'DISPONIBLE');
-                        }
-                    });
-                }
-                res.send('OK');
+            if (err) return res.status(500).send('Error');
+            if (estado === 'Pendiente de Retiro') {
+                db.query("SELECT * FROM reservas WHERE id = ?", [id], (err, results) => {
+                    if (!err && results.length > 0) {
+                        const r = results[0];
+                        r.sucursal_nombre = r.local_origen;
+                        enviarAvisoEmail(r, 'DISPONIBLE');
+                    }
+                });
             }
+            res.send('OK');
         });
     }
+});
+
+// NUEVA RUTA: Edición de campos (Solo permitido en En Tránsito)
+app.put('/reservas/:id/editar', (req, res) => {
+    const id = req.params.id;
+    const { cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva } = req.body;
+    
+    const sql = `UPDATE reservas SET cliente_nombre=?, cliente_telefono=?, cliente_email=?, prod_codigo=?, descripcion=?, prod_cantidad=?, total_reserva=? WHERE id=? AND estado='En Tránsito'`;
+    
+    db.query(sql, [cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva, id], (err) => {
+        if (err) return res.status(500).send('Error al editar');
+        res.send('OK');
+    });
 });
 
 app.delete('/reservas/:id', (req, res) => {
@@ -238,6 +232,4 @@ app.post('/login', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Sistema funcionando en puerto ${PORT}`);
-});
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 One Box funcionando en ${PORT}`));

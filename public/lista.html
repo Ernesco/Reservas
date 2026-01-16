@@ -56,6 +56,33 @@
         </div>
     </div>
 
+    <div id="modalEditar" class="modal-overlay">
+        <div class="modal-caja" style="max-width: 500px;">
+            <h3 style="color: #f39c12;">✏️ Editar Reserva</h3>
+            <div id="formEditar" style="text-align: left; width: 100%;">
+                <input type="hidden" id="editId">
+                <label>Nombre Cliente:</label>
+                <input type="text" id="editNombre">
+                <label>Teléfono:</label>
+                <input type="text" id="editTel">
+                <label>Email:</label>
+                <input type="text" id="editEmail">
+                <label>Código Producto:</label>
+                <input type="text" id="editCodigo">
+                <label>Descripción:</label>
+                <input type="text" id="editDesc">
+                <label>Cantidad:</label>
+                <input type="number" id="editCant">
+                <label>Total ($):</label>
+                <input type="number" id="editTotal">
+            </div>
+            <div class="modal-botones" style="width: 100%; margin-top: 15px;">
+                <button onclick="guardarEdicion()" class="btn-azul" style="background: #f39c12;">GUARDAR CAMBIOS</button>
+                <button onclick="document.getElementById('modalEditar').style.display='none'" id="modalCancelar">CANCELAR</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <div class="footer-contenido">
             <img src="img/logo.png" alt="Logo One Box" class="footer-logo">
@@ -81,7 +108,6 @@
         } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
             columnas += `<th>Ingresó al Local</th><th>Fecha Ingreso</th>`;
         } else if (estadoActualFiltrado === 'Finalizado') {
-            // Se quita operador y se pone Fecha Cierre
             columnas += `<th>Cerrado por</th><th>Fecha Cierre</th>`;
         } else if (estadoActualFiltrado === 'Eliminados') {
             columnas += `<th>Recibió</th><th>Finalizó</th><th>Operador</th>`;
@@ -127,7 +153,6 @@
 
                 filtrados.forEach(item => {
                     const fechaRegistro = new Date(item.fecha_registro).toLocaleDateString('es-AR');
-                    // Solo fecha (sin hora) para ingreso y cierre
                     const fechaIngreso = item.fecha_ingreso ? new Date(item.fecha_ingreso).toLocaleDateString('es-AR') : '---';
                     const fechaCierre = item.fecha_cierre ? new Date(item.fecha_cierre).toLocaleDateString('es-AR') : '---';
 
@@ -162,47 +187,96 @@
 
     function getBotonesAccion(item) {
         const rol = sessionStorage.getItem('usuario_rol');
+        
+        // Configuración WhatsApp
+        const telLimpio = item.cliente_telefono.replace(/\D/g, '');
+        const mensajeWA = `Hola ${item.cliente_nombre}, te contactamos de One Box por tu reserva #${item.id} (${item.descripcion}).`;
+        const urlWA = `https://wa.me/${telLimpio}?text=${encodeURIComponent(mensajeWA)}`;
+
+        let botones = `<a href="${urlWA}" target="_blank" class="btn-azul" style="background:#25d366; color:white; text-decoration:none; display:flex; justify-content:center; align-items:center; width:130px; height:30px; font-size:11px; margin-bottom:5px; border-radius:6px; font-weight:bold;">WHATSAPP</a>`;
 
         if (item.borrado === 1) {
-            return `
-                <select onchange="restaurarEspecial(${item.id}, this.value)" style="padding:5px; border-radius:5px; font-size:11px; background:#313244; color:white;">
-                    <option value="">Restaurar a...</option>
-                    <option value="En Tránsito">En Tránsito</option>
-                    <option value="Pendiente de Retiro">Pendiente de Retiro</option>
-                    <option value="Finalizado">Finalizado</option>
-                </select>
-                <button class="btn-borrar" onclick="confirmarEliminarDefinitivo(${item.id})">ELIMINAR DEF.</button>
-            `;
+            if (rol === 'admin' || rol === 'encargado') {
+                return botones + `
+                    <select onchange="restaurarEspecial(${item.id}, this.value)" style="width:130px; padding:5px; border-radius:5px; font-size:11px; background:#313244; color:white; margin-bottom:5px;">
+                        <option value="">Restaurar a...</option>
+                        <option value="En Tránsito">En Tránsito</option>
+                        <option value="Pendiente de Retiro">Pendiente de Retiro</option>
+                    </select>
+                    <button class="btn-borrar" style="width:130px;" onclick="confirmarEliminarDefinitivo(${item.id})">ELIMINAR DEF.</button>
+                `;
+            }
+            return botones;
         }
+
         if (item.estado === 'En Tránsito') {
-            return `<button class="btn-azul" onclick="cambiarEstadoConFirma(${item.id}, 'Pendiente de Retiro', '¿Confirma que el pedido llegó al local?')">LLEGÓ AL LOCAL</button>`;
+            botones += `<button class="btn-azul" onclick="cambiarEstadoConFirma(${item.id}, 'Pendiente de Retiro', '¿Confirma que el pedido llegó al local?')">LLEGÓ AL LOCAL</button>`;
+            if (rol === 'admin' || rol === 'encargado') {
+                botones += `<button class="btn-azul" style="background:#f39c12;" onclick="abrirModalEditar(${JSON.stringify(item).replace(/"/g, '&quot;')})">EDITAR</button>`;
+            }
         } 
+        
         if (item.estado === 'Pendiente de Retiro') {
-            return `
-                <button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirma que el cliente retiró el producto?')">RETIRADO</button>
-                <button class="btn-borrar" onclick="cambiarEstadoConFirma(${item.id}, 'Cancelado', '¿Desea cancelar esta reserva?')">CANCELAR</button>
-            `;
+            botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirma que el cliente retiró el producto?')">RETIRADO</button>`;
+            if (rol === 'admin' || rol === 'encargado') {
+                botones += `<button class="btn-borrar" onclick="cambiarEstadoConFirma(${item.id}, 'Cancelado', '¿Desea cancelar esta reserva?')">CANCELAR</button>`;
+            }
         }
         
-        // Solo el admin puede eliminar reservas en estado Finalizado
         if (item.estado === 'Retirado' || item.estado === 'Cancelado') {
-            if (rol === 'admin') {
-                return `<button class="btn-borrar" onclick="confirmarBorrarReserva(${item.id})">ELIMINAR</button>`;
-            } else {
-                return `<span style="font-size:0.8em; color:gray;">Sin acciones</span>`;
+            if (rol === 'admin' || rol === 'encargado') {
+                botones += `<button class="btn-borrar" onclick="confirmarBorrarReserva(${item.id})">BORRAR</button>`;
             }
         }
 
-        return `<button class="btn-borrar" onclick="confirmarBorrarReserva(${item.id})">ELIMINAR</button>`;
+        return botones;
     }
 
+    // --- FUNCIONES DE EDICIÓN ---
+    function abrirModalEditar(item) {
+        document.getElementById('editId').value = item.id;
+        document.getElementById('editNombre').value = item.cliente_nombre;
+        document.getElementById('editTel').value = item.cliente_telefono;
+        document.getElementById('editEmail').value = item.cliente_email;
+        document.getElementById('editCodigo').value = item.prod_codigo;
+        document.getElementById('editDesc').value = item.descripcion;
+        document.getElementById('editCant').value = item.prod_cantidad;
+        document.getElementById('editTotal').value = item.total_reserva;
+        document.getElementById('modalEditar').style.display = 'flex';
+    }
+
+    function guardarEdicion() {
+        const id = document.getElementById('editId').value;
+        const data = {
+            cliente_nombre: document.getElementById('editNombre').value,
+            cliente_telefono: document.getElementById('editTel').value,
+            cliente_email: document.getElementById('editEmail').value,
+            prod_codigo: document.getElementById('editCodigo').value,
+            descripcion: document.getElementById('editDesc').value,
+            prod_cantidad: document.getElementById('editCant').value,
+            total_reserva: document.getElementById('editTotal').value
+        };
+
+        fetch(`/reservas/${id}/editar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        }).then(res => {
+            if(res.ok) {
+                document.getElementById('modalEditar').style.display = 'none';
+                cargarReservas();
+            } else {
+                alert("Error al editar. Verifique que la reserva aún esté 'En Tránsito'");
+            }
+        });
+    }
+
+    // --- FUNCIONES EXISTENTES ---
     function abrirModalFirma(pregunta, requiereInput = true, accionCallback) {
         document.getElementById('mensajeFirma').textContent = pregunta;
         document.getElementById('contenedorInputFirma').style.display = requiereInput ? 'block' : 'none';
         document.getElementById('modalFirma').style.display = 'flex';
-        
         if(requiereInput) document.getElementById('inputNombreResponsable').focus();
-        
         document.getElementById('modalAceptar').onclick = accionCallback;
     }
 
@@ -253,7 +327,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const rol = sessionStorage.getItem('usuario_rol');
-        if (rol === 'admin') document.getElementById('btnTabEliminados').style.display = 'inline-block';
+        if (rol === 'admin' || rol === 'encargado') document.getElementById('btnTabEliminados').style.display = 'inline-block';
         actualizarEncabezados();
         cargarReservas();
     });
