@@ -198,18 +198,25 @@
         return botones;
     }
 
-    // LÓGICA QR PERSONALIZADA
+    // LÓGICA QR MEJORADA CON CORRECCIÓN DE NÚMERO Y MENSAJE DINÁMICO
     function mostrarQR(id) {
         const item = reservasCargadas.find(r => r.id == id);
         if (!item) return;
 
-        const tel = item.cliente_telefono.replace(/\D/g, '');
+        // Limpieza y corrección del número para Argentina (prefijo 549)
+        let tel = item.cliente_telefono.replace(/\D/g, '');
+        if (tel.startsWith('0')) tel = tel.substring(1);
+        if (!tel.startsWith('549')) {
+            tel = '549' + tel;
+        }
+
         // Mensaje dinámico con Artículo y Sucursal
         const msg = `Hola ${item.cliente_nombre}, te avisamos de One Box que tu producto "${item.descripcion}" ya se encuentra disponible para retirar en nuestra sucursal de ${item.local_origen}. ¡Te esperamos!`;
         const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
 
         document.getElementById('modalQR').style.display = 'flex';
 
+        // Pausa de 200ms para asegurar el renderizado correcto del Canvas
         setTimeout(() => {
             const canvas = document.getElementById('canvasQR');
             QRCode.toCanvas(canvas, url, { 
