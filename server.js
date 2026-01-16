@@ -22,7 +22,6 @@ async function enviarAvisoEmail(reserva, tipo) {
     let asunto = "";
     let mensajeHtml = "";
     
-    // Pie de página unificado (Footer)
     const footerHtml = `
         <br>
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
@@ -57,7 +56,6 @@ async function enviarAvisoEmail(reserva, tipo) {
                 <h2 style="color: #2e7d32;">¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
                 <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible en la sucursal <strong>${reserva.sucursal_nombre}</strong>.</p>
                 <p>Puedes pasar a retirarlo en el horario habitual del local.</p>
-                <p>¡Te esperamos!</p>
                 <p>¡Te esperamos!</p>
                 ${footerHtml}
             </div>`;
@@ -170,11 +168,12 @@ app.put('/reservas/:id/estado', (req, res) => {
         let valores = [];
 
         if (estado === 'Pendiente de Retiro') {
-            // MODIFICACIÓN: Quita el operador inicial y registra responsable + fecha ingreso
+            // Limpia operador, registra ingreso y fecha ingreso
             sqlUpdate = `UPDATE reservas SET estado = ?, operador_nombre = '', responsable_recibo = ?, fecha_ingreso = NOW() WHERE id = ?`;
             valores = [estado, responsable, id];
         } else if (estado === 'Retirado' || estado === 'Cancelado') {
-            sqlUpdate = `UPDATE reservas SET estado = ?, responsable_finalizado = ? WHERE id = ?`;
+            // MODIFICACIÓN: Limpia operador, registra cierre y fecha cierre
+            sqlUpdate = `UPDATE reservas SET estado = ?, operador_nombre = '', responsable_finalizado = ?, fecha_cierre = NOW() WHERE id = ?`;
             valores = [estado, responsable, id];
         } else {
             sqlUpdate = `UPDATE reservas SET estado = ? WHERE id = ?`;
