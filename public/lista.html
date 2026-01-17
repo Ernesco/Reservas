@@ -187,7 +187,7 @@
         // Lógica según Estado
         if (item.estado === 'En Tránsito') {
             // Usuario de local (vendedor) puede dar ingreso
-            if (rol === 'admin' || rol === 'encargado' || rol === 'vendedor') {
+            if (rol === 'admin' || rol === 'encargado' || rol === 'local') {
                 botones += `<button class="btn-azul" onclick="cambiarEstadoConFirma(${item.id}, 'Pendiente de Retiro', '¿Confirmar ingreso?', true)">LLEGÓ AL LOCAL</button>`;
             }
             // Solo encargado/admin puede editar datos base
@@ -198,7 +198,7 @@
         } 
         else if (item.estado === 'Pendiente de Retiro') {
             // Usuario de local (vendedor) puede marcar como Retirado o Cancelar
-            if (rol === 'admin' || rol === 'encargado' || rol === 'vendedor') {
+            if (rol === 'admin' || rol === 'encargado' || rol === 'local') {
                 botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar retiro?')">RETIRADO</button>`;
                 botones += `<button class="btn-borrar" onclick="cambiarEstadoConFirma(${item.id}, 'Cancelado', '¿Desea cancelar?')">CANCELAR</button>`;
             }
