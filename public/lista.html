@@ -174,6 +174,7 @@
         const rol = sessionStorage.getItem('usuario_rol');
         let botones = "";
 
+        // Lógica para Papelera (Eliminados)
         if (item.borrado === 1) {
             if (rol === 'admin' || rol === 'encargado') {
                 return `<select onchange="restaurarEspecial(${item.id}, this.value)" style="width:130px; padding:5px; border-radius:5px; font-size:11px; background:#313244; color:white;">
@@ -183,40 +184,49 @@
             return "";
         }
 
+        // Lógica según Estado
         if (item.estado === 'En Tránsito') {
-            botones += `<button class="btn-azul" onclick="cambiarEstadoConFirma(${item.id}, 'Pendiente de Retiro', '¿Confirmar ingreso?', true)">LLEGÓ AL LOCAL</button>`;
+            // Usuario de local (vendedor) puede dar ingreso
+            if (rol === 'admin' || rol === 'encargado' || rol === 'vendedor') {
+                botones += `<button class="btn-azul" onclick="cambiarEstadoConFirma(${item.id}, 'Pendiente de Retiro', '¿Confirmar ingreso?', true)">LLEGÓ AL LOCAL</button>`;
+            }
+            // Solo encargado/admin puede editar datos base
             if (rol === 'admin' || rol === 'encargado') {
                 const itemData = JSON.stringify(item).replace(/'/g, "&apos;");
                 botones += `<button class="btn-azul" style="background:#f39c12;" onclick='abrirModalEditar(${itemData})'>EDITAR</button>`;
             }
-        } else if (item.estado === 'Pendiente de Retiro') {
-            botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar retiro?')">RETIRADO</button>`;
-            if (rol === 'admin' || rol === 'encargado') botones += `<button class="btn-borrar" onclick="cambiarEstadoConFirma(${item.id}, 'Cancelado', '¿Desea cancelar?')">CANCELAR</button>`;
-        } else if (rol === 'admin' || rol === 'encargado') {
-            botones += `<button class="btn-borrar" onclick="confirmarBorrarReserva(${item.id})">BORRAR</button>`;
+        } 
+        else if (item.estado === 'Pendiente de Retiro') {
+            // Usuario de local (vendedor) puede marcar como Retirado o Cancelar
+            if (rol === 'admin' || rol === 'encargado' || rol === 'vendedor') {
+                botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar retiro?')">RETIRADO</button>`;
+                botones += `<button class="btn-borrar" onclick="cambiarEstadoConFirma(${item.id}, 'Cancelado', '¿Desea cancelar?')">CANCELAR</button>`;
+            }
+        } 
+        else if (item.estado === 'Retirado' || item.estado === 'Cancelado') {
+            // En finalizados, SOLO el encargado/admin puede enviar a papelera
+            if (rol === 'admin' || rol === 'encargado') {
+                botones += `<button class="btn-borrar" onclick="confirmarBorrarReserva(${item.id})">BORRAR</button>`;
+            }
         }
         return botones;
     }
 
-    // LÓGICA QR MEJORADA CON CORRECCIÓN DE NÚMERO Y MENSAJE DINÁMICO
     function mostrarQR(id) {
         const item = reservasCargadas.find(r => r.id == id);
         if (!item) return;
 
-        // Limpieza y corrección del número para Argentina (prefijo 549)
         let tel = item.cliente_telefono.replace(/\D/g, '');
         if (tel.startsWith('0')) tel = tel.substring(1);
         if (!tel.startsWith('549')) {
             tel = '549' + tel;
         }
 
-        // Mensaje dinámico con Artículo y Sucursal
-        const msg = `Hola ${item.cliente_nombre}, te avisamos de Morph que tu producto "${item.descripcion}" ya se encuentra disponible para retirar en nuestra sucursal de ${item.local_origen}. ¡Te esperamos!`;
+        const msg = `Hola ${item.cliente_nombre}, te avisamos de One Box que tu producto "${item.descripcion}" ya se encuentra disponible para retirar en nuestra sucursal de ${item.local_origen}. ¡Te esperamos!`;
         const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
 
         document.getElementById('modalQR').style.display = 'flex';
 
-        // Pausa de 200ms para asegurar el renderizado correcto del Canvas
         setTimeout(() => {
             const canvas = document.getElementById('canvasQR');
             QRCode.toCanvas(canvas, url, { 
