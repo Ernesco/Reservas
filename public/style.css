@@ -65,8 +65,10 @@ header a:hover {
     flex-direction: column;
     align-items: center;
     width: 90% !important;
-    max-width: 450px !important; /* CORRECCIÓN: Limita el ancho en pantallas grandes */
+    /* Ajustado a medida relativa (rem) para que escale mejor con el zoom del navegador */
+    max-width: 28rem !important; 
     margin: auto;
+    box-sizing: border-box;
 }
 
 .caja-central h1, .caja-central h2, legend {
@@ -148,8 +150,8 @@ input, select, textarea {
 
 /* --- TABLA DE RESERVAS Y SOLAPAS --- */
 .contenedor-lista {
-    width: 95%;
-    max-width: 1400px; /* CORRECCIÓN: Limita el ancho máximo de la lista */
+    width: 98% !important; /* Ocupa casi todo el ancho de la pantalla */
+    max-width: 100% !important; 
     margin: 0 auto;
 }
 
@@ -192,25 +194,26 @@ input, select, textarea {
 }
 
 .tabla-scroll-container {
-    overflow-x: auto;
-    overflow-y: auto; /* CORRECCIÓN: Permite scroll vertical interno */
-    max-height: 65vh; /* CORRECCIÓN: Hace que la barra de scroll sea visible siempre */
+    overflow-x: auto; /* Mantiene el scroll horizontal si las columnas no caben */
+    overflow-y: visible !important; /* ELIMINA la barra lateral interna */
     border-radius: 12px;
     background-color: #313244;
     padding: 10px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    width: 100%;
+    box-sizing: border-box;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1200px;
+    min-width: 1100px; /* Asegura que la tabla no se aplaste demasiado */
 }
 
-/* CORRECCIÓN: Encabezado fijo para no perder la referencia al bajar */
+/* Encabezado fijo que se queda arriba al bajar con el scroll del navegador */
 th {
     position: sticky;
-    top: 0;
+    top: 70px; /* Se pega debajo del header de 70px */
     z-index: 10;
     background-color: #45475a;
     color: #89b4fa;
@@ -335,7 +338,6 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     .modal-caja { padding: 20px !important; width: 95% !important; }
     .modal-caja button { max-width: 100% !important; font-size: 0.9rem !important; }
     
-    /* CORRECCIÓN: Scroll horizontal suave para botones de filtro en móvil */
     .filtros-estados {
         display: flex;
         overflow-x: auto;
