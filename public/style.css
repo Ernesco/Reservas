@@ -55,7 +55,7 @@ header a:hover {
     color: #fff;
 }
 
-/* --- CAJAS CENTRALES --- */
+/* --- CAJAS CENTRALES (LOGIN Y PANEL) --- */
 .caja-central {
     background-color: #ffffff;
     padding: 2.5rem;
@@ -64,8 +64,8 @@ header a:hover {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 90%;
-    max-width: 450px;
+    width: 90% !important;
+    max-width: 450px !important; /* CORRECCIÓN: Limita el ancho en pantallas grandes */
     margin: auto;
 }
 
@@ -149,7 +149,7 @@ input, select, textarea {
 /* --- TABLA DE RESERVAS Y SOLAPAS --- */
 .contenedor-lista {
     width: 95%;
-    max-width: 1800px;
+    max-width: 1400px; /* CORRECCIÓN: Limita el ancho máximo de la lista */
     margin: 0 auto;
 }
 
@@ -193,6 +193,8 @@ input, select, textarea {
 
 .tabla-scroll-container {
     overflow-x: auto;
+    overflow-y: auto; /* CORRECCIÓN: Permite scroll vertical interno */
+    max-height: 65vh; /* CORRECCIÓN: Hace que la barra de scroll sea visible siempre */
     border-radius: 12px;
     background-color: #313244;
     padding: 10px;
@@ -205,7 +207,11 @@ table {
     min-width: 1200px;
 }
 
+/* CORRECCIÓN: Encabezado fijo para no perder la referencia al bajar */
 th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
     background-color: #45475a;
     color: #89b4fa;
     padding: 15px;
@@ -323,11 +329,20 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     body { padding-top: 85px; }
     header { height: 60px; padding: 0 15px; }
     header a, .btn-header { padding: 6px 12px; font-size: 0.85rem; }
-    .caja-central { padding: 1.5rem; width: 95%; }
+    .caja-central { padding: 1.5rem; width: 95% !important; }
     .fila-controles { flex-direction: column; align-items: stretch; gap: 10px; }
     #buscador { max-width: 100% !important; }
     .modal-caja { padding: 20px !important; width: 95% !important; }
     .modal-caja button { max-width: 100% !important; font-size: 0.9rem !important; }
+    
+    /* CORRECCIÓN: Scroll horizontal suave para botones de filtro en móvil */
+    .filtros-estados {
+        display: flex;
+        overflow-x: auto;
+        gap: 8px;
+        padding-bottom: 5px;
+    }
+    .btn-filtro { white-space: nowrap; }
 }
 
 @media (max-width: 480px) {
@@ -337,28 +352,28 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
 
 /* --- AJUSTE AL BODY PARA FOOTER PEGAJOSO --- */
 html, body {
-    height: 100%; /* Obliga al documento a ocupar toda la pantalla */
+    height: 100%; 
     margin: 0;
 }
 
 body {
     display: flex;
-    flex-direction: column; /* Organiza el contenido en columna */
+    flex-direction: column;
     min-height: 100vh;
 }
 
 /* --- ESTILO DEL FOOTER (PIE DE PÁGINA) --- */
 footer {
     width: 100%;
-    background-color: #11111b !important; /* Color oscuro sólido para bloquear el fondo */
+    background-color: #11111b !important;
     border-top: 2px solid #89b4fa;
     padding: 30px 0;
-    margin-top: auto; /* Empuja el footer al final absoluto */
+    margin-top: auto;
     z-index: 1001;
     display: flex;
     justify-content: center;
     align-items: center;
-    flex-shrink: 0; /* Evita que el footer se encoja */
+    flex-shrink: 0;
 }
 
 .footer-contenido {
