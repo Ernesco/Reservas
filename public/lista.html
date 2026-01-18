@@ -104,10 +104,16 @@
         const rol = sessionStorage.getItem('usuario_rol');
         let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th><th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
 
-        if (estadoActualFiltrado === 'En Tránsito') columnas += `<th>Pedido a</th><th>Contacto</th><th>Operador</th>`;
-        else if (estadoActualFiltrado === 'Pendiente de Retiro') columnas += `<th>Ingresó al Local</th><th>Fecha Ingreso</th>`;
-        else if (estadoActualFiltrado === 'Finalizado') columnas += `<th>Cerrado por</th><th>Fecha Cierre</th>`;
-        else if (estadoActualFiltrado === 'Eliminados') columnas += `<th>Recibió</th><th>Finalizó</th><th>Operador</th>`;
+        // UNIFICACIÓN DE COLUMNAS EN LOS ENCABEZADOS
+        if (estadoActualFiltrado === 'En Tránsito') {
+            columnas += `<th>Destino (Contacto)</th><th>Operador</th>`;
+        } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
+            columnas += `<th>Ingreso Local (Fecha)</th>`;
+        } else if (estadoActualFiltrado === 'Finalizado') {
+            columnas += `<th>Cierre (Fecha)</th>`;
+        } else if (estadoActualFiltrado === 'Eliminados') {
+            columnas += `<th>Ingresó</th><th>Finalizó</th><th>Operador</th>`;
+        }
 
         if (rol === 'admin') columnas += `<th>Origen</th>`;
         columnas += `<th>Acciones</th>`;
@@ -149,7 +155,7 @@
 
                     let fila = `<tr>
                         <td>#${item.id}</td>
-                        <td style="font-size: 0.9em;">${fReg}</td>
+                        <td style="font-size: 0.85em;">${fReg}</td>
                         <td><strong>${item.cliente_nombre}</strong><br><small>${item.cliente_telefono}</small></td>
                         <td><small>${item.cliente_email || '---'}</small></td>
                         <td><code>${item.prod_codigo}</code></td>
@@ -158,10 +164,16 @@
                         <td style="font-weight:bold">$${item.total_reserva}</td>
                         <td><span class="badge">${item.estado}</span></td>`;
 
-                    if (estadoActualFiltrado === 'En Tránsito') fila += `<td>${item.sucursal_nombre}</td><td>${item.sucursal_contacto}</td><td>${item.operador_nombre}</td>`;
-                    else if (estadoActualFiltrado === 'Pendiente de Retiro') fila += `<td>${item.responsable_recibo || '---'}</td><td><small>${fIng}</small></td>`;
-                    else if (estadoActualFiltrado === 'Finalizado') fila += `<td>${item.responsable_finalizado || '---'}</td><td><small>${fCie}</small></td>`;
-                    else if (estadoActualFiltrado === 'Eliminados') fila += `<td>${item.responsable_recibo || '---'}</td><td>${item.responsable_finalizado || '---'}</td><td>${item.operador_nombre || '---'}</td>`;
+                    // UNIFICACIÓN DE DATOS EN LAS CELDAS
+                    if (estadoActualFiltrado === 'En Tránsito') {
+                        fila += `<td><strong>${item.sucursal_nombre}</strong><br><small>(${item.sucursal_contacto})</small></td><td>${item.operador_nombre}</td>`;
+                    } else if (estadoActualFiltrado === 'Pendiente de Retiro') {
+                        fila += `<td><strong>${item.responsable_recibo || '---'}</strong><br><small>${fIng}</small></td>`;
+                    } else if (estadoActualFiltrado === 'Finalizado') {
+                        fila += `<td><strong>${item.responsable_finalizado || '---'}</strong><br><small>${fCie}</small></td>`;
+                    } else if (estadoActualFiltrado === 'Eliminados') {
+                        fila += `<td>${item.responsable_recibo || '---'}</td><td>${item.responsable_finalizado || '---'}</td><td>${item.operador_nombre || '---'}</td>`;
+                    }
 
                     if (rol === 'admin') fila += `<td style="color: #89b4fa; font-weight: bold;">${item.local_origen || 'S/D'}</td>`;
                     fila += `<td><div class="celda-acciones">${getBotonesAccion(item)}</div></td></tr>`;
@@ -170,11 +182,11 @@
             });
     }
 
+    // Funciones de botones y lógica (getBotonesAccion, cambiarEstado, etc.) se mantienen igual
     function getBotonesAccion(item) {
         const rol = sessionStorage.getItem('usuario_rol');
         let botones = "";
 
-        // Lógica para Papelera (Eliminados)
         if (item.borrado === 1) {
             if (rol === 'admin' || rol === 'encargado') {
                 return `<select onchange="restaurarEspecial(${item.id}, this.value)" style="width:130px; padding:5px; border-radius:5px; font-size:11px; background:#313244; color:white;">
@@ -184,27 +196,22 @@
             return "";
         }
 
-        // Lógica según Estado
         if (item.estado === 'En Tránsito') {
-            // Usuario de local (vendedor) puede dar ingreso
             if (rol === 'admin' || rol === 'encargado' || rol === 'local') {
                 botones += `<button class="btn-azul" onclick="cambiarEstadoConFirma(${item.id}, 'Pendiente de Retiro', '¿Confirmar ingreso?', true)">LLEGÓ AL LOCAL</button>`;
             }
-            // Solo encargado/admin puede editar datos base
             if (rol === 'admin' || rol === 'encargado') {
                 const itemData = JSON.stringify(item).replace(/'/g, "&apos;");
                 botones += `<button class="btn-azul" style="background:#f39c12;" onclick='abrirModalEditar(${itemData})'>EDITAR</button>`;
             }
         } 
         else if (item.estado === 'Pendiente de Retiro') {
-            // Usuario de local (vendedor) puede marcar como Retirado o Cancelar
             if (rol === 'admin' || rol === 'encargado' || rol === 'local') {
                 botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar retiro?')">RETIRADO</button>`;
                 botones += `<button class="btn-borrar" onclick="cambiarEstadoConFirma(${item.id}, 'Cancelado', '¿Desea cancelar?')">CANCELAR</button>`;
             }
         } 
         else if (item.estado === 'Retirado' || item.estado === 'Cancelado') {
-            // En finalizados, SOLO el encargado/admin puede enviar a papelera
             if (rol === 'admin' || rol === 'encargado') {
                 botones += `<button class="btn-borrar" onclick="confirmarBorrarReserva(${item.id})">BORRAR</button>`;
             }
@@ -215,27 +222,15 @@
     function mostrarQR(id) {
         const item = reservasCargadas.find(r => r.id == id);
         if (!item) return;
-
         let tel = item.cliente_telefono.replace(/\D/g, '');
         if (tel.startsWith('0')) tel = tel.substring(1);
-        if (!tel.startsWith('549')) {
-            tel = '549' + tel;
-        }
-
+        if (!tel.startsWith('549')) tel = '549' + tel;
         const msg = `Hola ${item.cliente_nombre}, te avisamos de One Box que tu producto "${item.descripcion}" ya se encuentra disponible para retirar en nuestra sucursal de ${item.local_origen}. ¡Te esperamos!`;
         const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
-
         document.getElementById('modalQR').style.display = 'flex';
-
         setTimeout(() => {
             const canvas = document.getElementById('canvasQR');
-            QRCode.toCanvas(canvas, url, { 
-                width: 240,
-                margin: 2,
-                color: { dark: "#000000", light: "#ffffff" }
-            }, function (error) {
-                if (error) console.error("Error al generar QR:", error);
-            });
+            QRCode.toCanvas(canvas, url, { width: 240, margin: 2, color: { dark: "#000000", light: "#ffffff" } });
         }, 200);
     }
 
@@ -260,7 +255,6 @@
         abrirModalFirma(preg, true, () => {
             const resp = document.getElementById('inputNombreResponsable').value.trim();
             if (!resp) return alert("Ingrese su nombre.");
-            
             fetch(`/reservas/${id}/estado`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
