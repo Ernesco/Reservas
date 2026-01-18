@@ -26,7 +26,7 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 0 5%;
-    z-index: 1000;
+    z-index: 1001; /* Un nivel por encima del sticky th */
     box-sizing: border-box;
 }
 
@@ -65,7 +65,6 @@ header a:hover {
     flex-direction: column;
     align-items: center;
     width: 90% !important;
-    /* Ajustado a medida relativa (rem) para que escale mejor con el zoom del navegador */
     max-width: 28rem !important; 
     margin: auto;
     box-sizing: border-box;
@@ -150,7 +149,7 @@ input, select, textarea {
 
 /* --- TABLA DE RESERVAS Y SOLAPAS --- */
 .contenedor-lista {
-    width: 98% !important; /* Ocupa casi todo el ancho de la pantalla */
+    width: 98% !important;
     max-width: 100% !important; 
     margin: 0 auto;
 }
@@ -194,32 +193,35 @@ input, select, textarea {
 }
 
 .tabla-scroll-container {
-    overflow-x: auto; /* Mantiene el scroll horizontal si las columnas no caben */
-    overflow-y: visible !important; /* ELIMINA la barra lateral interna */
+    overflow-x: auto;
+    overflow-y: visible !important;
     border-radius: 12px;
     background-color: #313244;
     padding: 10px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     width: 100%;
     box-sizing: border-box;
+    margin-top: 10px;
 }
 
 table {
     width: 100%;
-    border-collapse: collapse;
-    min-width: 1100px; /* Asegura que la tabla no se aplaste demasiado */
+    border-collapse: separate; /* Cambiado a separate para que sticky funcione bien */
+    border-spacing: 0;
+    min-width: 1100px;
 }
 
-/* Encabezado fijo que se queda arriba al bajar con el scroll del navegador */
+/* CORRECCIÓN: Encabezado fijo con sombra para no tapar la primera fila */
 th {
     position: sticky;
-    top: 70px; /* Se pega debajo del header de 70px */
-    z-index: 10;
+    top: 70px; /* Altura exacta del header */
+    z-index: 100; /* Debajo del header (1001) pero arriba de td */
     background-color: #45475a;
     color: #89b4fa;
     padding: 15px;
     text-transform: uppercase;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    box-shadow: 0 4px 4px rgba(0,0,0,0.3); /* Sombra para separar de la primera fila */
 }
 
 td {
@@ -292,40 +294,6 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     box-sizing: border-box !important;
 }
 
-.modal-overlay button, .modal-caja button, [class*="modal"] button {
-    display: flex !important;
-    visibility: visible !important;
-    justify-content: center !important;
-    align-items: center !important;
-    width: 100% !important;
-    max-width: 320px !important;
-    height: 50px !important;
-    margin: 15px auto 0 !important;
-    border-radius: 12px !important;
-    font-weight: bold !important;
-    cursor: pointer !important;
-    font-size: 1rem !important;
-    border: none !important;
-    text-transform: uppercase !important;
-    transition: 0.3s !important;
-    box-sizing: border-box !important;
-}
-
-#modalAceptar, #btnConfirmarFirma, .btn-confirmar-modal, button[onclick*="confirmar"], button[onclick*="cerrar"], button[onclick*="Aceptar"], button[onclick*="location"] {
-    background-color: #4a90e2 !important;
-    color: white !important;
-}
-
-#modalCancelar, button[onclick*="cerrarModalFirma"], button[onclick*="Cancelar"] {
-    background-color: #313244 !important;
-    color: #e0e6f8 !important;
-    border: 1px solid #45475a !important;
-}
-
-.modal-caja button:not([onclick]):not([id]):not([class]) {
-    display: none !important;
-}
-
 /* --- MEDIA QUERIES --- */
 
 @media (max-width: 768px) {
@@ -335,21 +303,7 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     .caja-central { padding: 1.5rem; width: 95% !important; }
     .fila-controles { flex-direction: column; align-items: stretch; gap: 10px; }
     #buscador { max-width: 100% !important; }
-    .modal-caja { padding: 20px !important; width: 95% !important; }
-    .modal-caja button { max-width: 100% !important; font-size: 0.9rem !important; }
-    
-    .filtros-estados {
-        display: flex;
-        overflow-x: auto;
-        gap: 8px;
-        padding-bottom: 5px;
-    }
-    .btn-filtro { white-space: nowrap; }
-}
-
-@media (max-width: 480px) {
-    header { justify-content: space-around; }
-    .logo-texto { display: none; }
+    th { top: 60px; font-size: 0.75rem; } /* Ajuste de sticky para móvil */
 }
 
 /* --- AJUSTE AL BODY PARA FOOTER PEGAJOSO --- */
@@ -376,41 +330,4 @@ footer {
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
-}
-
-.footer-contenido {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-    text-align: center;
-}
-
-.footer-logo {
-    display: block !important;
-    max-width: 150px;
-    height: auto;
-    margin-bottom: 10px;
-}
-
-footer p {
-    color: #bac2de;
-    font-size: 0.9rem;
-    margin: 0 0 10px 0;
-}
-
-.footer-links {
-    display: flex;
-    gap: 20px;
-}
-
-.footer-links a {
-    color: #89b4fa;
-    text-decoration: none;
-    font-size: 0.85rem;
-    transition: 0.3s;
-}
-
-.footer-links a:hover {
-    color: #f38ba8;
 }
