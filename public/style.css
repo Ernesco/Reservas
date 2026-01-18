@@ -4,7 +4,7 @@ body {
     background-color: #1e1e2e;
     color: #e0e6f8;
     margin: 0;
-    padding-top: 100px;
+    padding-top: 110px; /* Aumentado para dar aire al header y evitar solapamiento inicial */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -25,7 +25,7 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 0 5%;
-    z-index: 2000; /* Prioridad máxima por sobre la tabla */
+    z-index: 3000; /* Prioridad máxima */
     box-sizing: border-box;
 }
 
@@ -71,16 +71,12 @@ header a:hover {
 
 .caja-central h1, .caja-central h2, legend {
     text-align: center !important;
-    align-self: center;
-    display: block;
-    width: 100%;
     color: #313244;
     margin-bottom: 1rem;
 }
 
 label {
     text-align: left !important;
-    align-self: flex-start;
     display: block;
     width: 100%;
     color: #5e616b;
@@ -151,7 +147,7 @@ input, select, textarea {
     width: 98% !important;
     max-width: 100% !important; 
     margin: 0 auto;
-    flex: 1; /* Permite que el contenido empuje al footer al final */
+    flex: 1;
 }
 
 .fila-controles {
@@ -164,7 +160,7 @@ input, select, textarea {
     flex-wrap: wrap;
 }
 
-.btn-filtro {
+.btn-filtro, #btnVerBorrados {
     background: #313244;
     color: white;
     border: 1px solid #45475a;
@@ -187,7 +183,7 @@ input, select, textarea {
     overflow-y: visible !important;
     border-radius: 12px;
     background-color: #313244;
-    padding: 0; /* Quitamos padding para que th pegue perfecto */
+    padding: 0; 
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     width: 100%;
     box-sizing: border-box;
@@ -196,22 +192,28 @@ input, select, textarea {
 
 table {
     width: 100%;
-    border-collapse: collapse; /* Cambiado a collapse para evitar espacios vacíos */
+    border-collapse: separate; 
+    border-spacing: 0;
     min-width: 1100px;
 }
 
-/* CORRECCIÓN: Encabezado fijo con fondo sólido para no transparentar datos */
+/* CORRECCIÓN: th con fondo sólido y padding extra para evitar solapamiento */
 th {
     position: sticky;
-    top: 70px; /* Debajo del header de 70px */
-    z-index: 1000;
-    background-color: #45475a !important; 
+    top: 70px; 
+    z-index: 2000;
+    background-color: #313244 !important; 
     color: #89b4fa;
-    padding: 15px;
+    padding: 20px 15px;
     text-transform: uppercase;
     font-size: 0.8rem;
-    /* Sombra interna para separar de la primera fila sin usar margin */
-    box-shadow: inset 0 -1px 0 #45475a, 0 4px 6px rgba(0,0,0,0.4);
+    border-bottom: 2px solid #45475a;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+/* Espaciador para la primera fila de datos */
+table tbody tr:first-child td {
+    padding-top: 35px !important; 
 }
 
 td {
@@ -220,22 +222,15 @@ td {
     border-bottom: 1px solid #45475a;
     color: #bac2de;
     font-size: 0.9rem;
-    background-color: #313244; /* Fondo sólido para ocultar el scroll debajo de th */
 }
 
-/* ACCIONES COMPACTAS VERTICALES */
+/* ACCIONES Y BOTONES ESPECÍFICOS (RESTAURADOS) */
 .celda-acciones {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 6px;
     padding: 5px 0;
-}
-
-td:last-child {
-    white-space: nowrap;
-    width: 150px;
-    text-align: center;
 }
 
 td .btn-azul, td .btn-borrar {
@@ -253,14 +248,17 @@ td .btn-azul, td .btn-borrar {
     transition: 0.3s;
 }
 
-/* --- SECCIÓN UNIVERSAL DE ALERTAS --- */
-.modal-overlay, [class*="modal-overlay"] {
+td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; color: white !important; }
+td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
+
+/* --- MODALES Y ALERTAS (RESTAURADOS) --- */
+.modal-overlay {
     display: none;
     position: fixed;
-    top: 0 !important; left: 0 !important;
-    width: 100% !important; height: 100% !important;
-    background: rgba(0, 0, 0, 0.85) !important;
-    z-index: 9999 !important;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
     justify-content: center;
     align-items: center;
 }
@@ -273,7 +271,34 @@ td .btn-azul, td .btn-borrar {
     max-width: 450px !important;
     width: 90% !important;
     color: #fff !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
     box-sizing: border-box !important;
+}
+
+/* --- FOOTER COMPACTO (CORREGIDO) --- */
+footer {
+    width: 100%;
+    background-color: #11111b !important;
+    border-top: 2px solid #89b4fa;
+    padding: 12px 0 !important; 
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.footer-logo {
+    max-width: 80px !important;
+    height: auto;
+    margin-bottom: 5px;
+}
+
+footer p {
+    font-size: 0.75rem !important;
+    margin: 0 !important;
 }
 
 /* --- MEDIA QUERIES --- */
@@ -282,29 +307,10 @@ td .btn-azul, td .btn-borrar {
     header { height: 60px; padding: 0 15px; }
     th { top: 60px; font-size: 0.75rem; }
     .caja-central { padding: 1.5rem; width: 95% !important; }
-}
-
-/* --- ESTILO DEL FOOTER COMPACTO (CORRECCIÓN TAMAÑO) --- */
-footer {
-    width: 100%;
-    background-color: #11111b !important;
-    border-top: 2px solid #89b4fa;
-    padding: 15px 0 !important; /* Reducido a la mitad */
-    margin-top: auto;
-    z-index: 1001;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-shrink: 0;
-}
-
-footer p {
-    font-size: 0.8rem !important;
-    margin: 0 !important;
-}
-
-.footer-logo {
-    max-width: 100px !important; /* Logo más pequeño */
-    height: auto;
-    margin-bottom: 5px;
+    .filtros-estados {
+        display: flex;
+        overflow-x: auto;
+        gap: 8px;
+        padding-bottom: 5px;
+    }
 }
