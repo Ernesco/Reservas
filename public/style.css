@@ -5,7 +5,6 @@ body {
     color: #e0e6f8;
     margin: 0;
     padding-top: 100px;
-    padding-bottom: 0; /* Ajustado para que el footer pegajoso funcione bien */
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -26,7 +25,7 @@ header {
     justify-content: space-between;
     align-items: center;
     padding: 0 5%;
-    z-index: 2000; /* Siempre por encima de los títulos sticky */
+    z-index: 2000; /* Prioridad máxima por sobre la tabla */
     box-sizing: border-box;
 }
 
@@ -152,7 +151,7 @@ input, select, textarea {
     width: 98% !important;
     max-width: 100% !important; 
     margin: 0 auto;
-    flex: 1; /* Permite que el contenido empuje al footer */
+    flex: 1; /* Permite que el contenido empuje al footer al final */
 }
 
 .fila-controles {
@@ -165,7 +164,7 @@ input, select, textarea {
     flex-wrap: wrap;
 }
 
-.btn-filtro, #btnVerBorrados {
+.btn-filtro {
     background: #313244;
     color: white;
     border: 1px solid #45475a;
@@ -188,7 +187,7 @@ input, select, textarea {
     overflow-y: visible !important;
     border-radius: 12px;
     background-color: #313244;
-    padding: 0; /* Quitamos padding para que th pegue bien arriba */
+    padding: 0; /* Quitamos padding para que th pegue perfecto */
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
     width: 100%;
     box-sizing: border-box;
@@ -197,22 +196,22 @@ input, select, textarea {
 
 table {
     width: 100%;
-    border-collapse: collapse; /* Volvemos a collapse para evitar espacios fantasmas */
+    border-collapse: collapse; /* Cambiado a collapse para evitar espacios vacíos */
     min-width: 1100px;
 }
 
-/* CORRECCIÓN FINAL: Encabezado fijo que no tapa la primera reserva */
+/* CORRECCIÓN: Encabezado fijo con fondo sólido para no transparentar datos */
 th {
     position: sticky;
-    top: 70px; /* Altura del header fijo */
+    top: 70px; /* Debajo del header de 70px */
     z-index: 1000;
-    background-color: #45475a;
+    background-color: #45475a !important; 
     color: #89b4fa;
     padding: 15px;
     text-transform: uppercase;
     font-size: 0.8rem;
-    /* Sombra interna para crear la separación visual sin mover la tabla */
-    box-shadow: inset 0 -1px 0 #45475a, 0 4px 10px rgba(0,0,0,0.5);
+    /* Sombra interna para separar de la primera fila sin usar margin */
+    box-shadow: inset 0 -1px 0 #45475a, 0 4px 6px rgba(0,0,0,0.4);
 }
 
 td {
@@ -221,7 +220,7 @@ td {
     border-bottom: 1px solid #45475a;
     color: #bac2de;
     font-size: 0.9rem;
-    background-color: #313244; /* Fondo sólido para que el contenido no se transparente */
+    background-color: #313244; /* Fondo sólido para ocultar el scroll debajo de th */
 }
 
 /* ACCIONES COMPACTAS VERTICALES */
@@ -262,26 +261,50 @@ td .btn-azul, td .btn-borrar {
     width: 100% !important; height: 100% !important;
     background: rgba(0, 0, 0, 0.85) !important;
     z-index: 9999 !important;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-caja {
+    background: #1e1e2e !important;
+    padding: 35px !important;
+    border-radius: 20px !important;
+    border: 1px solid #4a90e2 !important;
+    max-width: 450px !important;
+    width: 90% !important;
+    color: #fff !important;
+    box-sizing: border-box !important;
 }
 
 /* --- MEDIA QUERIES --- */
 @media (max-width: 768px) {
     body { padding-top: 85px; }
     header { height: 60px; padding: 0 15px; }
-    th { top: 60px; } /* Ajuste para header más chico en móvil */
+    th { top: 60px; font-size: 0.75rem; }
     .caja-central { padding: 1.5rem; width: 95% !important; }
 }
 
-/* --- ESTILO DEL FOOTER COMPACTO --- */
+/* --- ESTILO DEL FOOTER COMPACTO (CORRECCIÓN TAMAÑO) --- */
 footer {
     width: 100%;
     background-color: #11111b !important;
     border-top: 2px solid #89b4fa;
-    padding: 15px 0; /* Reducido para que no sea gigante */
+    padding: 15px 0 !important; /* Reducido a la mitad */
     margin-top: auto;
     z-index: 1001;
     display: flex;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
+}
+
+footer p {
+    font-size: 0.8rem !important;
+    margin: 0 !important;
+}
+
+.footer-logo {
+    max-width: 100px !important; /* Logo más pequeño */
+    height: auto;
+    margin-bottom: 5px;
 }
