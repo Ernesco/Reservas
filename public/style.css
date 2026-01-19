@@ -1,4 +1,4 @@
-/* --- 1. ESTRUCTURA BASE Y FIX PARA FOOTER (INDEX/LOGIN) --- */
+/* --- 1. ESTRUCTURA BASE Y FIX PARA FOOTER --- */
 html, body {
     height: 100%;
     margin: 0;
@@ -10,20 +10,10 @@ body {
     color: #e0e6f8;
     padding-top: 100px;
     display: flex;
-    flex-direction: column; /* Organiza header, contenido y footer en columna */
+    flex-direction: column;
     min-height: 100vh;
     box-sizing: border-box;
     font-size: 16px;
-}
-
-/* El contenido crece para empujar al footer al fondo en pantallas grandes */
-.caja-central, .contenedor-lista {
-    flex: 1 0 auto; 
-    display: flex;
-    flex-direction: column;
-    width: 90% !important;
-    margin: 0 auto;
-    box-sizing: border-box;
 }
 
 /* --- 2. HEADER FIJO --- */
@@ -67,17 +57,32 @@ header a:hover {
     color: #fff;
 }
 
-/* --- 3. CAJAS Y FORMULARIOS (LOGIN Y RESERVAS) --- */
+/* --- 3. CAJAS Y CONTENEDORES (FIX DE ESTIRAMIENTO) --- */
+/* El main-content es el que crecerá, no la caja blanca directamente */
+main, .contenedor-lista {
+    flex: 1 0 auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box;
+}
+
 .caja-central {
     background-color: #ffffff;
     padding: 2.5rem;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    width: 90% !important;
     max-width: 28rem !important; 
-    margin: 20px auto 40px;
-    justify-content: center; /* Centra el login en el index */
+    margin: 40px auto; /* Margen para que no pegue al header ni al footer */
     color: #313244;
+    box-sizing: border-box;
+    /* Evita que se estire verticalmente */
+    flex-grow: 0; 
 }
 
 .caja-central h1, .caja-central h2, legend {
@@ -85,16 +90,6 @@ header a:hover {
     color: #313244;
     margin-bottom: 1rem;
     font-weight: bold;
-}
-
-fieldset {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    background-color: rgba(0, 0, 0, 0.02);
-    width: 100%;
-    box-sizing: border-box;
 }
 
 label {
@@ -106,25 +101,21 @@ label {
     font-weight: 500;
 }
 
-input, select, textarea {
-    padding: 12px;
-    width: 100%;   
-    border-radius: 6px;
-    border: 1px solid #45475a;
-    background-color: #313244;
-    color: white;
-    margin-bottom: 15px;
-    box-sizing: border-box;
-    font-size: 1rem;
-}
-
-input[readonly] {
-    background-color: #24273a;
-    color: #bac2de;
-    cursor: not-allowed;
-}
-
 /* --- 4. BOTONES Y ACCIONES --- */
+/* Botones del Panel (Hola, admin) */
+.caja-central a {
+    color: #4a90e2;
+    text-decoration: none;
+    font-weight: bold;
+    margin: 10px 0;
+    transition: 0.3s;
+}
+
+.caja-central a:hover {
+    color: #89b4fa;
+    text-decoration: underline;
+}
+
 .btn-azul, button[type="submit"] {
     width: 100%;
     padding: 15px;
@@ -139,6 +130,23 @@ input[readonly] {
 
 .btn-azul:hover { background-color: #357abd; }
 
+/* Filtros y Buscador (FIX DE POSICIÓN) */
+.fila-controles {
+    display: flex;
+    justify-content: space-between; /* Mantiene filtros a la izquierda y buscador a la derecha */
+    align-items: center;
+    width: 95%;
+    max-width: 100%;
+    margin: 0 auto 20px;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filtros-estados {
+    display: flex;
+    gap: 8px;
+}
+
 .btn-filtro {
     background: #313244;
     color: white;
@@ -147,7 +155,6 @@ input[readonly] {
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
-    margin-right: 5px;
     transition: 0.3s;
 }
 
@@ -156,31 +163,18 @@ input[readonly] {
     border-color: #89b4fa;
 }
 
-.celda-acciones {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
+/* Buscador */
+#buscador {
+    padding: 12px;
+    width: 300px !important;
+    border-radius: 8px;
+    border: 1px solid #45475a;
+    background-color: #313244;
+    color: white;
+    margin-bottom: 0 !important; /* Quita el margen que lo empuja abajo */
 }
 
-td .btn-azul, td .btn-borrar {
-    display: flex !important;
-    justify-content: center;
-    align-items: center;
-    width: 130px !important;
-    padding: 8px 10px !important;
-    font-size: 11px !important;
-    margin: 3px auto !important;
-    border-radius: 6px;
-    font-weight: bold;
-    cursor: pointer;
-    border: none;
-}
-
-td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; color: white !important; }
-td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
-
-/* --- 5. TABLA (SOLUCIÓN AL SOLAPAMIENTO) --- */
+/* --- 5. TABLA --- */
 .contenedor-lista {
     width: 98% !important;
     max-width: 100% !important;
@@ -220,7 +214,47 @@ td {
     font-size: 0.9rem;
 }
 
-/* --- 6. MODALES Y SECCIÓN DE ALERTAS --- */
+/* Botones dentro de la tabla */
+td .btn-azul, td .btn-borrar {
+    display: flex !important;
+    justify-content: center;
+    align-items: center;
+    width: 130px !important;
+    padding: 8px 10px !important;
+    font-size: 11px !important;
+    margin: 3px auto !important;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; color: white !important; }
+td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
+
+/* --- 6. FORMULARIOS (FIELDSETS) --- */
+fieldset {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+input, select, textarea {
+    padding: 12px;
+    width: 100%;   
+    border-radius: 6px;
+    border: 1px solid #45475a;
+    background-color: #313244;
+    color: white;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+/* --- 7. MODALES --- */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -240,13 +274,9 @@ td {
     max-width: 450px !important;
     width: 90% !important;
     color: #fff !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: center !important;
-    box-sizing: border-box !important;
 }
 
-/* --- 7. FOOTER COMPACTO (SINCRO TOTAL) --- */
+/* --- 8. FOOTER COMPACTO --- */
 footer {
     flex-shrink: 0; 
     width: 100%;
@@ -272,17 +302,11 @@ footer p {
     color: #bac2de;
 }
 
-/* --- 8. MEDIA QUERIES --- */
+/* --- 9. MEDIA QUERIES --- */
 @media (max-width: 768px) {
     body { padding-top: 85px; }
     header { height: 60px; padding: 0 15px; }
     .caja-central { padding: 1.5rem; width: 95% !important; }
     .fila-controles { flex-direction: column; align-items: stretch; gap: 10px; }
-    .filtros-estados {
-        display: flex;
-        overflow-x: auto;
-        gap: 8px;
-        padding-bottom: 5px;
-    }
     #buscador { width: 100% !important; }
 }
