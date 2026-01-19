@@ -6,7 +6,19 @@
     <script type="text/javascript">
         document.oncontextmenu = function(){
             return false;
-        }</script>
+            }
+        function right (e){
+            var msg = "Boton derecho bloqueado";
+            if (navegator.appName == 'Netscape' && e.which == 3){
+                alert(msg);
+            }else if (navegator.appName == 'Microsoft internet Explorer' && envent.buttom == 2){
+                alert(msg);
+                return false;
+            }
+            return false;
+        }
+        document.onmousedown = right;
+        </script>
     <title>Menú Principal</title>
     <link rel="stylesheet" href="style.css">
 </head>

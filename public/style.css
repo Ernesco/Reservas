@@ -15,7 +15,7 @@ body {
     box-sizing: border-box;
 }
 
-/* --- 2. HEADER FIJO --- */
+/* --- 2. HEADER: FIX DE BOTONES --- */
 header {
     position: fixed;
     top: 0; left: 0;
@@ -28,6 +28,7 @@ header {
     align-items: center;
     padding: 0 5%;
     z-index: 3000;
+    box-sizing: border-box;
 }
 
 header a, .btn-header {
@@ -38,10 +39,11 @@ header a, .btn-header {
     padding: 8px 18px;
     border-radius: 20px;
     font-weight: bold;
-    display: flex;
+    display: inline-flex; /* Fix: Evita que el botón ocupe todo el alto */
     align-items: center;
     gap: 8px;
     transition: 0.3s;
+    height: fit-content; /* Fix: Mantiene el tamaño proporcional */
 }
 
 header a:hover {
@@ -49,12 +51,12 @@ header a:hover {
     color: #11111b !important;
 }
 
-/* --- 3. CONTENEDORES (FIX DE ESTIRAMIENTO Y CENTRADO) --- */
+/* --- 3. CONTENEDORES (FIX DE CENTRADO Y ESTILO INTERNO) --- */
 main {
     flex: 1 0 auto;
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra las cajas blancas (Login/Panel) */
+    align-items: center;
     width: 100%;
     padding: 20px 0;
 }
@@ -73,7 +75,7 @@ main {
     color: #313244;
 }
 
-/* Estilo de los botones en el Panel (Hola, admin) */
+/* Estilo de los botones en el Panel */
 .contenedor-menu {
     display: flex;
     flex-direction: column;
@@ -83,41 +85,42 @@ main {
 }
 
 .btn-menu {
-    display: block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
-    padding: 15px;
+    padding: 18px; /* Tamaño profesional */
     background-color: #313244;
     color: white !important;
     text-decoration: none !important;
-    text-align: center;
     font-weight: bold;
-    border-radius: 10px;
+    border-radius: 12px;
     border: 2px solid #45475a;
     transition: 0.3s;
+    box-sizing: border-box;
 }
 
 .btn-menu:hover {
     background-color: #4a90e2;
-    border-color: #89b4fa;
+    transform: translateY(-2px);
 }
 
-/* --- 4. LISTA DE RESERVAS (FILTROS Y BUSCADOR) --- */
+/* --- 4. LISTA DE RESERVAS: ALINEACIÓN PERFECTA --- */
 .contenedor-lista {
     flex: 1 0 auto;
-    width: 95% !important; /* Ocupa casi todo el ancho */
-    max-width: 1400px; /* Pero con un tope para pantallas muy grandes */
-    margin: 0 auto; /* Esto centra toda la sección de la lista */
+    width: 95% !important;
+    max-width: 1400px;
+    margin: 0 auto;
     padding-bottom: 40px;
 }
 
 .fila-controles {
     display: flex;
-    justify-content: space-between; /* Estados a la izquierda, buscador a la derecha */
+    justify-content: space-between; /* Estados IZQ, Buscador DER */
     align-items: center;
     width: 100%;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     gap: 20px;
-    flex-wrap: wrap; /* Para móviles */
 }
 
 .filtros-estados {
@@ -141,7 +144,7 @@ main {
 }
 
 #buscador {
-    padding: 12px;
+    padding: 12px 15px;
     width: 350px !important;
     border-radius: 8px;
     border: 1px solid #45475a;
@@ -150,7 +153,7 @@ main {
     box-sizing: border-box;
 }
 
-/* --- 5. TABLA --- */
+/* --- 5. TABLA Y BOTONES --- */
 .tabla-scroll-container {
     overflow-x: auto;
     border-radius: 12px;
@@ -182,7 +185,6 @@ td {
     font-size: 0.9rem;
 }
 
-/* Botones dentro de la tabla */
 td .btn-azul, td .btn-borrar {
     display: inline-flex;
     justify-content: center;
@@ -190,7 +192,6 @@ td .btn-azul, td .btn-borrar {
     width: 130px !important;
     padding: 8px 10px !important;
     font-size: 11px !important;
-    margin: 3px;
     border-radius: 6px;
     font-weight: bold;
     border: none;
@@ -200,25 +201,26 @@ td .btn-azul, td .btn-borrar {
 td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; color: white !important; }
 td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
 
-/* --- 6. FORMULARIOS Y MODALES --- */
-fieldset {
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
+/* --- 6. FORMULARIOS (INDEX Y NUEVA RESERVA) --- */
+.caja-central input {
+    padding: 12px;
     width: 100%;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
     box-sizing: border-box;
+    font-size: 1rem;
 }
 
-.modal-overlay {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    z-index: 9999;
-    justify-content: center;
-    align-items: center;
+.btn-azul, button[type="submit"] {
+    width: 100%;
+    padding: 15px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
 }
 
 /* --- 7. FOOTER --- */
@@ -246,11 +248,10 @@ footer p {
 }
 
 /* --- 8. RESPONSIVE --- */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
     .fila-controles {
         flex-direction: column;
         align-items: stretch;
     }
     #buscador { width: 100% !important; }
-    .caja-central { width: 95% !important; }
 }
