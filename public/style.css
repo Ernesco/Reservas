@@ -15,7 +15,7 @@ body {
     box-sizing: border-box;
 }
 
-/* --- 2. HEADER: FIX DE BOTONES --- */
+/* --- 2. HEADER: TÍTULOS Y BOTONES --- */
 header {
     position: fixed;
     top: 0; left: 0;
@@ -31,6 +31,12 @@ header {
     box-sizing: border-box;
 }
 
+.logo-texto {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    font-weight: bold;
+    color: #ffffff !important; /* Fix: Asegura el color blanco del título */
+}
+
 header a, .btn-header {
     background-color: #313244;
     color: #fff !important;
@@ -39,11 +45,11 @@ header a, .btn-header {
     padding: 8px 18px;
     border-radius: 20px;
     font-weight: bold;
-    display: inline-flex; /* Fix: Evita que el botón ocupe todo el alto */
+    display: inline-flex;
     align-items: center;
     gap: 8px;
     transition: 0.3s;
-    height: fit-content; /* Fix: Mantiene el tamaño proporcional */
+    height: fit-content;
 }
 
 header a:hover {
@@ -51,7 +57,7 @@ header a:hover {
     color: #11111b !important;
 }
 
-/* --- 3. CONTENEDORES (FIX DE CENTRADO Y ESTILO INTERNO) --- */
+/* --- 3. CONTENEDORES Y CAJA BLANCA --- */
 main {
     flex: 1 0 auto;
     display: flex;
@@ -70,18 +76,71 @@ main {
     flex-direction: column;
     align-items: center;
     width: 90% !important;
-    max-width: 28rem !important;
+    max-width: 35rem !important; /* Ajustado para formularios */
     margin: 20px auto;
     color: #313244;
 }
 
-/* Estilo de los botones en el Panel */
+.caja-central h1, .caja-central h2 {
+    text-align: center;
+    color: #313244;
+    margin-bottom: 1.5rem;
+    font-weight: bold;
+}
+
+/* --- 4. FORMULARIO: FIELDSETS Y LABELS (RESTAURADO) --- */
+fieldset {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: rgba(0, 0, 0, 0.02);
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+legend {
+    font-weight: bold;
+    color: #313244;
+    padding: 0 10px;
+}
+
+label {
+    display: block;
+    width: 100%;
+    color: #5e616b;
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-align: left;
+}
+
+.requerido { color: #e74c3c; }
+
+input, select, textarea {
+    padding: 12px;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    color: #333;
+    margin-bottom: 15px;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
+
+input[readonly] {
+    background-color: #f8f9fa;
+    color: #666;
+    border-color: #ddd;
+}
+
+/* --- 5. BOTONES DE PANEL Y ACCIONES --- */
 .contenedor-menu {
     display: flex;
     flex-direction: column;
     gap: 15px;
     width: 100%;
-    margin-top: 20px;
 }
 
 .btn-menu {
@@ -89,7 +148,7 @@ main {
     justify-content: center;
     align-items: center;
     width: 100%;
-    padding: 18px; /* Tamaño profesional */
+    padding: 18px;
     background-color: #313244;
     color: white !important;
     text-decoration: none !important;
@@ -97,7 +156,6 @@ main {
     border-radius: 12px;
     border: 2px solid #45475a;
     transition: 0.3s;
-    box-sizing: border-box;
 }
 
 .btn-menu:hover {
@@ -105,18 +163,29 @@ main {
     transform: translateY(-2px);
 }
 
-/* --- 4. LISTA DE RESERVAS: ALINEACIÓN PERFECTA --- */
+.btn-azul, button[type="submit"] {
+    width: 100%;
+    padding: 15px;
+    background-color: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* --- 6. LISTA DE RESERVAS Y TABLA --- */
 .contenedor-lista {
     flex: 1 0 auto;
     width: 95% !important;
     max-width: 1400px;
     margin: 0 auto;
-    padding-bottom: 40px;
 }
 
 .fila-controles {
     display: flex;
-    justify-content: space-between; /* Estados IZQ, Buscador DER */
+    justify-content: space-between;
     align-items: center;
     width: 100%;
     margin-bottom: 25px;
@@ -150,16 +219,14 @@ main {
     border: 1px solid #45475a;
     background-color: #313244;
     color: white;
-    box-sizing: border-box;
+    margin-bottom: 0;
 }
 
-/* --- 5. TABLA Y BOTONES --- */
 .tabla-scroll-container {
     overflow-x: auto;
     border-radius: 12px;
     background-color: #313244;
     box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    width: 100%;
 }
 
 table {
@@ -189,41 +256,46 @@ td .btn-azul, td .btn-borrar {
     display: inline-flex;
     justify-content: center;
     align-items: center;
-    width: 130px !important;
-    padding: 8px 10px !important;
-    font-size: 11px !important;
+    width: 120px;
+    padding: 8px;
+    font-size: 11px;
     border-radius: 6px;
     font-weight: bold;
     border: none;
     cursor: pointer;
+    margin: 2px;
 }
 
 td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; color: white !important; }
 td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
 
-/* --- 6. FORMULARIOS (INDEX Y NUEVA RESERVA) --- */
-.caja-central input {
-    padding: 12px;
-    width: 100%;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    margin-bottom: 15px;
-    box-sizing: border-box;
-    font-size: 1rem;
+/* --- 7. MODALES (OCULTOS POR DEFECTO) --- */
+.modal-overlay {
+    display: none; /* Fix: Oculta alertas en todas las hojas */
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
 }
 
-.btn-azul, button[type="submit"] {
-    width: 100%;
-    padding: 15px;
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
+.modal-caja {
+    background: #1e1e2e !important;
+    padding: 35px !important;
+    border-radius: 20px !important;
+    border: 1px solid #4a90e2 !important;
+    max-width: 450px !important;
+    width: 90% !important;
+    color: #fff !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    box-sizing: border-box !important;
 }
 
-/* --- 7. FOOTER --- */
+/* --- 8. FOOTER --- */
 footer {
     flex-shrink: 0;
     width: 100%;
@@ -247,11 +319,12 @@ footer p {
     color: #bac2de;
 }
 
-/* --- 8. RESPONSIVE --- */
-@media (max-width: 992px) {
+/* --- 9. RESPONSIVE --- */
+@media (max-width: 768px) {
     .fila-controles {
         flex-direction: column;
         align-items: stretch;
     }
     #buscador { width: 100% !important; }
+    .caja-central { width: 95% !important; }
 }
