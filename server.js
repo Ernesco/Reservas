@@ -34,7 +34,10 @@ async function enviarAvisoEmail(reserva, tipo) {
                 Gestión de Reservas Mo
             </p>
             <p style="font-size: 11px; color: #999999; margin-top: 10px;">
-                Este es un mensaje automático enviado por el sistema de Reservas Mo - One Box
+                Este es un mensaje automático,
+            </p>
+            <p style="font-size: 11px; color: #999999; margin-top: 10px;">
+                Enviado por el sistema de Reservas Mo - One Box
             </p>
         </footer>
     `;
