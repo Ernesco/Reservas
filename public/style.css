@@ -300,32 +300,37 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     box-sizing: border-box !important;
 }
 
-/* --- ESTILO PARA EL BOTÓN CANCELAR EN ALERTAS --- */
+/* --- BOTONES DEL MODAL EN COLUMNA --- */
 .modal-botones {
     display: flex;
-    gap: 10px;
-    width: 100%;
-    justify-content: center;
-    margin-top: 20px;
+    flex-direction: column; /* Apila los botones uno arriba del otro */
+    gap: 12px;             /* Espacio entre los botones */
+    width: 100%;           /* Ocupan todo el ancho de la cajita modal */
+    margin-top: 25px;
+    align-items: center;
 }
 
-#modalCancelar, .btn-secundario, button[onclick*="Cerrar"], button:contains("CANCELAR") {
-    background-color: #45475a !important; /* Gris azulado oscuro */
+.modal-botones button, .modal-botones .btn-azul, .modal-botones .btn-secundario {
+    width: 100% !important;   /* Botones al ancho completo para que se vean parejos */
+    max-width: 280px;         /* Pero con un tope para que no se estiren de más */
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    border: none;
+    transition: 0.3s;
+}
+
+/* Estilo para el botón secundario/cancelar que agregamos antes */
+.btn-secundario, #modalCancelar {
+    background-color: #45475a !important;
     color: #bac2de !important;
-    border: 1px solid #585b70 !important;
-    padding: 10px 20px !important;
-    border-radius: 8px !important;
-    font-weight: bold !important;
-    cursor: pointer !important;
-    transition: 0.3s !important;
-    text-transform: uppercase;
-    font-size: 0.8rem;
 }
 
-#modalCancelar:hover, .btn-secundario:hover {
-    background-color: #f38ba8 !important; /* Rojo suave al pasar el mouse para indicar cancelación */
+.btn-secundario:hover {
+    background-color: #f38ba8 !important; /* Rojo suave para cancelar */
     color: #1e1e2e !important;
-    border-color: #f38ba8 !important;
 }
 
 /* --- 8. FOOTER --- */
