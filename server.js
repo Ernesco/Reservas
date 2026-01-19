@@ -12,22 +12,26 @@ app.use(express.static(path.join(__dirname, 'public')));
 // 1. CONFIGURACIÓN DE RESEND (Segura mediante Variables de Envío)
 const resend = new Resend(process.env.RESEND_API_KEY); 
 
-// 2. FUNCIÓN AUXILIAR: Enviar Correo
+// 2. FUNCIÓN AUXILIAR: Enviar Correo (Confirmaciones, Disponibilidad y Soporte)
 async function enviarAvisoEmail(reserva, tipo) {
-    if (!reserva.cliente_email || reserva.cliente_email === '---' || !reserva.cliente_email.includes('@')) {
-        console.log(`Reserva #${reserva.id}: Sin email válido. Omitiendo envío.`);
-        return;
-    }
-
     let asunto = "";
     let mensajeHtml = "";
+    let destinatario = reserva.cliente_email;
     
+    // Validación de email para clientes
+    if (tipo !== 'SOPORTE') {
+        if (!destinatario || destinatario === '---' || !destinatario.includes('@')) {
+            console.log(`Reserva #${reserva.id}: Sin email válido. Omitiendo envío.`);
+            return;
+        }
+    }
+
     const footerHtml = `
         <br>
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
         <footer style="color: #666666; font-family: sans-serif;">
             <p style="font-size: 14px; margin: 0; font-weight: bold; color: #333;">
-                Gestión de Reservas MO
+                Gestión de Reservas Mo
             </p>
             <p style="font-size: 11px; color: #999999; margin-top: 10px;">
                 Este es un mensaje automático enviado por el sistema de Reservas Mo - One Box
@@ -42,6 +46,7 @@ async function enviarAvisoEmail(reserva, tipo) {
                 <h2 style="color: #4a90e2;">¡Hola ${reserva.cliente_nombre}!</h2>
                 <p>Tu reserva ha sido registrada correctamente y ya está <strong>en camino</strong> hacia la sucursal.</p>
                 <p><strong>Producto:</strong> ${reserva.descripcion}</p>
+                <p>te estaremos avisando cuando llegue, para que puedas pasar a retirarlo.</p>
                 ${footerHtml}
             </div>`;
     } else if (tipo === 'DISPONIBLE') {
@@ -50,20 +55,34 @@ async function enviarAvisoEmail(reserva, tipo) {
             <div style="font-family: sans-serif; border: 1px solid #a6e3a1; padding: 20px; border-radius: 10px;">
                 <h2 style="color: #2e7d32;">¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
                 <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible en la sucursal <strong>${reserva.sucursal_nombre}</strong>.</p>
+                <p>Te esperamos!</p>
+                ${footerHtml}
+            </div>`;
+    } else if (tipo === 'SOPORTE') {
+        destinatario = 'erco.efc@gmail.com'; // CAMBIA ESTO POR TU EMAIL
+        asunto = `🛠️ Soporte: ${reserva.tipo_ticket} - ${reserva.usuario}`;
+        mensajeHtml = `
+            <div style="font-family: sans-serif; border: 1px solid #89b4fa; padding: 20px; border-radius: 10px;">
+                <h2 style="color: #4a90e2;">Nuevo Ticket de Soporte</h2>
+                <p><strong>Tipo:</strong> ${reserva.tipo_ticket}</p>
+                <p><strong>Usuario/Local:</strong> ${reserva.usuario}</p>
+                <hr style="border: 0; border-top: 1px solid #ddd;">
+                <p><strong>Descripción del problema:</strong></p>
+                <p style="background: #f8f9fa; padding: 15px; border-radius: 5px;">${reserva.descripcion_ticket}</p>
                 ${footerHtml}
             </div>`;
     }
 
     try {
         await resend.emails.send({
-            from: 'One Box <reservas.mo@reload.net.ar>', 
-            to: reserva.cliente_email,
+            from: 'Reservas.Mo <reservas.mo@reload.net.ar>', 
+            to: destinatario,
             subject: asunto,
             html: mensajeHtml,
         });
-        console.log("✅ Email enviado a:", reserva.cliente_email);
+        console.log(`✅ Email (${tipo}) enviado a:`, destinatario);
     } catch (error) {
-        console.error("❌ Error al enviar vía Resend:", error);
+        console.error(`❌ Error al enviar (${tipo}) vía Resend:`, error);
     }
 }
 
@@ -80,6 +99,21 @@ const db = mysql.createPool({
 });
 
 // --- RUTAS ---
+
+// Ruta para Soporte Técnico
+app.post('/enviar-ticket', async (req, res) => {
+    const { tipo, descripcion, usuario } = req.body;
+    try {
+        await enviarAvisoEmail({ 
+            tipo_ticket: tipo, 
+            descripcion_ticket: descripcion, 
+            usuario: usuario 
+        }, 'SOPORTE');
+        res.status(200).send('Ticket enviado OK');
+    } catch (error) {
+        res.status(500).send('Error al procesar ticket');
+    }
+});
 
 app.get('/productos/:codigo', (req, res) => {
     const { codigo } = req.params;
@@ -121,13 +155,11 @@ app.get('/reservas', (req, res) => {
     let parametros = [filtroBusqueda, filtroBusqueda, filtroBusqueda, filtroBusqueda];
 
     if (rol === 'admin') {
-        // Admin ve todo globalmente
+        // Admin ve todo
     } else if (rol === 'encargado') {
-        // Encargado ve borrados y no borrados pero SOLO de su sucursal
         sql += " AND local_origen = ?";
         parametros.push(sucursalUsuario);
     } else {
-        // Operador local solo ve lo no borrado de su sucursal
         sql += " AND local_origen = ? AND borrado = 0";
         parametros.push(sucursalUsuario);
     }
@@ -181,13 +213,10 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
-// NUEVA RUTA: Edición de campos (Solo permitido en En Tránsito)
 app.put('/reservas/:id/editar', (req, res) => {
     const id = req.params.id;
     const { cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva } = req.body;
-    
     const sql = `UPDATE reservas SET cliente_nombre=?, cliente_telefono=?, cliente_email=?, prod_codigo=?, descripcion=?, prod_cantidad=?, total_reserva=? WHERE id=? AND estado='En Tránsito'`;
-    
     db.query(sql, [cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva, id], (err) => {
         if (err) return res.status(500).send('Error al editar');
         res.send('OK');
