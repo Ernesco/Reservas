@@ -385,8 +385,8 @@ footer p {
 
 #formSoporte textarea {
     width: 100%;
-    min-height: 180px; /* Aumentamos el área de escritura */
-    padding: 12px;
+    min-height: 250px; /* Aumentamos el área de escritura */
+    padding: 5px;
     margin-top: 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
