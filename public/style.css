@@ -349,6 +349,9 @@ footer {
 
 .footer-logo {
     max-width: 200px !important; /* Logo más grande como pediste */
+    align-items: center; /* Centra todo el contenido del footer */
+    justify-content: center;
+    margin-top: auto;
     height: auto;
     margin-bottom: 10px;
 }
