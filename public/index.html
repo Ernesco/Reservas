@@ -13,21 +13,23 @@
         <div class="logo-texto">INGRESO AL SISTEMA DE RESERVAS</div>
     </header>
 
-    <div class="caja-central">
-        <h2>Iniciar Sesión</h2>
-        <form id="formLogin">
-            <label for="usuario">Usuario:</label>
-            <input type="text" id="usuario" placeholder="Ej: admin" required>
-            <label for="password">Contraseña:</label>
-            <input type="password" id="password" placeholder="••••••" required>
-            <button type="submit" class="btn-azul">INGRESAR</button>
-            <p id="mensaje" style="margin-top: 15px; text-align: center; font-weight: bold;"></p>
-        </form>
-    </div>
+    <main>
+        <div class="caja-central">
+            <h2>Iniciar Sesión</h2>
+            <form id="formLogin">
+                <label for="usuario">Usuario:</label>
+                <input type="text" id="usuario" placeholder="Ej: admin" required>
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" placeholder="••••••" required>
+                <button type="submit" class="btn-azul">INGRESAR</button>
+                <p id="mensaje" style="margin-top: 15px; text-align: center; font-weight: bold;"></p>
+            </form>
+        </div>
+    </main>
 
     <footer>
         <div class="footer-contenido">
-            <img src="./img/Rl_Logo.png" alt="Logo Footer" class="footer-logo">
+            <img src="./img/Ob_Logo.png" alt="Logo Footer" class="footer-logo">
             <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
             <div class="footer-links">
                 <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
@@ -37,15 +39,15 @@
 
     <div id="modalSoporte" class="modal-overlay">
         <div class="modal-caja">
-            <h3 style="color: #4a90e2;">🛠️ Soporte Técnico</h3>
+            <h3 style="color: #89b4fa;">🛠️ Soporte Técnico</h3>
             <form id="formSoporte">
-                <label>Tipo de solicitud:</label>
+                <label style="color: #bac2de;">Tipo de solicitud:</label>
                 <select id="tipo_ticket" required>
                     <option value="Falla">Reportar Falla</option>
                     <option value="Modificacion">Solicitar Modificación</option>
                     <option value="Sugerencia">Sugerencia</option>
                 </select>
-                <label>Descripción:</label>
+                <label style="color: #bac2de;">Descripción:</label>
                 <textarea id="desc_ticket" required placeholder="Describe el problema o sugerencia..."></textarea>
                 <div class="modal-botones">
                     <button type="submit" class="btn-azul">ENVIAR TICKET</button>
@@ -58,7 +60,7 @@
     <div id="modalAviso" class="modal-overlay">
         <div class="modal-caja" id="bordeModal">
             <h3 id="tituloAviso"></h3>
-            <p id="textoAviso"></p>
+            <p id="textoAviso" style="color: #fff; margin-bottom: 20px;"></p>
             <div class="modal-botones">
                 <button onclick="cerrarAviso()" class="btn-azul" id="btnColorAviso">Aceptar</button>
             </div>
@@ -66,7 +68,7 @@
     </div>
 
     <script>
-        // --- FUNCIONES DE MODALES ---
+        // --- GESTIÓN DE AVISOS ---
         function mostrarAviso(titulo, mensaje, esError = true) {
             const modal = document.getElementById('modalAviso');
             const tituloH3 = document.getElementById('tituloAviso');
@@ -77,7 +79,6 @@
             tituloH3.textContent = titulo;
             textoP.textContent = mensaje;
             
-            // Ajuste de colores según tipo
             const color = esError ? '#f38ba8' : '#a6e3a1';
             tituloH3.style.color = color;
             borde.style.borderColor = color;
@@ -86,18 +87,16 @@
             modal.style.display = 'flex';
         }
 
-        function cerrarAviso() {
-            document.getElementById('modalAviso').style.display = 'none';
-        }
-
+        function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
         function abrirSoporte() { document.getElementById('modalSoporte').style.display = 'flex'; }
         function cerrarSoporte() { document.getElementById('modalSoporte').style.display = 'none'; }
 
-        // --- LÓGICA LOGIN ---
+        // --- LOGIN ---
         document.getElementById('formLogin').addEventListener('submit', function(e) {
             e.preventDefault();
             const usuario = document.getElementById('usuario').value;
             const password = document.getElementById('password').value;
+            
             fetch('/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -106,18 +105,18 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
+                    sessionStorage.setItem('usuario_nombre', data.nombre);
                     sessionStorage.setItem('usuario_rol', data.rol);
                     sessionStorage.setItem('usuario_sucursal', data.sucursal);
-                    sessionStorage.setItem('usuario_nombre', data.nombre);
                     window.location.href = 'panel.html';
                 } else {
                     mostrarAviso('❌ Error', data.message, true);
                 }
             })
-            .catch(() => mostrarAviso('❌ Error', 'Falla de conexión', true));
+            .catch(() => mostrarAviso('❌ Error', 'Error de conexión', true));
         });
 
-        // --- LÓGICA SOPORTE ---
+        // --- SOPORTE ---
         document.getElementById('formSoporte').addEventListener('submit', async function(e) {
             e.preventDefault();
             const datos = {
@@ -134,12 +133,12 @@
                 if (res.ok) {
                     cerrarSoporte();
                     this.reset();
-                    mostrarAviso('✅ Éxito', 'Ticket enviado correctamente.', false);
+                    mostrarAviso('✅ Enviado', 'Ticket recibido correctamente.', false);
                 } else {
                     mostrarAviso('❌ Error', 'No se pudo enviar el ticket.', true);
                 }
             } catch {
-                mostrarAviso('❌ Error', 'Error de red.', true);
+                mostrarAviso('❌ Error', 'Falla de red.', true);
             }
         });
     </script>

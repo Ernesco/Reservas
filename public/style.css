@@ -347,9 +347,9 @@ footer {
 }
 
 .footer-logo {
-    max-width: 120px !important; /* Aumentado de 80px a 120px */
+    max-width: 150px !important; /* Logo más grande y visible */
     height: auto;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
 }
 
 footer p {
@@ -358,24 +358,37 @@ footer p {
     color: #bac2de;
 }
 
-#formSoporte textarea {
-    width: 100%;
-    height: 120px;
-    padding: 12px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    color: #333;
-    font-family: inherit;
-    font-size: 1rem;
-    resize: none; /* Evita que el usuario deforme el modal */
-    box-sizing: border-box;
+.footer-links a {
+    color: #89b4fa !important; /* Color azul suave acorde al sistema */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: 0.3s;
 }
 
-#formSoporte select {
-    cursor: pointer;
-    font-weight: bold;
-    color: #313244;
+.footer-links a:hover {
+    color: #f38ba8 !important; /* Cambio de color al pasar el mouse */
+    text-decoration: underline;
+}
+
+/* --- FORMULARIO DE SOPORTE: MÁS ANCHO --- */
+#modalSoporte .modal-caja {
+    max-width: 500px !important; /* Aumentamos el ancho del modal de soporte */
+    width: 95% !important;
+}
+
+#formSoporte textarea {
+    width: 100%;
+    height: 150px; /* Más espacio para escribir */
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #45475a;
+    background-color: #ffffff;
+    color: #1e1e2e;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: none;
+    box-sizing: border-box;
 }
 
 /* --- 9. RESPONSIVE --- */
