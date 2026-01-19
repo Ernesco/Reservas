@@ -135,12 +135,14 @@ input[readonly] {
     border-color: #ddd;
 }
 
-/* --- 5. BOTONES DE PANEL Y ACCIONES --- */
+/* --- CORRECCIÓN ÚNICA: BOTONES DEL PANEL --- */
 .contenedor-menu {
     display: flex;
     flex-direction: column;
+    align-items: center; /* Centra los botones horizontalmente */
     gap: 15px;
     width: 100%;
+    margin-top: 20px;
 }
 
 .btn-menu {
@@ -148,7 +150,8 @@ input[readonly] {
     justify-content: center;
     align-items: center;
     width: 100%;
-    padding: 18px;
+    max-width: 300px; /* Limitamos el largo para que no se estiren */
+    padding: 15px;
     background-color: #313244;
     color: white !important;
     text-decoration: none !important;
@@ -156,10 +159,12 @@ input[readonly] {
     border-radius: 12px;
     border: 2px solid #45475a;
     transition: 0.3s;
+    box-sizing: border-box;
 }
 
 .btn-menu:hover {
     background-color: #4a90e2;
+    border-color: #89b4fa;
     transform: translateY(-2px);
 }
 
@@ -295,6 +300,34 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     box-sizing: border-box !important;
 }
 
+/* --- ESTILO PARA EL BOTÓN CANCELAR EN ALERTAS --- */
+.modal-botones {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+#modalCancelar, .btn-secundario, button[onclick*="Cerrar"], button:contains("CANCELAR") {
+    background-color: #45475a !important; /* Gris azulado oscuro */
+    color: #bac2de !important;
+    border: 1px solid #585b70 !important;
+    padding: 10px 20px !important;
+    border-radius: 8px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: 0.3s !important;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+#modalCancelar:hover, .btn-secundario:hover {
+    background-color: #f38ba8 !important; /* Rojo suave al pasar el mouse para indicar cancelación */
+    color: #1e1e2e !important;
+    border-color: #f38ba8 !important;
+}
+
 /* --- 8. FOOTER --- */
 footer {
     flex-shrink: 0;
@@ -328,3 +361,4 @@ footer p {
     #buscador { width: 100% !important; }
     .caja-central { width: 95% !important; }
 }
+
