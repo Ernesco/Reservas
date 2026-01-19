@@ -333,22 +333,19 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
     color: #1e1e2e !important;
 }
 
-/* --- FOOTER: CENTRADO TOTAL --- */
+/* --- FOOTER: LOGO Y TEXTO MÁS JUNTOS --- */
 footer {
-    flex-shrink: 0;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 0; /* Reducimos el padding general del footer */
     background-color: #11111b;
     border-top: 2px solid #89b4fa;
-    padding: 30px 0;
-    display: flex;
-    flex-direction: column; /* Alinea los elementos uno debajo del otro */
-    align-items: center;    /* Centra horizontalmente todo el contenido */
-    text-align: center;
     margin-top: auto;
 }
 
 .footer-links {
-    margin-bottom: 15px; /* Espacio entre "Soporte" y el Logo */
+    margin-bottom: 10px;
 }
 
 .footer-links a {
@@ -364,23 +361,34 @@ footer {
 }
 
 .footer-logo {
-    max-width: 220px !important; /* Tamaño aumentado para mejor visibilidad */
+    max-width: 200px !important;
     height: auto;
-    display: block;
-    margin: 0 auto 15px; /* Centrado automático de imagen */
+    margin-bottom: 5px !important; /* Pegamos el logo al texto de abajo */
 }
 
 footer p {
-    font-size: 0.8rem;
+    margin: 0 !important; /* Eliminamos márgenes del texto de copyright */
+    font-size: 0.75rem;
     color: #bac2de;
-    margin: 0;
 }
 
-/* --- MODAL DE SOPORTE (ANCHO FINAL) --- */
+/* --- MODAL DE SOPORTE: MÁS ANCHO Y ESPACIOSO --- */
 #modalSoporte .modal-caja {
-    max-width: 600px !important; /* Más ancho para mayor comodidad */
-    width: 90% !important;
-    padding: 30px !important;
+    max-width: 650px !important; /* Ensancho el contenedor principal */
+    width: 95% !important;
+    padding: 40px !important;    /* Más aire interno para que no se vea apretado */
+    box-sizing: border-box;
+}
+
+#formSoporte textarea {
+    width: 100%;
+    height: 180px; /* Más altura para el mensaje */
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 8px;
+    font-size: 1rem;
+    box-sizing: border-box;
+    resize: none;
 }
 
 /* --- 9. RESPONSIVE --- */
