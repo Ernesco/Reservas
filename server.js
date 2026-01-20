@@ -3,25 +3,30 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const { Resend } = require('resend');
+const multer = require('multer'); // Nuevo: Manejo de archivos
+const csv = require('csv-parser'); // Nuevo: Procesador CSV
+const fs = require('fs'); // Nuevo: Sistema de archivos
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 1. CONFIGURACIÓN DE RESEND (Segura mediante Variables de Envío)
+// Configuración de Multer para subida temporal de archivos
+const upload = multer({ dest: 'uploads/' });
+
+// 1. CONFIGURACIÓN DE RESEND
 const resend = new Resend(process.env.RESEND_API_KEY); 
 
-// 2. FUNCIÓN AUXILIAR: Enviar Correo (Confirmaciones, Disponibilidad y Soporte)
+// 2. FUNCIÓN AUXILIAR: Enviar Correo
 async function enviarAvisoEmail(reserva, tipo) {
     let asunto = "";
     let mensajeHtml = "";
     let destinatario = reserva.cliente_email;
     
-    // Validación de email para clientes
     if (tipo !== 'SOPORTE') {
         if (!destinatario || destinatario === '---' || !destinatario.includes('@')) {
-            console.log(`Reserva #${reserva.id}: Sin email válido. Omitiendo envío.`);
+            console.log(`Reserva #${reserva.id}: Sin email válido.`);
             return;
         }
     }
@@ -30,50 +35,30 @@ async function enviarAvisoEmail(reserva, tipo) {
         <br>
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
         <footer style="color: #666666; font-family: sans-serif;">
-            <p style="font-size: 14px; margin: 0; font-weight: bold; color: #333;">
-                Gestión de Reservas Mo
-            </p>
-            <p style="font-size: 11px; color: #999999; margin-top: 10px;">
-                Este es un mensaje automático,
-            </p>
-            <p style="font-size: 11px; color: #999999; margin-top: 10px;">
-                Enviado por el sistema de Reservas Mo - One Box
-            </p>
+            <p style="font-size: 14px; margin: 0; font-weight: bold; color: #333;">Gestión de Reservas Mo</p>
+            <p style="font-size: 11px; color: #999999; margin-top: 10px;">Este es un mensaje automático enviado por el sistema de Reservas Mo - One Box</p>
         </footer>
     `;
 
     if (tipo === 'CONFIRMACION') {
         asunto = `Confirmación de Reserva #${reserva.id} - En Tránsito`;
-        mensajeHtml = `
-            <div style="font-family: sans-serif; border: 1px solid #ddd; padding: 20px; border-radius: 10px;">
-                <h2 style="color: #4a90e2;">¡Hola ${reserva.cliente_nombre}!</h2>
-                <p>Tu reserva ha sido registrada correctamente y ya está <strong>en camino</strong> hacia la sucursal.</p>
-                <p><strong>Producto:</strong> ${reserva.descripcion}</p>
-                <p>te estaremos avisando cuando llegue, para que puedas pasar a retirarlo.</p>
-                ${footerHtml}
-            </div>`;
+        mensajeHtml = `<div style="font-family: sans-serif; border: 1px solid #ddd; padding: 20px; border-radius: 10px;">
+            <h2 style="color: #4a90e2;">¡Hola ${reserva.cliente_nombre}!</h2>
+            <p>Tu reserva ha sido registrada correctamente y ya está <strong>en camino</strong>.</p>
+            <p><strong>Producto:</strong> ${reserva.descripcion}</p>${footerHtml}</div>`;
     } else if (tipo === 'DISPONIBLE') {
         asunto = `¡Tu pedido ya llegó! Reserva #${reserva.id}`;
-        mensajeHtml = `
-            <div style="font-family: sans-serif; border: 1px solid #a6e3a1; padding: 20px; border-radius: 10px;">
-                <h2 style="color: #2e7d32;">¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
-                <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible en la sucursal <strong>${reserva.sucursal_nombre}</strong>.</p>
-                <p>Te esperamos!</p>
-                ${footerHtml}
-            </div>`;
+        mensajeHtml = `<div style="font-family: sans-serif; border: 1px solid #a6e3a1; padding: 20px; border-radius: 10px;">
+            <h2 style="color: #2e7d32;">¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
+            <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible en <strong>${reserva.sucursal_nombre}</strong>.</p>${footerHtml}</div>`;
     } else if (tipo === 'SOPORTE') {
-        destinatario = 'erco.efc@gmail.com'; // CAMBIA ESTO POR TU EMAIL
+        destinatario = 'erco.efc@gmail.com'; 
         asunto = `🛠️ Soporte: ${reserva.tipo_ticket} - ${reserva.usuario}`;
-        mensajeHtml = `
-            <div style="font-family: sans-serif; border: 1px solid #89b4fa; padding: 20px; border-radius: 10px;">
-                <h2 style="color: #4a90e2;">Nuevo Ticket de Soporte</h2>
-                <p><strong>Tipo:</strong> ${reserva.tipo_ticket}</p>
-                <p><strong>Usuario/Local:</strong> ${reserva.usuario}</p>
-                <hr style="border: 0; border-top: 1px solid #ddd;">
-                <p><strong>Descripción del problema:</strong></p>
-                <p style="background: #f8f9fa; padding: 15px; border-radius: 5px;">${reserva.descripcion_ticket}</p>
-                ${footerHtml}
-            </div>`;
+        mensajeHtml = `<div style="font-family: sans-serif; border: 1px solid #89b4fa; padding: 20px; border-radius: 10px;">
+            <h2>Nuevo Ticket de Soporte</h2>
+            <p><strong>Tipo:</strong> ${reserva.tipo_ticket}</p>
+            <p><strong>Usuario:</strong> ${reserva.usuario}</p>
+            <p><strong>Descripción:</strong> ${reserva.descripcion_ticket}</p>${footerHtml}</div>`;
     }
 
     try {
@@ -83,13 +68,12 @@ async function enviarAvisoEmail(reserva, tipo) {
             subject: asunto,
             html: mensajeHtml,
         });
-        console.log(`✅ Email (${tipo}) enviado a:`, destinatario);
     } catch (error) {
-        console.error(`❌ Error al enviar (${tipo}) vía Resend:`, error);
+        console.error(`❌ Error email (${tipo}):`, error);
     }
 }
 
-// 3. CONFIGURACIÓN DB (TiDB)
+// 3. CONFIGURACIÓN DB
 const db = mysql.createPool({
     host: process.env.MYSQLHOST,
     user: process.env.MYSQLUSER,
@@ -101,17 +85,43 @@ const db = mysql.createPool({
     connectionLimit: 10
 });
 
-// --- RUTAS ---
+// --- NUEVA RUTA: ACTUALIZACIÓN MASIVA DE PRECIOS ---
+app.post('/actualizar-precios', upload.single('archivoCsv'), (req, res) => {
+    if (!req.file) return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
 
-// Ruta para Soporte Técnico
+    const resultados = [];
+    fs.createReadStream(req.file.path)
+        .pipe(csv())
+        .on('data', (data) => resultados.push(data))
+        .on('end', async () => {
+            try {
+                // Procesar todas las actualizaciones
+                const promesas = resultados.map(prod => {
+                    return new Promise((resolve, reject) => {
+                        const sql = "UPDATE productos SET precio_unitario = ? WHERE codigo = ?";
+                        db.query(sql, [prod.precio_unitario, prod.codigo], (err) => {
+                            if (err) reject(err);
+                            else resolve();
+                        });
+                    });
+                });
+
+                await Promise.all(promesas);
+                fs.unlinkSync(req.file.path); // Borrar archivo temporal
+                res.json({ success: true, count: resultados.length });
+            } catch (error) {
+                console.error("Error al actualizar masivamente:", error);
+                res.status(500).json({ success: false, message: 'Error al procesar la base de datos.' });
+            }
+        });
+});
+
+// --- RESTO DE RUTAS ---
+
 app.post('/enviar-ticket', async (req, res) => {
     const { tipo, descripcion, usuario } = req.body;
     try {
-        await enviarAvisoEmail({ 
-            tipo_ticket: tipo, 
-            descripcion_ticket: descripcion, 
-            usuario: usuario 
-        }, 'SOPORTE');
+        await enviarAvisoEmail({ tipo_ticket: tipo, descripcion_ticket: descripcion, usuario: usuario }, 'SOPORTE');
         res.status(200).send('Ticket enviado OK');
     } catch (error) {
         res.status(500).send('Error al procesar ticket');
@@ -157,16 +167,14 @@ app.get('/reservas', (req, res) => {
     let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ? OR local_origen LIKE ?)`;
     let parametros = [filtroBusqueda, filtroBusqueda, filtroBusqueda, filtroBusqueda];
 
-    if (rol === 'admin') {
-        // Admin ve todo
-    } else if (rol === 'encargado') {
+    if (rol === 'admin') { /* Ve todo */ } 
+    else if (rol === 'encargado') {
         sql += " AND local_origen = ?";
         parametros.push(sucursalUsuario);
     } else {
         sql += " AND local_origen = ? AND borrado = 0";
         parametros.push(sucursalUsuario);
     }
-
     sql += " ORDER BY id DESC";
 
     db.query(sql, parametros, (err, results) => {
@@ -180,8 +188,7 @@ app.put('/reservas/:id/estado', (req, res) => {
     const { estado, borrado, responsable } = req.body;
 
     if (borrado !== undefined) {
-        const sqlRestaurar = "UPDATE reservas SET borrado = ?, estado = ? WHERE id = ?";
-        db.query(sqlRestaurar, [borrado, estado, id], (err) => {
+        db.query("UPDATE reservas SET borrado = ?, estado = ? WHERE id = ?", [borrado, estado, id], (err) => {
             if (err) return res.status(500).send('Error');
             res.send('OK');
         });
@@ -216,47 +223,12 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
-app.put('/reservas/:id/editar', (req, res) => {
-    const id = req.params.id;
-    const { cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva } = req.body;
-    const sql = `UPDATE reservas SET cliente_nombre=?, cliente_telefono=?, cliente_email=?, prod_codigo=?, descripcion=?, prod_cantidad=?, total_reserva=? WHERE id=? AND estado='En Tránsito'`;
-    db.query(sql, [cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva, id], (err) => {
-        if (err) return res.status(500).send('Error al editar');
-        res.send('OK');
-    });
-});
-
-app.delete('/reservas/:id', (req, res) => {
-    const id = req.params.id;
-    db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [id], (err) => {
-        if (err) res.status(500).send('Error');
-        else res.send('OK');
-    });
-});
-
-app.delete('/reservas_definitivas/:id', (req, res) => {
-    const id = req.params.id;
-    const sqlRespaldo = "INSERT INTO borrados_definitivos SELECT * FROM reservas WHERE id = ?";
-    db.query(sqlRespaldo, [id], (err) => {
-        if (err) return res.status(500).send('Error al respaldar');
-        db.query("DELETE FROM reservas WHERE id = ?", [id], (err) => {
-            if (err) return res.status(500).send('Error al eliminar');
-            res.send('Eliminado permanentemente');
-        });
-    });
-});
-
 app.post('/login', (req, res) => {
     const { usuario, password } = req.body;
     db.query("SELECT * FROM usuarios WHERE usuario = ? AND password = ?", [usuario, password], (err, results) => {
         if (err) return res.status(500).send('Error');
         if (results.length > 0) {
-            res.json({
-                success: true,
-                nombre: results[0].usuario,
-                rol: results[0].rol,
-                sucursal: results[0].sucursal 
-            });
+            res.json({ success: true, nombre: results[0].usuario, rol: results[0].rol, sucursal: results[0].sucursal });
         } else {
             res.json({ success: false, message: 'Usuario o clave incorrectos' });
         }

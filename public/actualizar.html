@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
+    <title>One Box - Actualizar Precios</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo-texto">SISTEMA DE GESTIÓN - ACTUALIZACIÓN MASIVA</div>
+        <a href="panel.html" class="btn-header">VOLVER AL PANEL</a>
+    </header>
+
+    <main>
+        <div class="caja-central" style="max-width: 650px;">
+            <h2 style="color: #4a90e2;">📈 Actualizar Precios de Productos</h2>
+            <p style="text-align: center; color: #5e616b; margin-bottom: 20px;">
+                Subí un archivo CSV con las columnas <b>codigo</b> y <b>precio_unitario</b> para actualizar los valores en la base de datos.
+            </p>
+
+            <form id="formActualizar" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
+                <div style="border: 2px dashed #89b4fa; padding: 40px; border-radius: 15px; width: 100%; text-align: center; background: #f8f9fa; cursor: pointer;" onclick="document.getElementById('inputCSV').click()">
+                    <span style="font-size: 3rem;">📁</span>
+                    <p style="margin-top: 10px; font-weight: bold; color: #313244;">Hacé clic para seleccionar el archivo CSV</p>
+                    <input type="file" id="inputCSV" accept=".csv" style="display: none;" required>
+                </div>
+
+                <div id="infoArchivo" style="margin-top: 15px; color: #2e7d32; font-weight: bold; display: none;">
+                    Archivo seleccionado: <span id="nombreArchivo"></span>
+                </div>
+
+                <button type="submit" class="btn-azul" style="margin-top: 25px; max-width: 300px;">PROCESAR ACTUALIZACIÓN</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
+        </div>
+        <img src="./img/Rl_Logo.png" alt="One Box Logo" class="footer-logo">
+        <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        <div class="footer-version">v1.2.0</div> 
+    </footer>
+
+    <div id="modalSoporte" class="modal-overlay">
+        <div class="modal-caja">
+            <h3 style="color: #89b4fa;">🛠️ Soporte Técnico</h3>
+            <form id="formSoporte">
+                <label style="color: #bac2de;">Tipo de solicitud:</label>
+                <select id="tipo_ticket" required>
+                    <option value="Falla">Reportar Falla</option>
+                    <option value="Modificacion">Solicitar Modificación</option>
+                    <option value="Sugerencia">Sugerencia</option>
+                </select>
+                <label style="color: #bac2de; margin-top: 10px;">Descripción detallada:</label>
+                <textarea id="desc_ticket" required placeholder="Describe el problema o sugerencia..."></textarea>
+                <div class="modal-botones">
+                    <button type="submit" class="btn-azul">ENVIAR TICKET</button>
+                    <button type="button" onclick="cerrarSoporte()" class="btn-secundario">CANCELAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalAviso" class="modal-overlay">
+        <div class="modal-caja" id="bordeModal">
+            <h3 id="tituloAviso"></h3>
+            <p id="textoAviso" style="color: #fff; margin-bottom: 20px;"></p>
+            <div class="modal-botones">
+                <button onclick="cerrarAviso()" class="btn-azul" id="btnColorAviso">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- GESTIÓN DE AVISOS Y MODALES ---
+        function mostrarAviso(titulo, mensaje, esError = true) {
+            const modal = document.getElementById('modalAviso');
+            const tituloH3 = document.getElementById('tituloAviso');
+            const textoP = document.getElementById('textoAviso');
+            const borde = document.getElementById('bordeModal');
+            const btn = document.getElementById('btnColorAviso');
+            tituloH3.textContent = titulo;
+            textoP.textContent = mensaje;
+            const color = esError ? '#f38ba8' : '#a6e3a1';
+            tituloH3.style.color = color;
+            borde.style.borderColor = color;
+            btn.style.backgroundColor = color;
+            modal.style.display = 'flex';
+        }
+
+        function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
+        function abrirSoporte() { document.getElementById('modalSoporte').style.display = 'flex'; }
+        function cerrarSoporte() { document.getElementById('modalSoporte').style.display = 'none'; }
+
+        // --- LÓGICA DE SELECCIÓN DE ARCHIVO ---
+        document.getElementById('inputCSV').onchange = function() {
+            const info = document.getElementById('infoArchivo');
+            const nombre = document.getElementById('nombreArchivo');
+            if(this.files.length > 0) {
+                nombre.textContent = this.files[0].name;
+                info.style.display = 'block';
+            }
+        };
+
+        // --- ENVÍO AL SERVIDOR (ACTUALIZACIÓN MASIVA) ---
+        document.getElementById('formActualizar').onsubmit = async function(e) {
+            e.preventDefault();
+            const fileInput = document.getElementById('inputCSV');
+            if (fileInput.files.length === 0) return;
+
+            const formData = new FormData();
+            formData.append('archivoCsv', fileInput.files[0]);
+
+            // Mensaje de espera
+            mostrarAviso('⏳ Procesando', 'Actualizando precios masivamente...', false);
+
+            try {
+                const response = await fetch('/actualizar-precios', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    cerrarAviso();
+                    mostrarAviso('✅ Éxito', `Se han actualizado ${data.count} productos correctamente.`, false);
+                    this.reset();
+                    document.getElementById('infoArchivo').style.display = 'none';
+                } else {
+                    mostrarAviso('❌ Error', data.message || 'Hubo un problema al procesar el archivo.', true);
+                }
+            } catch (error) {
+                mostrarAviso('❌ Error', 'Error de conexión con el servidor.', true);
+            }
+        };
+
+        // --- LÓGICA DE SOPORTE ---
+        document.getElementById('formSoporte').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const datos = {
+                tipo: document.getElementById('tipo_ticket').value,
+                descripcion: document.getElementById('desc_ticket').value,
+                usuario: sessionStorage.getItem('usuario_nombre') || 'Admin'
+            };
+            try {
+                const res = await fetch('/enviar-ticket', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+                if (res.ok) {
+                    cerrarSoporte();
+                    this.reset();
+                    mostrarAviso('✅ Enviado', 'Ticket de soporte recibido correctamente.', false);
+                } else {
+                    mostrarAviso('❌ Error', 'No se pudo enviar el ticket.', true);
+                }
+            } catch {
+                mostrarAviso('❌ Error', 'Falla de red.', true);
+            }
+        });
+    </script>
+</body>
+</html>
