@@ -3,9 +3,9 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const path = require('path');
 const { Resend } = require('resend');
-const multer = require('multer'); // Nuevo: Manejo de archivos
-const csv = require('csv-parser'); // Nuevo: Procesador CSV
-const fs = require('fs'); // Nuevo: Sistema de archivos
+const multer = require('multer'); 
+const csv = require('csv-parser'); 
+const fs = require('fs'); 
 
 const app = express();
 app.use(cors());
@@ -18,7 +18,7 @@ const upload = multer({ dest: 'uploads/' });
 // 1. CONFIGURACIÓN DE RESEND
 const resend = new Resend(process.env.RESEND_API_KEY); 
 
-// 2. FUNCIÓN AUXILIAR: Enviar Correo
+// 2. FUNCIÓN AUXILIAR: Enviar Correo (Confirmaciones, Disponibilidad y Soporte)
 async function enviarAvisoEmail(reserva, tipo) {
     let asunto = "";
     let mensajeHtml = "";
@@ -36,7 +36,8 @@ async function enviarAvisoEmail(reserva, tipo) {
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
         <footer style="color: #666666; font-family: sans-serif;">
             <p style="font-size: 14px; margin: 0; font-weight: bold; color: #333;">Gestión de Reservas Mo</p>
-            <p style="font-size: 11px; color: #999999; margin-top: 10px;">Este es un mensaje automático enviado por el sistema de Reservas Mo - One Box</p>
+            <p style="font-size: 11px; color: #999999; margin-top: 10px;">Este es un mensaje automático,</p>
+            <p style="font-size: 11px; color: #999999; margin-top: 10px;">Enviado por el sistema de Reservas Mo - One Box</p>
         </footer>
     `;
 
@@ -58,7 +59,9 @@ async function enviarAvisoEmail(reserva, tipo) {
             <h2>Nuevo Ticket de Soporte</h2>
             <p><strong>Tipo:</strong> ${reserva.tipo_ticket}</p>
             <p><strong>Usuario:</strong> ${reserva.usuario}</p>
-            <p><strong>Descripción:</strong> ${reserva.descripcion_ticket}</p>${footerHtml}</div>`;
+            <hr style="border: 0; border-top: 1px solid #ddd;">
+            <p><strong>Descripción del problema:</strong></p>
+            <p style="background: #f8f9fa; padding: 15px; border-radius: 5px;">${reserva.descripcion_ticket}</p>${footerHtml}</div>`;
     }
 
     try {
@@ -68,6 +71,7 @@ async function enviarAvisoEmail(reserva, tipo) {
             subject: asunto,
             html: mensajeHtml,
         });
+        console.log(`✅ Email (${tipo}) enviado a:`, destinatario);
     } catch (error) {
         console.error(`❌ Error email (${tipo}):`, error);
     }
@@ -85,33 +89,51 @@ const db = mysql.createPool({
     connectionLimit: 10
 });
 
-// --- NUEVA RUTA: ACTUALIZACIÓN MASIVA DE PRECIOS ---
+// --- RUTA: ACTUALIZACIÓN MASIVA DE PRECIOS (Detecta ; y ,) ---
 app.post('/actualizar-precios', upload.single('archivoCsv'), (req, res) => {
     if (!req.file) return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
 
     const resultados = [];
     fs.createReadStream(req.file.path)
-        .pipe(csv())
-        .on('data', (data) => resultados.push(data))
+        .pipe(csv({ separator: ';' })) // Intentamos con punto y coma primero
+        .on('data', (data) => {
+            let row = data;
+            // Si detecta que en realidad se usaron comas, separa la fila manualmente
+            if (Object.keys(data).length === 1 && Object.keys(data)[0].includes(',')) {
+                const parts = Object.keys(data)[0].split(',');
+                const values = Object.values(data)[0].split(',');
+                row = { [parts[0]]: values[0], [parts[1]]: values[1] };
+            }
+            resultados.push(row);
+        })
         .on('end', async () => {
             try {
-                // Procesar todas las actualizaciones
+                let contadorExito = 0;
                 const promesas = resultados.map(prod => {
-                    return new Promise((resolve, reject) => {
-                        const sql = "UPDATE productos SET precio_unitario = ? WHERE codigo = ?";
-                        db.query(sql, [prod.precio_unitario, prod.codigo], (err) => {
-                            if (err) reject(err);
-                            else resolve();
-                        });
+                    return new Promise((resolve) => {
+                        const codLimpio = prod.codigo ? String(prod.codigo).trim() : null;
+                        let precioRaw = prod.precio_unitario ? String(prod.precio_unitario).trim() : null;
+                        const precioLimpio = precioRaw ? parseFloat(precioRaw.replace(',', '.')) : NaN;
+
+                        if (codLimpio && !isNaN(precioLimpio)) {
+                            const sql = "UPDATE productos SET precio_unitario = ? WHERE codigo = ?";
+                            db.query(sql, [precioLimpio, codLimpio], (err, result) => {
+                                if (!err && result.affectedRows > 0) contadorExito++;
+                                resolve();
+                            });
+                        } else {
+                            resolve();
+                        }
                     });
                 });
 
                 await Promise.all(promesas);
-                fs.unlinkSync(req.file.path); // Borrar archivo temporal
-                res.json({ success: true, count: resultados.length });
+                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+                res.json({ success: true, count: contadorExito });
             } catch (error) {
-                console.error("Error al actualizar masivamente:", error);
-                res.status(500).json({ success: false, message: 'Error al procesar la base de datos.' });
+                console.error("Error masivo:", error);
+                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+                res.status(500).json({ success: false, message: 'Error interno.' });
             }
         });
 });
@@ -167,7 +189,7 @@ app.get('/reservas', (req, res) => {
     let sql = `SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ? OR operador_nombre LIKE ? OR local_origen LIKE ?)`;
     let parametros = [filtroBusqueda, filtroBusqueda, filtroBusqueda, filtroBusqueda];
 
-    if (rol === 'admin') { /* Ve todo */ } 
+    if (rol === 'admin') {} 
     else if (rol === 'encargado') {
         sql += " AND local_origen = ?";
         parametros.push(sucursalUsuario);
