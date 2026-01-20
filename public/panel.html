@@ -24,6 +24,16 @@
         </div>
     </div>
 
+    <footer>
+        <div class="footer-contenido">
+            <div class="footer-links">
+                <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
+            </div>
+            <img src="./img/Ob_Logo.png" alt="Logo Footer" class="footer-logo">
+            <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
     <script>
         // --- CAPA DE SEGURIDAD ---
         // Si no hay datos de sesión, redirigir inmediatamente al login
@@ -51,6 +61,12 @@
             sessionStorage.clear(); // Limpia toda la sesión
             window.location.href = 'index.html';
         });
+
+        const rol = sessionStorage.getItem('usuario_rol');  
+            if (rol !== 'admin') {
+                // Si no es admin, ocultamos el botón de actualización masiva
+            document.querySelector('.btn-destacado').style.display = 'none';
+        }
     </script>
 
     <div id="modalError" class="modal-overlay">
