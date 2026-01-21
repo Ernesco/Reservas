@@ -505,28 +505,34 @@ footer p {
     }
 }
 
-/* 1. El contenedor padre debe usar Flexbox */
-.contenedor-pasos {
-    display: flex;
-    flex-direction: column; /* Mantiene el orden vertical */
-    gap: 20px;
-    width: 100%;
-}
-
-/* 2. Cada bloque individual de paso */
-.paso-caja {
+/* 1. Contenedor principal: asegura que ocupe el 100% */
+.contenedor-guia {
     display: flex;
     flex-direction: column;
-    flex: 1 1 auto;      /* Esto obliga a todas las cajas a crecer por igual */
-    min-height: 220px;   /* Altura mínima basada en el contenido más largo (Paso 1) */
+    align-items: stretch; /* Esto obliga a las cajas a estirarse horizontalmente */
+    gap: 25px;
+    width: 100%;
+    max-width: 1000px; /* Ajustá este valor al ancho máximo que desees */
+    margin: 0 auto;
     padding: 20px;
-    border-radius: 10px;
-    background-color: #313244; /* Tu color de fondo actual */
     box-sizing: border-box;
 }
 
-/* 3. Asegura que la lista interna ocupe el espacio sobrante */
-.paso-caja ul {
-    flex-grow: 1;
-    margin-top: 10px;
+/* 2. Las cajas de los pasos */
+.paso-caja {
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Ocupa todo el ancho del contenedor padre */
+    flex: 1 1 auto; /* Las tres crecen igual en vertical si el padre tiene altura fija */
+    min-height: 220px; /* Altura mínima basada en el contenido del Paso 1 */
+    padding: 25px;
+    background-color: #313244;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+/* 3. Alineación del contenido interno */
+.paso-caja h3, .paso-caja ul {
+    width: 100%;
+    text-align: left;
 }
