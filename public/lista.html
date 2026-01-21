@@ -95,25 +95,36 @@
         </div>
     </div>
 
-    <div id="modalEditar" class="modal-overlay">
-        <div class="modal-caja" style="max-width: 500px;">
-            <h3 style="color: #f39c12;">✏️ Editar Reserva</h3>
-            <div id="formEditar" style="text-align: left; width: 100%;">
-                <input type="hidden" id="editId">
-                <label>Nombre Cliente:</label> <input type="text" id="editNombre">
-                <label>Teléfono:</label> <input type="text" id="editTel">
-                <label>Email:</label> <input type="text" id="editEmail">
-                <label>Código Producto:</label> <input type="text" id="editCodigo">
-                <label>Descripción:</label> <input type="text" id="editDesc">
-                <label>Cantidad:</label> <input type="number" id="editCant">
-                <label>Total ($):</label> <input type="number" id="editTotal">
-            </div>
-            <div class="modal-botones" style="width: 100%; margin-top: 15px;">
-                <button onclick="guardarEdicion()" class="btn-azul" style="background: #f39c12;">GUARDAR CAMBIOS</button>
-                <button onclick="document.getElementById('modalEditar').style.display='none'">CANCELAR</button>
-            </div>
-        </div>
+<form id="formEditar">
+    <div class="columna-editar">
+        <label>Nombre:</label>
+        <input type="text" id="editNombre">
+        <label>Teléfono:</label>
+        <input type="text" id="editTel">
+        <label>Email:</label>
+        <input type="text" id="editEmail">
     </div>
+
+    <div class="columna-editar">
+        <label>Código:</label>
+        <input type="text" id="editCodigo">
+        <label>Descripción:</label>
+        <input type="text" id="editDesc">
+        <label>Cantidad:</label>
+        <input type="number" id="editCant">
+    </div>
+
+    <div class="columna-editar">
+        <label>Precio Unitario:</label>
+        <input type="number" id="editPrecioUnitario">
+        <label>Total:</label>
+        <input type="number" id="editTotal" readonly> </div>
+</form>
+
+<div class="modal-botones" style="margin-top: 20px;">
+    <button onclick="guardarEdicion()" class="btn-azul">Guardar Cambios</button>
+    <button onclick="cerrarEditar()" class="btn-secundario">Cancelar</button>
+</div>
 
     <div id="modalQR" class="modal-overlay">
         <div class="modal-caja" style="max-width: 400px; text-align: center;">

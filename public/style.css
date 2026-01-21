@@ -397,8 +397,8 @@ footer p {
 #formSoporte textarea {
     width: 100%;
     min-height: 100px; /* Aumentamos el área de escritura */
-    padding: 20px;
-    margin-top: 10px;
+    padding: 10px;
+    margin-top: 5px;
     border-radius: 8px;
     border: 1px solid #ccc;
     background-color: #fff;
@@ -416,5 +416,58 @@ footer p {
     }
     #buscador { width: 100% !important; }
     .caja-central { width: 95% !important; }
+}
+
+/* Ajustamos el tamaño del modal para que sea ancho y no alto */
+#modalEditar .modal-caja {
+    width: 95% !important;
+    max-width: 950px !important; /* Aumentamos el ancho máximo */
+    padding: 25px !important;
+}
+
+/* Contenedor de los campos: Lo convertimos en una fila horizontal */
+#formEditar {
+    display: flex;
+    flex-wrap: nowrap; /* Evita que se bajen los campos */
+    gap: 20px;         /* Espacio entre columnas */
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* Estilo para cada columna (Izquierda, Centro, Derecha) */
+.columna-editar {
+    flex: 1;           /* Hace que las 3 columnas tengan el mismo ancho */
+    display: flex;
+    flex-direction: column; /* Dentro de cada columna, los inputs van uno abajo de otro */
+    gap: 10px;
+}
+
+/* Estilo para las etiquetas y los inputs dentro del modal */
+.columna-editar label {
+    font-size: 0.85rem;
+    color: #bac2de;
+    font-weight: bold;
+    text-align: left;
+    margin-bottom: -5px;
+}
+
+.columna-editar input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #45475a;
+    background: #1e1e2e;
+    color: #fff;
+    box-sizing: border-box;
+}
+
+/* Responsivo: Si se ve en celular, se vuelven a poner uno abajo de otro */
+@media (max-width: 800px) {
+    #formEditar {
+        flex-direction: column;
+    }
+    #modalEditar .modal-caja {
+        max-width: 400px !important;
+    }
 }
 
