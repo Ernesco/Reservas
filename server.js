@@ -35,8 +35,8 @@ async function enviarAvisoEmail(reserva, tipo) {
         <br>
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
         <footer style="color: #666666; font-family: sans-serif;">
-            <p style="font-size: 14px; margin: 0; font-weight: bold; color: #333;">Gestión de Reservas Mo</p>
-            <p style="font-size: 11px; color: #999999; margin-top: 10px;">Este es un mensaje automático, enviado por el sistema de Reservas Mo - One Box</p>
+            <p style="font-size: 14px; margin: 0; font-weight: bold; color: #333;">One Box - Gestión de Reservas</p>
+            <p style="font-size: 11px; color: #999999; margin-top: 10px;">Este es un mensaje automático enviado por el sistema de Reservas One Box</p>
         </footer>
     `;
 
@@ -50,7 +50,7 @@ async function enviarAvisoEmail(reserva, tipo) {
         asunto = `¡Tu pedido ya llegó! Reserva #${reserva.id}`;
         mensajeHtml = `<div style="font-family: sans-serif; border: 1px solid #a6e3a1; padding: 20px; border-radius: 10px;">
             <h2 style="color: #2e7d32;">¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
-            <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible en <strong>${reserva.sucursal_nombre}</strong>.</p>${footerHtml}</div>`;
+            <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible para retirar en <strong>${reserva.sucursal_nombre}</strong>.</p>${footerHtml}</div>`;
     } else if (tipo === 'SOPORTE') {
         destinatario = 'erco.efc@gmail.com'; 
         asunto = `🛠️ Soporte: ${reserva.tipo_ticket} - ${reserva.usuario}`;
@@ -65,7 +65,7 @@ async function enviarAvisoEmail(reserva, tipo) {
 
     try {
         await resend.emails.send({
-            from: 'Reservas.Mo <reservas.mo@onebox.net.ar>', 
+            from: 'One Box <sistema@onebox.net.ar>', 
             to: destinatario,
             subject: asunto,
             html: mensajeHtml,
@@ -88,65 +88,7 @@ const db = mysql.createPool({
     connectionLimit: 10
 });
 
-// --- RUTA: ACTUALIZACIÓN MASIVA DE PRECIOS ---
-app.post('/actualizar-precios', upload.single('archivoCsv'), (req, res) => {
-    if (!req.file) return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
-
-    const resultados = [];
-    fs.createReadStream(req.file.path)
-        .pipe(csv({ separator: ';' })) 
-        .on('data', (data) => {
-            let row = data;
-            if (Object.keys(data).length === 1 && Object.keys(data)[0].includes(',')) {
-                const parts = Object.keys(data)[0].split(',');
-                const values = Object.values(data)[0].split(',');
-                row = { [parts[0]]: values[0], [parts[1]]: values[1] };
-            }
-            resultados.push(row);
-        })
-        .on('end', async () => {
-            try {
-                let contadorExito = 0;
-                const promesas = resultados.map(prod => {
-                    return new Promise((resolve) => {
-                        const codLimpio = prod.codigo ? String(prod.codigo).trim() : null;
-                        let precioRaw = prod.precio_unitario ? String(prod.precio_unitario).trim() : null;
-                        const precioLimpio = precioRaw ? parseFloat(precioRaw.replace(',', '.')) : NaN;
-
-                        if (codLimpio && !isNaN(precioLimpio)) {
-                            const sql = "UPDATE productos SET precio_unitario = ? WHERE codigo = ?";
-                            db.query(sql, [precioLimpio, codLimpio], (err, result) => {
-                                if (!err && result.affectedRows > 0) contadorExito++;
-                                resolve();
-                            });
-                        } else {
-                            resolve();
-                        }
-                    });
-                });
-
-                await Promise.all(promesas);
-                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                res.json({ success: true, count: contadorExito });
-            } catch (error) {
-                console.error("Error masivo:", error);
-                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                res.status(500).json({ success: false, message: 'Error interno.' });
-            }
-        });
-});
-
 // --- RUTAS DE RESERVAS Y PRODUCTOS ---
-
-app.post('/enviar-ticket', async (req, res) => {
-    const { tipo, descripcion, usuario } = req.body;
-    try {
-        await enviarAvisoEmail({ tipo_ticket: tipo, descripcion_ticket: descripcion, usuario: usuario }, 'SOPORTE');
-        res.status(200).send('Ticket enviado OK');
-    } catch (error) {
-        res.status(500).send('Error al procesar ticket');
-    }
-});
 
 app.get('/productos/:codigo', (req, res) => {
     const { codigo } = req.params;
@@ -203,6 +145,19 @@ app.get('/reservas', (req, res) => {
     });
 });
 
+// --- RUTA: EDITAR RESERVA ---
+app.put('/reservas/:id/editar', (req, res) => {
+    const id = req.params.id;
+    const data = req.body;
+    const sql = `UPDATE reservas SET cliente_nombre=?, cliente_telefono=?, cliente_email=?, prod_codigo=?, descripcion=?, prod_cantidad=?, total_reserva=? WHERE id=?`;
+    const valores = [data.cliente_nombre, data.cliente_telefono, data.cliente_email, data.prod_codigo, data.descripcion, data.prod_cantidad, data.total_reserva, id];
+
+    db.query(sql, valores, (err) => {
+        if (err) return res.status(500).send('Error al editar');
+        res.send('OK');
+    });
+});
+
 app.put('/reservas/:id/estado', (req, res) => {
     const id = req.params.id;
     const { estado, borrado, responsable } = req.body;
@@ -241,6 +196,21 @@ app.put('/reservas/:id/estado', (req, res) => {
             res.send('OK');
         });
     }
+});
+
+// --- RUTAS DE ELIMINACIÓN ---
+app.delete('/reservas/:id', (req, res) => {
+    db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [req.params.id], (err) => {
+        if (err) return res.status(500).send('Error');
+        res.send('OK');
+    });
+});
+
+app.delete('/reservas_definitivas/:id', (req, res) => {
+    db.query("DELETE FROM reservas WHERE id = ?", [req.params.id], (err) => {
+        if (err) return res.status(500).send('Error');
+        res.send('OK');
+    });
 });
 
 app.post('/login', (req, res) => {
