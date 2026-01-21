@@ -378,7 +378,7 @@ footer p {
 /* --- MODAL SOPORTE: OPTIMIZACIÓN DE ESPACIO --- */
 #modalSoporte .modal-caja {
     width: 95% !important;
-    max-width: 550px !important; 
+    max-width: 100px !important; 
     padding: 25px !important; /* Reducimos el margen interno del contenedor */
     box-sizing: border-box;
 }
