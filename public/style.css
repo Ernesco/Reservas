@@ -418,56 +418,108 @@ footer p {
     .caja-central { width: 95% !important; }
 }
 
-/* Ajustamos el tamaño del modal para que sea ancho y no alto */
-#modalEditar .modal-caja {
+/* --- MODAL DE EDICIÓN HORIZONTAL (v1.2.0) --- */
+
+/* 1. Contenedor principal del modal de edición */
+.modal-ancho-editar {
     width: 95% !important;
-    max-width: 950px !important; /* Aumentamos el ancho máximo */
-    padding: 25px !important;
+    max-width: 1000px !important; /* Ancho extendido para las 3 columnas */
+    background: #1e1e2e;
+    padding: 30px !important;
+    border-radius: 15px;
+    border: 1px solid #fab387; /* Borde naranja para diferenciarlo del soporte */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-/* Contenedor de los campos: Lo convertimos en una fila horizontal */
-#formEditar {
+/* 2. Distribución en Grid/Flex para las columnas */
+.grid-editar {
     display: flex;
-    flex-wrap: nowrap; /* Evita que se bajen los campos */
-    gap: 20px;         /* Espacio entre columnas */
+    flex-wrap: nowrap; /* Mantiene las columnas en una sola línea */
+    gap: 30px;         /* Espacio entre las 3 secciones */
     justify-content: space-between;
-    align-items: flex-start;
+    margin-top: 15px;
 }
 
-/* Estilo para cada columna (Izquierda, Centro, Derecha) */
-.columna-editar {
-    flex: 1;           /* Hace que las 3 columnas tengan el mismo ancho */
+/* 3. Estilo de cada columna individual */
+.col-editar {
+    flex: 1;           /* Hace que las 3 columnas midan exactamente lo mismo */
     display: flex;
-    flex-direction: column; /* Dentro de cada columna, los inputs van uno abajo de otro */
-    gap: 10px;
+    flex-direction: column;
+    gap: 8px;          /* Espacio entre etiqueta e input */
 }
 
-/* Estilo para las etiquetas y los inputs dentro del modal */
-.columna-editar label {
+/* 4. Estilo de las etiquetas (Labels) */
+.col-editar label {
     font-size: 0.85rem;
     color: #bac2de;
     font-weight: bold;
     text-align: left;
-    margin-bottom: -5px;
+    margin-top: 10px;
 }
 
-.columna-editar input {
+/* 5. Estilo de los campos blancos (Inputs) */
+.col-editar input {
     width: 100%;
-    padding: 10px;
+    padding: 12px 15px; /* Los hace más robustos/anchos */
     border-radius: 8px;
     border: 1px solid #45475a;
-    background: #1e1e2e;
-    color: #fff;
-    box-sizing: border-box;
+    background-color: #ffffff; /* Fondo blanco solicitado */
+    color: #11111b;            /* Texto oscuro para legibilidad */
+    font-size: 1rem;
+    box-sizing: border-box;    /* Evita que el padding desborde el ancho */
+    outline: none;
+    transition: border-color 0.3s;
 }
 
-/* Responsivo: Si se ve en celular, se vuelven a poner uno abajo de otro */
-@media (max-width: 800px) {
-    #formEditar {
+.col-editar input:focus {
+    border-color: #fab387;     /* Resalta el borde al hacer clic */
+}
+
+/* 6. Adaptabilidad para celulares */
+@media (max-width: 900px) {
+    .grid-editar {
+        flex-direction: column; /* Se ponen uno abajo del otro en pantallas chicas */
+        gap: 10px;
+    }
+    .modal-ancho-editar {
+        max-width: 450px !important;
+    }
+}
+
+/* --- RESPONSIVE DESIGN PARA EL MODAL DE EDICIÓN --- */
+
+@media (max-width: 850px) {
+    /* 1. El grid deja de ser horizontal y pasa a ser vertical */
+    .grid-editar {
         flex-direction: column;
+        gap: 10px; /* Menos espacio entre bloques para no hacer el modal eterno */
     }
-    #modalEditar .modal-caja {
-        max-width: 400px !important;
+
+    /* 2. Ajustamos el ancho del modal para que ocupe casi toda la pantalla del cel */
+    .modal-ancho-editar {
+        width: 92% !important;
+        max-width: 480px !important;
+        padding: 20px !important;
+        margin: 10px;
+        overflow-y: auto; /* Permite scroll interno si el contenido es muy largo */
+        max-height: 90vh; /* Evita que el modal sea más alto que la pantalla */
+    }
+
+    /* 3. Ajustamos los botones para que sean fáciles de presionar con el pulgar */
+    .modal-botones {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .modal-botones button {
+        width: 100%; /* Botones de ancho completo en celular */
+        padding: 15px;
+        font-size: 1rem;
+    }
+
+    /* 4. Etiquetas un poco más grandes para facilitar la lectura */
+    .col-editar label {
+        margin-top: 5px;
+        font-size: 0.95rem;
     }
 }
-
