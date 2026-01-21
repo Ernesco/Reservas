@@ -504,3 +504,27 @@ footer p {
         padding: 10px; /* Un poco más de área táctil en móvil */
     }
 }
+
+/* Contenedor principal de los tres pasos */
+.contenedor-procesos {
+    display: flex;
+    flex-direction: column; /* Mantiene el orden vertical */
+    gap: 20px;
+    width: 100%;
+}
+
+/* Regla para que todos los hijos midan lo mismo */
+.contenedor-procesos > div {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto; /* Obliga a todos a crecer por igual */
+    min-height: 220px; /* Ajusta según el contenido más largo */
+    box-sizing: border-box;
+}
+
+/* Asegura que la lista interna use todo el espacio */
+.contenedor-procesos ul {
+    flex-grow: 1; 
+    margin: 0;
+    padding-left: 20px;
+}
