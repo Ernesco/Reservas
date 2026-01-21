@@ -44,8 +44,8 @@
         <div class="footer-links">
             <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
         </div>
-            <img src="./img/Ob_Logo.png" alt="One Box Logo" class="footer-logo">
-            <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        <img src="./img/Rl_Logo.png" alt="One Box Logo" class="footer-logo">
+        <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
         <div class="footer-version">v1.2.0</div> 
     </footer>
 
@@ -90,48 +90,50 @@
             </div>
             <div class="modal-botones" style="width: 100%;">
                 <button id="modalAceptar" class="btn-azul">CONFIRMAR</button>
-                <button onclick="cerrarModalFirma()" id="modalCancelar">CANCELAR</button>
+                <button onclick="cerrarModalFirma()" class="btn-secundario">CANCELAR</button>
             </div>
         </div>
     </div>
 
-<div id="modalEditar" class="modal-overlay" style="display: none;">
-    <div class="modal-caja modal-ancho">
-        <h3 style="color: #fab387; margin-bottom: 20px;">📝 Editar Reserva</h3>
-        
-        <form id="formEditar" class="grid-editar">
-            <div class="col-editar">
-                <label>Nombre:</label>
-                <input type="text" id="editNombre">
-                <label>Teléfono:</label>
-                <input type="text" id="editTel">
-                <label>Email:</label>
-                <input type="text" id="editEmail">
-            </div>
+    <div id="modalEditar" class="modal-overlay" style="display: none;">
+        <div class="modal-caja modal-ancho-editar">
+            <h3 style="color: #fab387; margin-bottom: 20px; text-align: center;">📝 Editar Reserva</h3>
+            
+            <input type="hidden" id="editId">
 
-            <div class="col-editar">
-                <label>Código:</label>
-                <input type="text" id="editCodigo">
-                <label>Descripción:</label>
-                <input type="text" id="editDesc">
-                <label>Cantidad:</label>
-                <input type="number" id="editCant">
-            </div>
+            <form id="formEditar" class="grid-editar">
+                <div class="col-editar">
+                    <label>Nombre Cliente:</label>
+                    <input type="text" id="editNombre">
+                    <label>Teléfono:</label>
+                    <input type="text" id="editTel">
+                    <label>Email:</label>
+                    <input type="text" id="editEmail">
+                </div>
 
-            <div class="col-editar">
-                <label>Precio Unitario:</label>
-                <input type="number" id="editPrecioUnitario">
-                <label>Total:</label>
-                <input type="number" id="editTotal">
-            </div>
-        </form>
+                <div class="col-editar">
+                    <label>Código Producto:</label>
+                    <input type="text" id="editCodigo">
+                    <label>Descripción:</label>
+                    <input type="text" id="editDesc">
+                    <label>Cantidad:</label>
+                    <input type="number" id="editCant">
+                </div>
 
-        <div class="modal-botones" style="margin-top: 25px;">
-            <button onclick="guardarEdicion()" class="btn-azul">GUARDAR CAMBIOS</button>
-            <button onclick="cerrarEditar()" class="btn-secundario">CANCELAR</button>
+                <div class="col-editar">
+                    <label>Precio Unitario ($):</label>
+                    <input type="number" id="editPrecioUnitario">
+                    <label>Total Reserva ($):</label>
+                    <input type="number" id="editTotal">
+                </div>
+            </form>
+
+            <div class="modal-botones" style="margin-top: 30px;">
+                <button onclick="guardarEdicion()" class="btn-azul">GUARDAR CAMBIOS</button>
+                <button onclick="cerrarEditar()" class="btn-secundario">CANCELAR</button>
+            </div>
         </div>
     </div>
-</div>
 
     <div id="modalQR" class="modal-overlay">
         <div class="modal-caja" style="max-width: 400px; text-align: center;">
@@ -171,6 +173,7 @@
     function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
     function abrirSoporte() { document.getElementById('modalSoporte').style.display = 'flex'; }
     function cerrarSoporte() { document.getElementById('modalSoporte').style.display = 'none'; }
+    function cerrarEditar() { document.getElementById('modalEditar').style.display = 'none'; }
 
     // --- LÓGICA DE TABLA ---
     function actualizarEncabezados() {
@@ -208,7 +211,7 @@
                     return item.estado === estadoActualFiltrado && item.borrado === 0;
                 });
                 if(filtrados.length === 0) {
-                    tabla.innerHTML = `<tr><td colspan="25" style="text-align:center; padding: 20px;">No hay registros.</td></tr>`;
+                    tabla.innerHTML = `<tr><td colspan="25" style="text-align:center; padding: 20px;">No hay registros en este estado.</td></tr>`;
                     return;
                 }
                 filtrados.forEach(item => {
@@ -251,38 +254,7 @@
         return botones;
     }
 
-    function mostrarQR(id) {
-        const item = reservasCargadas.find(r => r.id == id);
-        if (!item) return;
-        let tel = item.cliente_telefono.replace(/\D/g, '');
-        if (tel.startsWith('0')) tel = tel.substring(1);
-        if (!tel.startsWith('549')) tel = '549' + tel;
-        const msg = `Hola ${item.cliente_nombre}, te avisamos de Morph que tu producto "${item.descripcion}" ya se encuentra disponible para retirar en nuestra sucursal de ${item.local_origen}. ¡Te esperamos!`;
-        const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
-        document.getElementById('modalQR').style.display = 'flex';
-        setTimeout(() => {
-            const canvas = document.getElementById('canvasQR');
-            QRCode.toCanvas(canvas, url, { width: 240, margin: 2, color: { dark: "#000000", light: "#ffffff" } });
-        }, 200);
-    }
-
-    function cerrarModalQR() {
-        document.getElementById('modalQR').style.display = 'none';
-        cargarReservas();
-    }
-
-    function abrirModalFirma(pregunta, requiereInput, accion) {
-        document.getElementById('mensajeFirma').textContent = pregunta;
-        document.getElementById('contenedorInputFirma').style.display = requiereInput ? 'block' : 'none';
-        document.getElementById('modalFirma').style.display = 'flex';
-        document.getElementById('modalAceptar').onclick = accion;
-    }
-
-    function cerrarModalFirma() {
-        document.getElementById('modalFirma').style.display = 'none';
-        document.getElementById('inputNombreResponsable').value = '';
-    }
-
+    // --- ACCIONES DE ESTADO ---
     function cambiarEstadoConFirma(id, nuevoEstado, preg, activarQR = false) {
         abrirModalFirma(preg, true, () => {
             const resp = document.getElementById('inputNombreResponsable').value.trim();
@@ -304,6 +276,7 @@
         });
     }
 
+    // --- EDICIÓN ---
     function abrirModalEditar(item) {
         document.getElementById('editId').value = item.id;
         document.getElementById('editNombre').value = item.cliente_nombre;
@@ -313,6 +286,7 @@
         document.getElementById('editDesc').value = item.descripcion;
         document.getElementById('editCant').value = item.prod_cantidad;
         document.getElementById('editTotal').value = item.total_reserva;
+        document.getElementById('editPrecioUnitario').value = item.precio_unitario || (item.total_reserva / item.prod_cantidad).toFixed(2);
         document.getElementById('modalEditar').style.display = 'flex';
     }
 
@@ -333,13 +307,47 @@
             body: JSON.stringify(data)
         }).then(res => { 
             if(res.ok) { 
-                document.getElementById('modalEditar').style.display = 'none'; 
-                mostrarAviso('✅ Éxito', 'Reserva editada.', false);
+                cerrarEditar(); 
+                mostrarAviso('✅ Éxito', 'Reserva editada correctamente.', false);
                 cargarReservas(); 
             } 
         });
     }
 
+    // --- FIRMA Y QR ---
+    function abrirModalFirma(pregunta, requiereInput, accion) {
+        document.getElementById('mensajeFirma').textContent = pregunta;
+        document.getElementById('contenedorInputFirma').style.display = requiereInput ? 'block' : 'none';
+        document.getElementById('modalFirma').style.display = 'flex';
+        document.getElementById('modalAceptar').onclick = accion;
+    }
+
+    function cerrarModalFirma() {
+        document.getElementById('modalFirma').style.display = 'none';
+        document.getElementById('inputNombreResponsable').value = '';
+    }
+
+    function mostrarQR(id) {
+        const item = reservasCargadas.find(r => r.id == id);
+        if (!item) return;
+        let tel = item.cliente_telefono.replace(/\D/g, '');
+        if (tel.startsWith('0')) tel = tel.substring(1);
+        if (!tel.startsWith('549')) tel = '549' + tel;
+        const msg = `Hola ${item.cliente_nombre}, te avisamos que tu producto "${item.descripcion}" ya se encuentra disponible para retirar. ¡Te esperamos!`;
+        const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+        document.getElementById('modalQR').style.display = 'flex';
+        setTimeout(() => {
+            const canvas = document.getElementById('canvasQR');
+            QRCode.toCanvas(canvas, url, { width: 240, margin: 2 });
+        }, 200);
+    }
+
+    function cerrarModalQR() {
+        document.getElementById('modalQR').style.display = 'none';
+        cargarReservas();
+    }
+
+    // --- ELIMINACIÓN ---
     function confirmarBorrarReserva(id) {
         abrirModalFirma("¿Enviar a papelera?", false, () => {
             fetch(`/reservas/${id}`, { method: 'DELETE' }).then(res => { 
