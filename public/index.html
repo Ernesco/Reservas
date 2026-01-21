@@ -93,6 +93,15 @@
         // --- LÓGICA DE LOGIN ---
         document.getElementById('formLogin').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Feedback visual: Cambiamos el botón al iniciar la petición
+            const btn = e.target.querySelector('button');
+            const textoOriginal = btn.textContent;
+            
+            btn.textContent = 'VERIFICANDO...';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+
             const usuario = document.getElementById('usuario').value;
             const password = document.getElementById('password').value;
             
@@ -109,10 +118,20 @@
                     sessionStorage.setItem('usuario_sucursal', data.sucursal);
                     window.location.href = 'panel.html';
                 } else {
+                    // Restauramos el botón si el login falla
+                    btn.textContent = textoOriginal;
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
                     mostrarAviso('❌ Error', data.message, true);
                 }
             })
-            .catch(() => mostrarAviso('❌ Error', 'Error de conexión con el servidor', true));
+            .catch(() => {
+                // Restauramos el botón si hay error de red
+                btn.textContent = textoOriginal;
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                mostrarAviso('❌ Error', 'Error de conexión con el servidor', true);
+            });
         });
 
         // --- ENVÍO DE SOPORTE ---

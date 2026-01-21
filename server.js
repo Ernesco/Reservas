@@ -65,7 +65,7 @@ async function enviarAvisoEmail(reserva, tipo) {
 
     try {
         await resend.emails.send({
-            from: 'Reservas.Mo <reservas.mo@reload.net.ar>', 
+            from: 'Reservas.Mo <reservas.mo@onebox.net.ar>', 
             to: destinatario,
             subject: asunto,
             html: mensajeHtml,
