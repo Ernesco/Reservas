@@ -15,7 +15,7 @@
     </header>
 
     <main>
-        <div class="caja-central" style="max-width: 650px;">
+        <div class="caja-central" style="max-width: 650px; margin-top: 30px;">
             <h2 style="color: #4a90e2;">📈 Actualizar Precios de Productos</h2>
             <p style="text-align: center; color: #5e616b; margin-bottom: 20px;">
                 Subí un archivo CSV con las columnas <b>codigo</b> y <b>precio_unitario</b> para actualizar los valores en la base de datos.
@@ -38,13 +38,12 @@
     </main>
 
     <footer>
-        <div class="footer-contenido">
-            <div class="footer-links">
-                <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
-            </div>
-            <img src="./img/Ob_Logo.png" alt="Logo Footer" class="footer-logo">
-            <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        <div class="footer-links">
+            <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
         </div>
+        <img src="./img/Rl_Logo.png" alt="One Box Logo" class="footer-logo">
+        <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        <div class="footer-version">v1.2.0</div> 
     </footer>
 
     <div id="modalSoporte" class="modal-overlay">
@@ -78,6 +77,12 @@
     </div>
 
     <script>
+        // --- SEGURIDAD ---
+        // Solo administradores deberían acceder a esta hoja
+        if (!sessionStorage.getItem('usuario_nombre') || sessionStorage.getItem('usuario_rol') !== 'admin') {
+            window.location.href = 'panel.html';
+        }
+
         // --- GESTIÓN DE AVISOS Y MODALES ---
         function mostrarAviso(titulo, mensaje, esError = true) {
             const modal = document.getElementById('modalAviso');
@@ -129,7 +134,7 @@
 
                 if (data.success) {
                     cerrarAviso();
-                    mostrarAviso('✅ Éxito', `Se han actualizado ${data.count} productos correctamente.`, false);
+                    mostrarAviso('✅ Éxito', `Se han actualizado ${data.count} productos de forma correcta.`, false);
                     this.reset();
                     document.getElementById('infoArchivo').style.display = 'none';
                 } else {
@@ -146,7 +151,7 @@
             const datos = {
                 tipo: document.getElementById('tipo_ticket').value,
                 descripcion: document.getElementById('desc_ticket').value,
-                usuario: sessionStorage.getItem('usuario_nombre') || 'Admin'
+                usuario: sessionStorage.getItem('usuario_nombre') || 'Admin Actualización'
             };
             try {
                 const res = await fetch('/enviar-ticket', {

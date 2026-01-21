@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
-    <title>Menú Principal</title>
+    <title>One Box - Panel de Control</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body> 
@@ -15,60 +15,126 @@
 
     <div id="panel-box" class="caja-central">
         <h1>Panel de Control</h1>
-        <p style="color: #444; margin-bottom: 30px; font-weight: 500;">Seleccione una operación:</p>
+        <p style="color: #444; margin-bottom: 30px; font-weight: 500;">Seleccione una operación para continuar:</p>
 
         <div class="contenedor-menu">
             <a href="formulario.html" class="btn-menu">➕ Nueva Reserva</a>
             <a href="lista.html" class="btn-menu">📋 Ver Lista de Reservas</a>
+            <a href="procesos.html" class="btn-menu" style="background-color: #585b70;">📖 Manual de Procesos</a>
             <a href="actualizar.html" class="btn-menu btn-destacado">📈 Actualizar Precios</a>
         </div>
     </div>
 
     <footer>
-        <div class="footer-contenido">
-            <div class="footer-links">
-                <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
-            </div>
-            <img src="./img/Ob_Logo.png" alt="Logo Footer" class="footer-logo">
-            <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        <div class="footer-links">
+            <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
         </div>
+        <img src="./img/Rl_Logo.png" alt="One Box Logo" class="footer-logo">
+        <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        <div class="footer-version">v1.2.0</div> 
     </footer>
 
+    <div id="modalSoporte" class="modal-overlay">
+        <div class="modal-caja">
+            <h3 style="color: #89b4fa;">🛠️ Soporte Técnico</h3>
+            <form id="formSoporte">
+                <label style="color: #bac2de;">Tipo de solicitud:</label>
+                <select id="tipo_ticket" required>
+                    <option value="Falla">Reportar Falla</option>
+                    <option value="Modificacion">Solicitar Modificación</option>
+                    <option value="Sugerencia">Sugerencia</option>
+                </select>
+                <label style="color: #bac2de; margin-top: 10px;">Descripción detallada:</label>
+                <textarea id="desc_ticket" required placeholder="Describe el problema o sugerencia..."></textarea>
+                <div class="modal-botones">
+                    <button type="submit" class="btn-azul">ENVIAR TICKET</button>
+                    <button type="button" onclick="cerrarSoporte()" class="btn-secundario">CANCELAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalAviso" class="modal-overlay">
+        <div class="modal-caja" id="bordeModal">
+            <h3 id="tituloAviso"></h3>
+            <p id="textoAviso" style="color: #fff; margin-bottom: 20px;"></p>
+            <div class="modal-botones">
+                <button onclick="cerrarAviso()" class="btn-azul" id="btnColorAviso">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- CAPA DE SEGURIDAD ---
-        // Si no hay datos de sesión, redirigir inmediatamente al login
+        // --- SEGURIDAD Y SESIÓN ---
         if (!sessionStorage.getItem('usuario_nombre')) {
             window.location.href = 'index.html';
         }
 
-        // 1. Mostrar nombre del usuario y sucursal
         const nombre = sessionStorage.getItem('usuario_nombre');
         const sucursal = sessionStorage.getItem('usuario_sucursal');
-        
-        // Limpiamos y centramos el contenido
+        const rol = sessionStorage.getItem('usuario_rol'); 
+
         if (nombre) {
-            // Título principal centrado
             document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2">${sucursal}</span>`;
-            
-            // Instrucción debajo del título
-            document.querySelector('p').textContent = `Seleccione una operación para continuar:`;
-            document.querySelector('p').style.marginBottom = "30px";
         }
 
-        // 2. Botón Salir
+        // Restricción de Admin para actualización de precios
+        if (rol !== 'admin') {
+            const btnMasivo = document.querySelector('.btn-destacado');
+            if(btnMasivo) btnMasivo.style.display = 'none';
+        }
+
         document.getElementById('btnSalir').addEventListener('click', (e) => {
             e.preventDefault();
-            sessionStorage.clear(); // Limpia toda la sesión
+            sessionStorage.clear();
             window.location.href = 'index.html';
         });
 
-        const rol = sessionStorage.getItem('usuario_rol');  
-            if (rol !== 'admin') {
-                // Si no es admin, ocultamos el botón de actualización masiva
-            document.querySelector('.btn-destacado').style.display = 'none';
+        // --- GESTIÓN DE MODALES (SOPORTE Y AVISOS) ---
+        function mostrarAviso(titulo, mensaje, esError = true) {
+            const modal = document.getElementById('modalAviso');
+            const tituloH3 = document.getElementById('tituloAviso');
+            const textoP = document.getElementById('textoAviso');
+            const borde = document.getElementById('bordeModal');
+            const btn = document.getElementById('btnColorAviso');
+            tituloH3.textContent = titulo;
+            textoP.textContent = mensaje;
+            const color = esError ? '#f38ba8' : '#a6e3a1';
+            tituloH3.style.color = color;
+            borde.style.borderColor = color;
+            btn.style.backgroundColor = color;
+            modal.style.display = 'flex';
         }
-    </script>
 
-    
+        function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
+        function abrirSoporte() { document.getElementById('modalSoporte').style.display = 'flex'; }
+        function cerrarSoporte() { document.getElementById('modalSoporte').style.display = 'none'; }
+
+        // --- ENVÍO DE SOPORTE ---
+        document.getElementById('formSoporte').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const datos = {
+                tipo: document.getElementById('tipo_ticket').value,
+                descripcion: document.getElementById('desc_ticket').value,
+                usuario: sessionStorage.getItem('usuario_nombre') || 'Usuario Panel'
+            };
+            try {
+                const res = await fetch('/enviar-ticket', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+                if (res.ok) {
+                    cerrarSoporte();
+                    this.reset();
+                    mostrarAviso('✅ Enviado', 'Ticket de soporte recibido correctamente.', false);
+                } else {
+                    mostrarAviso('❌ Error', 'No se pudo enviar el ticket.', true);
+                }
+            } catch {
+                mostrarAviso('❌ Error', 'Falla de red.', true);
+            }
+        });
+    </script>
 </body>
 </html>

@@ -4,26 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
-    <title>One Box - Login</title>
     <link rel="stylesheet" href="style.css">
+    <title>One Box - Manual de Procesos</title>
+    <style>
+        .paso-caja { background: #313244; padding: 20px; border-radius: 12px; margin-bottom: 20px; border-left: 5px solid #89b4fa; }
+        .paso-titulo { color: #89b4fa; font-weight: bold; font-size: 1.1em; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+        .paso-texto { color: #cdd6f4; font-size: 0.95em; line-height: 1.5; }
+        .proceso-badge { background: #fab387; color: #11111b; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.8em; }
+    </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-texto">INGRESO AL SISTEMA DE RESERVAS</div>
+        <div class="logo-texto">📖 MANUAL DE OPERACIONES</div>
+        <a href="panel.html" class="btn-header">🏠 INICIO</a>
     </header>
 
-    <main>
-        <div class="caja-central">
-            <h2>Iniciar Sesión</h2>
-            <form id="formLogin">
-                <label for="usuario">Usuario:</label>
-                <input type="text" id="usuario" placeholder="Ej: admin" required>
-                <label for="password">Contraseña:</label>
-                <input type="password" id="password" placeholder="••••••" required>
-                <button type="submit" class="btn-azul">INGRESAR</button>
-                <p id="mensaje" style="margin-top: 15px; text-align: center; font-weight: bold;"></p>
-            </form>
+    <main style="max-width: 800px; margin: 40px auto; padding: 0 20px;">
+        <h2 style="color: #4a90e2; text-align: center; margin-bottom: 30px;">Guía Rápida para Operadores</h2>
+
+        <div class="paso-caja">
+            <div class="paso-titulo"><span>1️⃣</span> ¿Cómo cargar una reserva? <span class="proceso-badge">LOCAL ORIGEN</span></div>
+            <div class="paso-texto">
+                <ul>
+                    <li>Andá a <b>Nueva Reserva</b> y cargá los datos del cliente.</li>
+                    <li>Ingresá el código del producto y presioná <b>TAB</b> para autocompletar precio y descripción.</li>
+                    <li><b>IMPORTANTE:</b> Llamá al local que tiene el stock antes de guardar para confirmar disponibilidad.</li>
+                    <li>Ingresá el nombre de quien te atendió y guardá la reserva. El cliente recibirá un mail de confirmación.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="paso-caja" style="border-left-color: #a6e3a1;">
+            <div class="paso-titulo"><span>2️⃣</span> ¿Qué hacer cuando llega un producto? <span class="proceso-badge">LOCAL DESTINO</span></div>
+            <div class="paso-texto">
+                <ul>
+                    <li>Andá a <b>Ver Lista de Reservas</b> y filtrá por <b>"En Tránsito"</b>.</li>
+                    <li>Buscá el pedido que acaba de llegar (usá el buscador por cliente o código).</li>
+                    <li>Hacé clic en el botón azul <b>"LLEGÓ AL LOCAL"</b>.</li>
+                    <li>Ingresá tu nombre. El sistema enviará automáticamente un mail al cliente avisándole.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="paso-caja" style="border-left-color: #fab387;">
+            <div class="paso-titulo"><span>3️⃣</span> Entrega final al cliente <span class="proceso-badge">ENTREGA</span></div>
+            <div class="paso-texto">
+                <ul>
+                    <li>Filtrá la lista por <b>"Pendiente de Retiro"</b>.</li>
+                    <li>Cuando el cliente se presente, hacé clic en el botón verde <b>"RETIRADO"</b>.</li>
+                    <li>Ingresá tu nombre para finalizar. El registro pasará a la pestaña <b>"Finalizado"</b>.</li>
+                </ul>
+            </div>
         </div>
     </main>
 
@@ -67,22 +99,24 @@
     </div>
 
     <script>
-        // --- GESTIÓN DE AVISOS Y MODALES ---
+        // --- SEGURIDAD Y SESIÓN ---
+        if (!sessionStorage.getItem('usuario_nombre')) {
+            window.location.href = 'index.html';
+        }
+
+        // --- GESTIÓN DE MODALES ---
         function mostrarAviso(titulo, mensaje, esError = true) {
             const modal = document.getElementById('modalAviso');
             const tituloH3 = document.getElementById('tituloAviso');
             const textoP = document.getElementById('textoAviso');
             const borde = document.getElementById('bordeModal');
             const btn = document.getElementById('btnColorAviso');
-
             tituloH3.textContent = titulo;
             textoP.textContent = mensaje;
-            
             const color = esError ? '#f38ba8' : '#a6e3a1';
             tituloH3.style.color = color;
             borde.style.borderColor = color;
             btn.style.backgroundColor = color;
-
             modal.style.display = 'flex';
         }
 
@@ -90,38 +124,13 @@
         function abrirSoporte() { document.getElementById('modalSoporte').style.display = 'flex'; }
         function cerrarSoporte() { document.getElementById('modalSoporte').style.display = 'none'; }
 
-        // --- LÓGICA DE LOGIN ---
-        document.getElementById('formLogin').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const usuario = document.getElementById('usuario').value;
-            const password = document.getElementById('password').value;
-            
-            fetch('/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ usuario, password })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    sessionStorage.setItem('usuario_nombre', data.nombre);
-                    sessionStorage.setItem('usuario_rol', data.rol);
-                    sessionStorage.setItem('usuario_sucursal', data.sucursal);
-                    window.location.href = 'panel.html';
-                } else {
-                    mostrarAviso('❌ Error', data.message, true);
-                }
-            })
-            .catch(() => mostrarAviso('❌ Error', 'Error de conexión con el servidor', true));
-        });
-
         // --- ENVÍO DE SOPORTE ---
         document.getElementById('formSoporte').addEventListener('submit', async function(e) {
             e.preventDefault();
             const datos = {
                 tipo: document.getElementById('tipo_ticket').value,
                 descripcion: document.getElementById('desc_ticket').value,
-                usuario: sessionStorage.getItem('usuario_nombre') || 'Invitado'
+                usuario: sessionStorage.getItem('usuario_nombre') || 'Lector Manual'
             };
             try {
                 const res = await fetch('/enviar-ticket', {
@@ -132,12 +141,12 @@
                 if (res.ok) {
                     cerrarSoporte();
                     this.reset();
-                    mostrarAviso('✅ Enviado', 'Ticket recibido correctamente.', false);
+                    mostrarAviso('✅ Enviado', 'Tu consulta de soporte fue enviada con éxito.', false);
                 } else {
                     mostrarAviso('❌ Error', 'No se pudo enviar el ticket.', true);
                 }
             } catch {
-                mostrarAviso('❌ Error', 'Falla de red.', true);
+                mostrarAviso('❌ Error', 'Falla de conexión con el servidor.', true);
             }
         });
     </script>

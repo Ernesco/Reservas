@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
     <link rel="stylesheet" href="style.css">
-    <title>Nueva Reserva</title>
+    <title>One Box - Nueva Reserva</title>
 </head>
 <body>
 
-<header>
-    <div class="logo-texto">🛒 Formulario de Reservas</div>
-    <a href="panel.html" class="btn-header">🏠 INICIO</a>
-</header>
+    <header>
+        <div class="logo-texto">🛒 Formulario de Reservas</div>
+        <a href="panel.html" class="btn-header">🏠 INICIO</a>
+    </header>
 
-    <form id="formReservas" class="caja-central">
-        <h2 style="color: #1e1e2e; margin-bottom: 20px;">Nueva Reserva</h2>
+    <form id="formReservas" class="caja-central" style="max-width: 650px; margin-top: 30px; margin-bottom: 50px;">
+        <h2 style="color: #4a90e2; margin-bottom: 20px;">Nueva Reserva</h2>
         
         <fieldset>
             <legend>👤 Cliente</legend>
@@ -76,46 +76,91 @@
         <button type="submit" class="btn-azul">💾 GUARDAR RESERVA</button>
     </form>
 
-    <div id="miModal" class="modal-overlay">
-        <div class="modal-caja">
-            <h3>✅ Reservas</h3>
-            <p>Guardado con éxito.<br>¿Querés ver la lista de reservas?</p>
-            <div class="modal-botones">
-                <button id="modalAceptar" class="btn-azul">Aceptar</button>
-                <button id="modalCancelar" class="btn-secundario">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="modalError" class="modal-overlay">
-        <div class="modal-caja" style="border-color: #f38ba8;">
-            <h3 style="color: #f38ba8;">❌ Error</h3>
-            <p id="mensajeErrorTexto">Hubo un problema al procesar la solicitud.</p>
-            <div class="modal-botones">
-                <button id="btnCerrarError" class="btn-azul" style="background-color: #f38ba8;">Aceptar</button>
-            </div>
-        </div>
-    </div>
-
     <footer>
-        <div class="footer-contenido">
-            <div class="footer-links">
-                <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
-            </div>
-            <img src="./img/Ob_Logo.png" alt="Logo Footer" class="footer-logo">
-            <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        <div class="footer-links">
+            <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
         </div>
+        <img src="./img/Rl_Logo.png" alt="One Box Logo" class="footer-logo">
+        <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        <div class="footer-version">v1.2.0</div> 
     </footer>
 
+    <div id="modalSoporte" class="modal-overlay">
+        <div class="modal-caja">
+            <h3 style="color: #89b4fa;">🛠️ Soporte Técnico</h3>
+            <form id="formSoporte">
+                <label style="color: #bac2de;">Tipo de solicitud:</label>
+                <select id="tipo_ticket" required>
+                    <option value="Falla">Reportar Falla</option>
+                    <option value="Modificacion">Solicitar Modificación</option>
+                    <option value="Sugerencia">Sugerencia</option>
+                </select>
+                <label style="color: #bac2de; margin-top: 10px;">Descripción detallada:</label>
+                <textarea id="desc_ticket" required placeholder="Describe el problema o sugerencia..."></textarea>
+                <div class="modal-botones">
+                    <button type="submit" class="btn-azul">ENVIAR TICKET</button>
+                    <button type="button" onclick="cerrarSoporte()" class="btn-secundario">CANCELAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalAviso" class="modal-overlay">
+        <div class="modal-caja" id="bordeModal">
+            <h3 id="tituloAviso"></h3>
+            <p id="textoAviso" style="color: #fff; margin-bottom: 20px;"></p>
+            <div class="modal-botones" id="botonesAvisoNormal">
+                <button onclick="cerrarAviso()" class="btn-azul" id="btnColorAviso">Aceptar</button>
+            </div>
+            <div class="modal-botones" id="botonesAvisoExito" style="display: none;">
+                <button onclick="window.location.href='lista.html'" class="btn-azul">Ver Lista</button>
+                <button onclick="nuevaCarga()" class="btn-secundario">Nueva Carga</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function mostrarError(mensaje) {
-            const modal = document.getElementById('modalError');
-            const texto = document.getElementById('mensajeErrorTexto');
-            texto.textContent = mensaje;
+        // --- GESTIÓN DE AVISOS ---
+        function mostrarAviso(titulo, mensaje, esError = true, esExitoReserva = false) {
+            const modal = document.getElementById('modalAviso');
+            const tituloH3 = document.getElementById('tituloAviso');
+            const textoP = document.getElementById('textoAviso');
+            const borde = document.getElementById('bordeModal');
+            const btn = document.getElementById('btnColorAviso');
+            const btnsNormal = document.getElementById('botonesAvisoNormal');
+            const btnsExito = document.getElementById('botonesAvisoExito');
+
+            tituloH3.textContent = titulo;
+            textoP.textContent = mensaje;
+            
+            const color = esError ? '#f38ba8' : '#a6e3a1';
+            tituloH3.style.color = color;
+            borde.style.borderColor = color;
+            btn.style.backgroundColor = color;
+
+            if (esExitoReserva) {
+                btnsNormal.style.display = 'none';
+                btnsExito.style.display = 'flex';
+            } else {
+                btnsNormal.style.display = 'flex';
+                btnsExito.style.display = 'none';
+            }
+
             modal.style.display = 'flex';
-            document.getElementById('btnCerrarError').onclick = () => modal.style.display = 'none';
         }
 
+        function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
+        function abrirSoporte() { document.getElementById('modalSoporte').style.display = 'flex'; }
+        function cerrarSoporte() { document.getElementById('modalSoporte').style.display = 'none'; }
+
+        function nuevaCarga() {
+            document.getElementById('formReservas').reset();
+            cerrarAviso();
+            const sucursalLogueada = sessionStorage.getItem('usuario_sucursal');
+            document.getElementById('local_origen').value = sucursalLogueada || "Admin";
+        }
+
+        // --- LÓGICA DE PRODUCTOS ---
         const inputCodigo = document.getElementById('prod_codigo');
         const inputCantidad = document.getElementById('prod_cantidad');
         const inputPrecio = document.getElementById('precio_unitario');
@@ -133,7 +178,7 @@
                     inputPrecio.value = producto.precio_unitario;
                     calcularTotal();
                 } else {
-                    mostrarError('⚠️ Código de producto no encontrado.');
+                    mostrarAviso('⚠️ No encontrado', 'Código de producto no existe.', true);
                     limpiarCamposProducto();
                 }
             } catch (error) { console.error("Error:", error); }
@@ -153,23 +198,20 @@
             inputTotal.value = "";
         }
 
+        // --- CARGA INICIAL ---
         document.addEventListener('DOMContentLoaded', () => {
-            const rol = sessionStorage.getItem('usuario_rol');
-            const sucursalLogueada = sessionStorage.getItem('usuario_sucursal');
-            
-            if (!rol) {
+            if (!sessionStorage.getItem('usuario_nombre')) {
                 window.location.href = 'index.html';
                 return;
             }
-
+            const sucursalLogueada = sessionStorage.getItem('usuario_sucursal');
             document.getElementById('local_origen').value = sucursalLogueada || "Admin";
-            document.getElementById('nombre_operador').value = "";
         });
 
+        // --- GUARDAR RESERVA ---
         document.getElementById('formReservas').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // CORRECCIÓN: Mapeo de nombres de variables para que coincidan con la DB
             const datos = {
                 cliente_nombre: document.getElementById('cliente_nombre').value,
                 cliente_telefono: document.getElementById('cliente_telefono').value,
@@ -181,7 +223,6 @@
                 local_destino: document.getElementById('local_destino').value,
                 contacto_sucursal: document.getElementById('contacto_sucursal').value,
                 local_origen: document.getElementById('local_origen').value,
-                // CAMBIO CLAVE: Enviamos como 'operador_nombre' para evitar el NULL en la lista
                 operador_nombre: document.getElementById('nombre_operador').value,
                 comentarios: document.getElementById('comentarios').value
             };
@@ -193,19 +234,38 @@
             })
             .then(res => {
                 if (res.ok) {
-                    const modal = document.getElementById('miModal');
-                    modal.style.display = 'flex';
-                    document.getElementById('modalAceptar').onclick = () => window.location.href = 'lista.html';
-                    document.getElementById('modalCancelar').onclick = () => {
-                        modal.style.display = 'none';
-                        document.getElementById('formReservas').reset();
-                        document.getElementById('local_origen').value = sessionStorage.getItem('usuario_sucursal') || "Admin";
-                    };
+                    mostrarAviso('✅ Éxito', 'Reserva guardada correctamente.', false, true);
                 } else {
-                    mostrarError('No se pudo guardar la reserva.');
+                    mostrarAviso('❌ Error', 'No se pudo guardar la reserva.', true);
                 }
             })
-            .catch(err => mostrarError('Error de conexión con el servidor.'));
+            .catch(err => mostrarAviso('❌ Error', 'Error de conexión con el servidor.', true));
+        });
+
+        // --- SOPORTE ---
+        document.getElementById('formSoporte').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const datos = {
+                tipo: document.getElementById('tipo_ticket').value,
+                descripcion: document.getElementById('desc_ticket').value,
+                usuario: sessionStorage.getItem('usuario_nombre') || 'Usuario Formulario'
+            };
+            try {
+                const res = await fetch('/enviar-ticket', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(datos)
+                });
+                if (res.ok) {
+                    cerrarSoporte();
+                    this.reset();
+                    mostrarAviso('✅ Enviado', 'Ticket recibido correctamente.', false);
+                } else {
+                    mostrarAviso('❌ Error', 'No se pudo enviar el ticket.', true);
+                }
+            } catch {
+                mostrarAviso('❌ Error', 'Falla de red.', true);
+            }
         });
     </script>
 </body>

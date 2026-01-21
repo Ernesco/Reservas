@@ -18,7 +18,7 @@ const upload = multer({ dest: 'uploads/' });
 // 1. CONFIGURACIÓN DE RESEND
 const resend = new Resend(process.env.RESEND_API_KEY); 
 
-// 2. FUNCIÓN AUXILIAR: Enviar Correo (Confirmaciones, Disponibilidad y Soporte)
+// 2. FUNCIÓN AUXILIAR: Enviar Correo
 async function enviarAvisoEmail(reserva, tipo) {
     let asunto = "";
     let mensajeHtml = "";
@@ -36,8 +36,7 @@ async function enviarAvisoEmail(reserva, tipo) {
         <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
         <footer style="color: #666666; font-family: sans-serif;">
             <p style="font-size: 14px; margin: 0; font-weight: bold; color: #333;">Gestión de Reservas Mo</p>
-            <p style="font-size: 11px; color: #999999; margin-top: 10px;">Este es un mensaje automático,</p>
-            <p style="font-size: 11px; color: #999999; margin-top: 10px;">Enviado por el sistema de Reservas Mo - One Box</p>
+            <p style="font-size: 11px; color: #999999; margin-top: 10px;">Este es un mensaje automático, enviado por el sistema de Reservas Mo - One Box</p>
         </footer>
     `;
 
@@ -60,7 +59,7 @@ async function enviarAvisoEmail(reserva, tipo) {
             <p><strong>Tipo:</strong> ${reserva.tipo_ticket}</p>
             <p><strong>Usuario:</strong> ${reserva.usuario}</p>
             <hr style="border: 0; border-top: 1px solid #ddd;">
-            <p><strong>Descripción del problema:</strong></p>
+            <p><strong>Descripción:</strong></p>
             <p style="background: #f8f9fa; padding: 15px; border-radius: 5px;">${reserva.descripcion_ticket}</p>${footerHtml}</div>`;
     }
 
@@ -89,16 +88,15 @@ const db = mysql.createPool({
     connectionLimit: 10
 });
 
-// --- RUTA: ACTUALIZACIÓN MASIVA DE PRECIOS (Detecta ; y ,) ---
+// --- RUTA: ACTUALIZACIÓN MASIVA DE PRECIOS ---
 app.post('/actualizar-precios', upload.single('archivoCsv'), (req, res) => {
     if (!req.file) return res.status(400).json({ success: false, message: 'No se subió ningún archivo.' });
 
     const resultados = [];
     fs.createReadStream(req.file.path)
-        .pipe(csv({ separator: ';' })) // Intentamos con punto y coma primero
+        .pipe(csv({ separator: ';' })) 
         .on('data', (data) => {
             let row = data;
-            // Si detecta que en realidad se usaron comas, separa la fila manualmente
             if (Object.keys(data).length === 1 && Object.keys(data)[0].includes(',')) {
                 const parts = Object.keys(data)[0].split(',');
                 const values = Object.values(data)[0].split(',');
@@ -138,7 +136,7 @@ app.post('/actualizar-precios', upload.single('archivoCsv'), (req, res) => {
         });
 });
 
-// --- RESTO DE RUTAS ---
+// --- RUTAS DE RESERVAS Y PRODUCTOS ---
 
 app.post('/enviar-ticket', async (req, res) => {
     const { tipo, descripcion, usuario } = req.body;
