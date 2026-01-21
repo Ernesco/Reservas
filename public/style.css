@@ -505,26 +505,28 @@ footer p {
     }
 }
 
-/* Contenedor principal de los tres pasos */
-.contenedor-procesos {
+/* 1. El contenedor padre debe usar Flexbox */
+.contenedor-pasos {
     display: flex;
     flex-direction: column; /* Mantiene el orden vertical */
     gap: 20px;
     width: 100%;
 }
 
-/* Regla para que todos los hijos midan lo mismo */
-.contenedor-procesos > div {
+/* 2. Cada bloque individual de paso */
+.paso-caja {
     display: flex;
     flex-direction: column;
-    flex: 1 1 auto; /* Obliga a todos a crecer por igual */
-    min-height: 220px; /* Ajusta según el contenido más largo */
+    flex: 1 1 auto;      /* Esto obliga a todas las cajas a crecer por igual */
+    min-height: 220px;   /* Altura mínima basada en el contenido más largo (Paso 1) */
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #313244; /* Tu color de fondo actual */
     box-sizing: border-box;
 }
 
-/* Asegura que la lista interna use todo el espacio */
-.contenedor-procesos ul {
-    flex-grow: 1; 
-    margin: 0;
-    padding-left: 20px;
+/* 3. Asegura que la lista interna ocupe el espacio sobrante */
+.paso-caja ul {
+    flex-grow: 1;
+    margin-top: 10px;
 }
