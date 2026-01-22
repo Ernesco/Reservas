@@ -32,7 +32,7 @@
                     </tr>
                 </thead>
                 <tbody id="listaUsuarios">
-                    </tbody>
+                </tbody>
             </table>
         </div>
     </main>
@@ -56,10 +56,8 @@
                     <option value="admin">Administrador (Control Total)</option>
                 </select>
                 
-                <label style="color: #bac2de; display: block; margin-top: 10px;">Sucursal:</label>
-                <select id="userSucursal" required style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
-                    <option value="ADMINISTRACION">ADMINISTRACION</option>
-                </select>
+                <label style="color: #bac2de; display: block; margin-top: 10px;">Sucursal (Nombre del local):</label>
+                <input type="text" id="userSucursal" required placeholder="Ej: Local Olleros" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
                 
                 <div class="modal-botones" style="margin-top: 25px; display: flex; justify-content: center; gap: 10px;">
                     <button type="submit" class="btn-azul">GUARDAR USUARIO</button>
@@ -73,18 +71,7 @@
         if (sessionStorage.getItem('usuario_rol') !== 'admin') window.location.href = 'panel.html';
 
         async function cargarDatos() {
-            const resSuc = await fetch('/admin/sucursales');
-            const sucursales = await resSuc.json();
-            const select = document.getElementById('userSucursal');
-            while (select.options.length > 1) select.remove(1);
-            
-            sucursales.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s.nombre_sucursal;
-                opt.textContent = s.nombre_sucursal;
-                select.appendChild(opt);
-            });
-
+            // Ya no cargamos la lista de sucursales dinámicamente para el input
             const resUser = await fetch('/admin/usuarios');
             const usuarios = await resUser.json();
             const tabla = document.getElementById('listaUsuarios');
@@ -115,7 +102,7 @@
             document.getElementById('userId').value = u.id;
             document.getElementById('userName').value = u.usuario;
             document.getElementById('userRol').value = u.rol;
-            document.getElementById('userSucursal').value = u.sucursal;
+            document.getElementById('userSucursal').value = u.sucursal; // Funciona igual con el input de texto
         }
 
         function cerrarModal() { document.getElementById('modalUsuario').style.display = 'none'; }
@@ -127,7 +114,7 @@
                 usuario: document.getElementById('userName').value,
                 password: document.getElementById('userPass').value,
                 rol: document.getElementById('userRol').value,
-                sucursal: document.getElementById('userSucursal').value
+                sucursal: document.getElementById('userSucursal').value // Toma el texto manual
             };
             const res = await fetch('/admin/usuarios', {
                 method: 'POST',
