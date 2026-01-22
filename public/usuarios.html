@@ -68,72 +68,96 @@
     </div>
 
     <script>
+        // Bloqueo de acceso si no es admin
         if (sessionStorage.getItem('usuario_rol') !== 'admin') window.location.href = 'panel.html';
 
         async function cargarDatos() {
-            // Ya no cargamos la lista de sucursales dinámicamente para el input
-            const resUser = await fetch('/admin/usuarios');
-            const usuarios = await resUser.json();
-            const tabla = document.getElementById('listaUsuarios');
-            tabla.innerHTML = '';
-            
-            usuarios.forEach(u => {
-                tabla.innerHTML += `
-                    <tr style="border-bottom: 1px solid #313244;">
-                        <td style="padding: 15px; color: #ffffff;"><strong>${u.usuario}</strong></td>
-                        <td style="padding: 15px;"><span class="badge" style="background:#45475a; padding: 4px 8px; border-radius: 4px; font-size: 10px;">${u.rol.toUpperCase()}</span></td>
-                        <td style="padding: 15px; color: #cdd6f4;">${u.sucursal}</td>
-                        <td style="text-align: center; padding: 15px;">
-                            <button class="btn-azul" style="padding: 8px 12px; font-size: 11px;" onclick='editarU(${JSON.stringify(u)})'>EDITAR</button>
-                            <button class="btn-borrar" style="padding: 8px 12px; font-size: 11px; margin-left:5px; background: #f38ba8; border: none; color: white; border-radius: 4px; cursor: pointer;" onclick="eliminarU(${u.id})">BORRAR</button>
-                        </td>
-                    </tr>`;
-            });
+            try {
+                const resUser = await fetch('/admin/usuarios');
+                const usuarios = await resUser.json();
+                const tabla = document.getElementById('listaUsuarios');
+                tabla.innerHTML = '';
+                
+                usuarios.forEach(u => {
+                    tabla.innerHTML += `
+                        <tr style="border-bottom: 1px solid #313244;">
+                            <td style="padding: 15px; color: #ffffff;"><strong>${u.usuario}</strong></td>
+                            <td style="padding: 15px;"><span class="badge" style="background:#45475a; padding: 4px 8px; border-radius: 4px; font-size: 10px;">${u.rol.toUpperCase()}</span></td>
+                            <td style="padding: 15px; color: #cdd6f4;">${u.sucursal}</td>
+                            <td style="text-align: center; padding: 15px;">
+                                <button class="btn-azul" style="padding: 8px 12px; font-size: 11px;" onclick='editarU(${JSON.stringify(u)})'>EDITAR</button>
+                                <button class="btn-borrar" style="padding: 8px 12px; font-size: 11px; margin-left:5px; background: #f38ba8; border: none; color: white; border-radius: 4px; cursor: pointer;" onclick="eliminarU(${u.id})">BORRAR</button>
+                            </td>
+                        </tr>`;
+                });
+            } catch (err) {
+                console.error("Error cargando usuarios:", err);
+            }
         }
 
         function abrirModalUsuario() {
             document.getElementById('modalUsuario').style.display = 'flex';
             document.getElementById('formUsuario').reset();
             document.getElementById('userId').value = '';
+            document.getElementById('tituloModal').innerText = "Nuevo Usuario";
         }
 
         function editarU(u) {
             abrirModalUsuario();
+            document.getElementById('tituloModal').innerText = "Editar Usuario";
             document.getElementById('userId').value = u.id;
             document.getElementById('userName').value = u.usuario;
             document.getElementById('userRol').value = u.rol;
-            document.getElementById('userSucursal').value = u.sucursal; // Funciona igual con el input de texto
+            document.getElementById('userSucursal').value = u.sucursal;
         }
 
-        function cerrarModal() { document.getElementById('modalUsuario').style.display = 'none'; }
+        function cerrarModal() { 
+            document.getElementById('modalUsuario').style.display = 'none'; 
+        }
 
+        // Lógica de guardado corregida
         document.getElementById('formUsuario').onsubmit = async (e) => {
             e.preventDefault();
+            
             const data = {
                 id: document.getElementById('userId').value,
                 usuario: document.getElementById('userName').value,
                 password: document.getElementById('userPass').value,
                 rol: document.getElementById('userRol').value,
-                sucursal: document.getElementById('userSucursal').value // Toma el texto manual
+                sucursal: document.getElementById('userSucursal').value 
             };
-            const res = await fetch('/admin/usuarios', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(data)
-            });
-            if(res.ok){
-                cerrarModal();
-                cargarDatos();
+
+            try {
+                const res = await fetch('/admin/usuarios', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+
+                if(res.ok){
+                    cerrarModal();
+                    await cargarDatos();
+                } else {
+                    alert("Error al guardar el usuario.");
+                }
+            } catch (err) {
+                console.error("Error en la petición:", err);
+                alert("Error de conexión con el servidor.");
             }
         };
 
         async function eliminarU(id) {
             if(confirm("¿Eliminar este usuario? No podrá volver a ingresar.")) {
-                const res = await fetch(`/admin/usuarios/${id}`, { method: 'DELETE' });
-                if(res.ok) cargarDatos();
+                try {
+                    const res = await fetch(`/admin/usuarios/${id}`, { method: 'DELETE' });
+                    if(res.ok) await cargarDatos();
+                } catch (err) {
+                    console.error("Error eliminando:", err);
+                }
             }
         }
 
+        // Ejecutar carga inicial
         cargarDatos();
     </script>
 </body>
