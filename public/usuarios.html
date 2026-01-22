@@ -68,7 +68,6 @@
     </div>
 
     <script>
-        // Bloqueo de acceso si no es admin
         if (sessionStorage.getItem('usuario_rol') !== 'admin') window.location.href = 'panel.html';
 
         async function cargarDatos() {
@@ -115,7 +114,6 @@
             document.getElementById('modalUsuario').style.display = 'none'; 
         }
 
-        // Lógica de guardado corregida
         document.getElementById('formUsuario').onsubmit = async (e) => {
             e.preventDefault();
             
@@ -138,7 +136,9 @@
                     cerrarModal();
                     await cargarDatos();
                 } else {
-                    alert("Error al guardar el usuario.");
+                    // Intenta leer el mensaje de error detallado del servidor
+                    const errorMsg = await res.json().catch(() => ({}));
+                    alert("Error al guardar: " + (errorMsg.message || "La sucursal debe existir primero en 'Configurar Locales' o el nombre de usuario ya existe."));
                 }
             } catch (err) {
                 console.error("Error en la petición:", err);
@@ -157,7 +157,6 @@
             }
         }
 
-        // Ejecutar carga inicial
         cargarDatos();
     </script>
 </body>
