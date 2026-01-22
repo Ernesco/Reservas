@@ -117,31 +117,45 @@
         document.getElementById('formUsuario').onsubmit = async (e) => {
             e.preventDefault();
             
-            const data = {
+            const nombreSucursal = document.getElementById('userSucursal').value.trim();
+            const dataUsuario = {
                 id: document.getElementById('userId').value,
-                usuario: document.getElementById('userName').value,
+                usuario: document.getElementById('userName').value.trim(),
                 password: document.getElementById('userPass').value,
                 rol: document.getElementById('userRol').value,
-                sucursal: document.getElementById('userSucursal').value 
+                sucursal: nombreSucursal 
             };
 
             try {
+                // PASO 1: Intentar crear la sucursal primero para que el servidor la reconozca
+                await fetch('/admin/sucursales', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        nombre: nombreSucursal,
+                        direccion: "Pendiente configuración", 
+                        horarios: "Pendiente configuración",
+                        contacto: "Sin asignar"
+                    })
+                });
+
+                // PASO 2: Ahora crear el usuario vinculado a esa sucursal
                 const res = await fetch('/admin/usuarios', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(dataUsuario)
                 });
 
                 if(res.ok){
                     cerrarModal();
                     await cargarDatos();
+                    alert("✅ Usuario registrado. Recuerda configurar los datos de '" + nombreSucursal + "' en la sección de Locales.");
                 } else {
-                    // Intenta leer el mensaje de error detallado del servidor
                     const errorMsg = await res.json().catch(() => ({}));
-                    alert("Error al guardar: " + (errorMsg.message || "La sucursal debe existir primero en 'Configurar Locales' o el nombre de usuario ya existe."));
+                    alert("Error al guardar: " + (errorMsg.message || "Verifique si el nombre de usuario ya existe."));
                 }
             } catch (err) {
-                console.error("Error en la petición:", err);
+                console.error("Error en el proceso:", err);
                 alert("Error de conexión con el servidor.");
             }
         };
