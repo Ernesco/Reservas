@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Box - Gestión de Usuarios</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-texto">👥 Gestión de Personal</div>
+        <a href="panel.html" class="btn-header">🏠 VOLVER</a>
+    </header>
+
+    <main class="contenedor-lista">
+        <div class="caja-central" style="max-width: 900px; margin: 20px auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3>Lista de Usuarios</h3>
+                <button class="btn-azul" onclick="abrirModalUsuario()">+ NUEVO USUARIO</button>
+            </div>
+            
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #45475a; text-align: left;">
+                        <th style="padding: 10px;">Usuario</th>
+                        <th style="padding: 10px;">Rol</th>
+                        <th style="padding: 10px;">Sucursal Asignada</th>
+                        <th style="padding: 10px; text-align: center;">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="listaUsuarios"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="modalUsuario" class="modal-overlay">
+        <div class="modal-caja">
+            <h3 id="tituloModal" style="color: #89b4fa;">Datos del Usuario</h3>
+            <form id="formUsuario">
+                <input type="hidden" id="userId">
+                <label>Nombre de Usuario (Login):</label>
+                <input type="text" id="userName" required>
+                
+                <label>Contraseña:</label>
+                <input type="password" id="userPass" placeholder="Nueva o actual...">
+                
+                <label>Rol del Sistema:</label>
+                <select id="userRol" required>
+                    <option value="local">Local (Operador)</option>
+                    <option value="encargado">Encargado (Ver todo su local)</option>
+                    <option value="admin">Administrador (Control Total)</option>
+                </select>
+                
+                <label>Sucursal (Debe coincidir con Horarios):</label>
+                <select id="userSucursal" required>
+                    <option value="ADMINISTRACION">ADMINISTRACION</option>
+                    </select>
+                
+                <div class="modal-botones" style="margin-top: 20px;">
+                    <button type="submit" class="btn-azul">GUARDAR USUARIO</button>
+                    <button type="button" onclick="cerrarModal()" class="btn-secundario">CANCELAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        if (sessionStorage.getItem('usuario_rol') !== 'admin') window.location.href = 'panel.html';
+
+        async function cargarDatos() {
+            // 1. Cargar Sucursales para el select
+            const resSuc = await fetch('/admin/sucursales');
+            const sucursales = await resSuc.json();
+            const select = document.getElementById('userSucursal');
+            sucursales.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.nombre_sucursal;
+                opt.textContent = s.nombre_sucursal;
+                select.appendChild(opt);
+            });
+
+            // 2. Cargar Usuarios
+            const resUser = await fetch('/admin/usuarios');
+            const usuarios = await resUser.json();
+            const tabla = document.getElementById('listaUsuarios');
+            tabla.innerHTML = '';
+            usuarios.forEach(u => {
+                tabla.innerHTML += `
+                    <tr style="border-bottom: 1px solid #313244;">
+                        <td style="padding: 12px;"><strong>${u.usuario}</strong></td>
+                        <td style="padding: 12px;"><span class="badge">${u.rol.toUpperCase()}</span></td>
+                        <td style="padding: 12px;">${u.sucursal}</td>
+                        <td style="text-align: center;">
+                            <button class="btn-azul" style="padding: 5px; font-size: 10px;" onclick='editarU(${JSON.stringify(u)})'>EDITAR</button>
+                            <button class="btn-borrar" style="padding: 5px; font-size: 10px;" onclick="eliminarU(${u.id})">BORRAR</button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        function abrirModalUsuario() {
+            document.getElementById('modalUsuario').style.display = 'flex';
+            document.getElementById('formUsuario').reset();
+            document.getElementById('userId').value = '';
+        }
+
+        function editarU(u) {
+            abrirModalUsuario();
+            document.getElementById('userId').value = u.id;
+            document.getElementById('userName').value = u.usuario;
+            document.getElementById('userRol').value = u.rol;
+            document.getElementById('userSucursal').value = u.sucursal;
+        }
+
+        function cerrarModal() { document.getElementById('modalUsuario').style.display = 'none'; }
+
+        document.getElementById('formUsuario').onsubmit = async (e) => {
+            e.preventDefault();
+            const data = {
+                id: document.getElementById('userId').value,
+                usuario: document.getElementById('userName').value,
+                password: document.getElementById('userPass').value,
+                rol: document.getElementById('userRol').value,
+                sucursal: document.getElementById('userSucursal').value
+            };
+            await fetch('/admin/usuarios', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            cerrarModal();
+            cargarDatos();
+        };
+
+        async function eliminarU(id) {
+            if(confirm("¿Eliminar este usuario? No podrá volver a ingresar.")) {
+                await fetch(`/admin/usuarios/${id}`, { method: 'DELETE' });
+                cargarDatos();
+            }
+        }
+
+        cargarDatos();
+    </script>
+</body>
+</html>

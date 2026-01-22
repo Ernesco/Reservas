@@ -17,12 +17,13 @@
         <h1>Panel de Control</h1>
         <p style="color: #444; margin-bottom: 30px; font-weight: 500;">Seleccione una operación para continuar:</p>
 
-        <div class="contenedor-menu">
+        <div class="contenedor-menu" id="contenedor-botones">
             <a href="formulario.html" class="btn-menu">➕ Nueva Reserva</a>
             <a href="lista.html" class="btn-menu">📋 Ver Lista de Reservas</a>
             <a href="procesos.html" class="btn-menu" style="background-color: #585b70;">📖 Manual de Procesos</a>
-            <a href="actualizar.html" class="btn-menu btn-destacado">📈 Actualizar Precios</a>
-        </div>
+            <a href="actualizar.html" class="btn-menu btn-destacado" id="btnActualizar">📈 Actualizar Precios</a>
+            
+            </div>
     </div>
 
     <footer>
@@ -31,7 +32,7 @@
         </div>
             <img src="./img/Ob_Logo.png" alt="One Box Logo" class="footer-logo">
             <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
-        <div class="footer-version">v1.2.0</div> 
+        <div class="footer-version">v1.3.0</div> 
     </footer>
 
     <div id="modalSoporte" class="modal-overlay">
@@ -78,12 +79,22 @@
             document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2">${sucursal}</span>`;
         }
 
-        // Restricción de Admin para actualización de precios
-        if (rol !== 'admin') {
-            const btnMasivo = document.querySelector('.btn-destacado');
-            if(btnMasivo) btnMasivo.style.display = 'none';
+        // --- LÓGICA DE BOTONES SEGÚN ROL ---
+        const contenedor = document.getElementById('contenedor-botones');
+
+        if (rol === 'admin') {
+            // Inyectamos botones administrativos
+            contenedor.innerHTML += `
+                <a href="sucursales.html" class="btn-menu" style="border: 2px solid #fab387; background: transparent; color: #fab387;">⚙️ Configurar Locales</a>
+                <a href="usuarios.html" class="btn-menu" style="border: 2px solid #89b4fa; background: transparent; color: #89b4fa;">👥 Gestión de Usuarios</a>
+            `;
+        } else {
+            // Si no es admin, ocultamos el botón de actualización masiva
+            const btnActualizar = document.getElementById('btnActualizar');
+            if(btnActualizar) btnActualizar.style.display = 'none';
         }
 
+        // Botón Salir
         document.getElementById('btnSalir').addEventListener('click', (e) => {
             e.preventDefault();
             sessionStorage.clear();

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>One Box - Gestión de Sucursales</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <div class="logo-texto">⚙️ Configuración de Locales</div>
+        <a href="panel.html" class="btn-header">🏠 VOLVER</a>
+    </header>
+
+    <main class="contenedor-lista">
+        <div class="caja-central" style="max-width: 800px; margin: 20px auto;">
+            <h3>📍 Horarios y Direcciones</h3>
+            <p style="color: #bac2de; font-size: 0.9em; margin-bottom: 20px;">
+                La información aquí cargada se enviará automáticamente en los correos de "Pedido Disponible".
+            </p>
+            
+            <table id="tablaSucursales" style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #45475a;">
+                        <th style="text-align: left; padding: 10px;">Sucursal (Nombre DB)</th>
+                        <th style="text-align: left; padding: 10px;">Dirección / Horarios</th>
+                        <th style="text-align: center; padding: 10px;">Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoSucursales"></tbody>
+            </table>
+        </div>
+    </main>
+
+    <div id="modalSucursal" class="modal-overlay">
+        <div class="modal-caja">
+            <h3 id="tituloModal" style="color: #89b4fa;">Editar Local</h3>
+            <form id="formSucursal">
+                <input type="hidden" id="sucId">
+                <label>Nombre de la Sucursal (Identico a Usuario):</label>
+                <input type="text" id="sucNombre" required placeholder="Ej: Local Abasto">
+                <label>Dirección:</label>
+                <input type="text" id="sucDireccion" required placeholder="Av. Corrientes 123">
+                <label>Horarios:</label>
+                <input type="text" id="sucHorarios" required placeholder="Lun a Vie 10-20hs">
+                <label>Teléfono de Contacto:</label>
+                <input type="text" id="sucContacto" placeholder="11 1234-5678">
+                
+                <div class="modal-botones" style="margin-top: 20px;">
+                    <button type="submit" class="btn-azul">GUARDAR</button>
+                    <button type="button" onclick="cerrarModal()" class="btn-secundario">CANCELAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Seguridad: Solo admin
+        if (sessionStorage.getItem('usuario_rol') !== 'admin') {
+            alert("Acceso restringido a administradores");
+            window.location.href = 'panel.html';
+        }
+
+        async function cargarSucursales() {
+            const res = await fetch('/admin/sucursales');
+            const locales = await res.json();
+            const cuerpo = document.getElementById('cuerpoSucursales');
+            cuerpo.innerHTML = '';
+
+            locales.forEach(l => {
+                cuerpo.innerHTML += `
+                    <tr style="border-bottom: 1px solid #313244;">
+                        <td style="padding: 15px;"><strong>${l.nombre_sucursal}</strong></td>
+                        <td style="padding: 15px; font-size: 0.85em; color: #cdd6f4;">
+                            📍 ${l.direccion}<br>⏰ ${l.horarios}
+                        </td>
+                        <td style="text-align: center;">
+                            <button class="btn-azul" style="padding: 5px 10px; font-size: 11px;" 
+                                onclick='abrirModal(${JSON.stringify(l)})'>EDITAR</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function abrirModal(datos = null) {
+            document.getElementById('modalSucursal').style.display = 'flex';
+            if (datos) {
+                document.getElementById('sucId').value = datos.id;
+                document.getElementById('sucNombre').value = datos.nombre_sucursal;
+                document.getElementById('sucDireccion').value = datos.direccion;
+                document.getElementById('sucHorarios').value = datos.horarios;
+                document.getElementById('sucContacto').value = datos.contacto_tel;
+            } else {
+                document.getElementById('formSucursal').reset();
+                document.getElementById('sucId').value = '';
+            }
+        }
+
+        function cerrarModal() { document.getElementById('modalSucursal').style.display = 'none'; }
+
+        document.getElementById('formSucursal').onsubmit = async (e) => {
+            e.preventDefault();
+            const body = {
+                id: document.getElementById('sucId').value,
+                nombre: document.getElementById('sucNombre').value,
+                direccion: document.getElementById('sucDireccion').value,
+                horarios: document.getElementById('sucHorarios').value,
+                contacto: document.getElementById('sucContacto').value
+            };
+
+            const res = await fetch('/admin/sucursales', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            });
+
+            if (res.ok) {
+                cerrarModal();
+                cargarSucursales();
+            }
+        };
+
+        cargarSucursales();
+    </script>
+</body>
+</html>

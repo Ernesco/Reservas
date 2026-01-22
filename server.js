@@ -18,7 +18,7 @@ const upload = multer({ dest: 'uploads/' });
 // 1. CONFIGURACIÓN DE RESEND
 const resend = new Resend(process.env.RESEND_API_KEY); 
 
-// 2. FUNCIÓN AUXILIAR: Enviar Correo
+// 2. FUNCIÓN AUXILIAR: Enviar Correo con Horarios Dinámicos
 async function enviarAvisoEmail(reserva, tipo) {
     let asunto = "";
     let mensajeHtml = "";
@@ -28,6 +28,17 @@ async function enviarAvisoEmail(reserva, tipo) {
         if (!destinatario || destinatario === '---' || !destinatario.includes('@')) {
             console.log(`Reserva #${reserva.id}: Sin email válido.`);
             return;
+        }
+    }
+
+    // Buscamos datos de sucursal si el pedido está disponible
+    let infoSucursal = { horarios: "Consultar en local", direccion: "Dirección habitual", contacto_tel: "" };
+    if (tipo === 'DISPONIBLE') {
+        try {
+            const [rows] = await db.promise().query("SELECT * FROM sucursales WHERE nombre_sucursal = ?", [reserva.sucursal_nombre]);
+            if (rows.length > 0) infoSucursal = rows[0];
+        } catch (err) {
+            console.error("Error al obtener horarios:", err);
         }
     }
 
@@ -50,7 +61,13 @@ async function enviarAvisoEmail(reserva, tipo) {
         asunto = `¡Tu pedido ya llegó! Reserva #${reserva.id}`;
         mensajeHtml = `<div style="font-family: sans-serif; border: 1px solid #a6e3a1; padding: 20px; border-radius: 10px;">
             <h2 style="color: #2e7d32;">¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
-            <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible para retirar en <strong>${reserva.sucursal_nombre}</strong>.</p>${footerHtml}</div>`;
+            <p>Tu producto <strong>${reserva.descripcion}</strong> ya se encuentra disponible para retirar en <strong>${reserva.sucursal_nombre}</strong>.</p>
+            <div style="background: #f1f8e9; padding: 15px; border-radius: 8px; margin-top: 15px; border-left: 5px solid #a6e3a1;">
+                <p style="margin: 0; color: #333;">📍 <strong>Dirección:</strong> ${infoSucursal.direccion}</p>
+                <p style="margin: 5px 0; color: #333;">⏰ <strong>Horarios:</strong> ${infoSucursal.horarios}</p>
+                ${infoSucursal.contacto_tel ? `<p style="margin: 0; color: #333;">📞 <strong>Teléfono:</strong> ${infoSucursal.contacto_tel}</p>` : ''}
+            </div>
+            <p style="margin-top: 15px;">¡Te esperamos!</p>${footerHtml}</div>`;
     } else if (tipo === 'SOPORTE') {
         destinatario = 'erco.efc@gmail.com'; 
         asunto = `🛠️ Soporte: ${reserva.tipo_ticket} - ${reserva.usuario}`;
@@ -86,6 +103,32 @@ const db = mysql.createPool({
     ssl: { rejectUnauthorized: false },
     waitForConnections: true,
     connectionLimit: 10
+});
+
+// --- RUTAS GESTIÓN DE SUCURSALES (SOLO ADMIN) ---
+
+app.get('/admin/sucursales', (req, res) => {
+    db.query("SELECT * FROM sucursales ORDER BY nombre_sucursal ASC", (err, results) => {
+        if (err) return res.status(500).send('Error');
+        res.json(results);
+    });
+});
+
+app.post('/admin/sucursales', (req, res) => {
+    const { id, nombre, direccion, horarios, contacto } = req.body;
+    if (id) {
+        const sql = "UPDATE sucursales SET nombre_sucursal=?, direccion=?, horarios=?, contacto_tel=? WHERE id=?";
+        db.query(sql, [nombre, direccion, horarios, contacto, id], (err) => {
+            if (err) return res.status(500).send('Error');
+            res.send('Actualizado OK');
+        });
+    } else {
+        const sql = "INSERT INTO sucursales (nombre_sucursal, direccion, horarios, contacto_tel) VALUES (?, ?, ?, ?)";
+        db.query(sql, [nombre, direccion, horarios, contacto], (err) => {
+            if (err) return res.status(500).send('Error');
+            res.send('Creado OK');
+        });
+    }
 });
 
 // --- RUTAS DE RESERVAS Y PRODUCTOS ---
@@ -145,7 +188,6 @@ app.get('/reservas', (req, res) => {
     });
 });
 
-// --- RUTA: EDITAR RESERVA ---
 app.put('/reservas/:id/editar', (req, res) => {
     const id = req.params.id;
     const data = req.body;
@@ -198,7 +240,6 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
-// --- RUTAS DE ELIMINACIÓN ---
 app.delete('/reservas/:id', (req, res) => {
     db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [req.params.id], (err) => {
         if (err) return res.status(500).send('Error');
