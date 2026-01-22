@@ -537,52 +537,47 @@ footer p {
     text-align: left;
 }
 
-/* --- CORRECCIONES DEFINITIVAS DE DISEÑO ADMINISTRATIVO --- */
+/* --- ESTILO TIPO LISTA PARA SUCURSALES Y USUARIOS --- */
 
-/* Ajuste del contenedor principal para que no se desborde */
-.caja-central {
-    background-color: #ffffff !important;
-    max-width: 900px !important; /* Ancho suficiente para las tablas */
-    width: 95% !important;
-    margin: 40px auto !important;
-    padding: 30px !important;
-    overflow-x: auto; /* Permite scroll si la pantalla es muy chica */
+/* Usamos el mismo contenedor de la lista para dar espacio */
+.contenedor-admin-full {
+    padding: 20px;
+    width: 95%;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-/* Estilo para las tablas de Gestión */
-#tablaSucursales, #listaUsuarios {
+/* Forzamos que las tablas administrativas se vean como la de reservas */
+.tabla-admin {
     width: 100% !important;
-    min-width: 700px; /* Evita que las columnas se amontonen */
-    margin-top: 25px !important;
     border-collapse: collapse !important;
-    color: #1e1e2e !important;
+    background-color: #1e1e2e !important; /* Fondo oscuro igual a la lista */
+    color: #cdd6f4 !important;
+    margin-top: 20px;
 }
 
-#tablaSucursales th, #listaUsuarios th {
-    background-color: #f1f3f9 !important;
-    color: #585b70 !important;
-    padding: 12px !important;
-    text-transform: uppercase;
-    font-size: 0.85em;
-    border-bottom: 2px solid #89b4fa !important;
-}
-
-#tablaSucursales td, #listaUsuarios td {
+.tabla-admin th {
+    background-color: #313244 !important;
     padding: 15px !important;
-    border-bottom: 1px solid #e6e9ef !important;
-    vertical-align: middle;
+    border-bottom: 2px solid #45475a !important;
+    text-align: left;
 }
 
-/* Arreglo de botones en el panel (image_90c776) */
-.contenedor-menu .btn-menu-admin {
+.tabla-admin td {
+    padding: 15px !important;
+    border-bottom: 1px solid #313244 !important;
+}
+
+/* Arreglo de los botones del Panel (image_90c776) */
+.btn-menu-admin {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    gap: 15px !important;
-    background-color: #ffffff !important;
-    height: 55px !important;
-    font-weight: 600 !important;
-    font-size: 1.1em !important;
-    border-radius: 12px !important;
+    background-color: #313244 !important; /* Volvemos al color oscuro del panel */
+    color: white !important;
+    border: 1px solid #45475a !important;
+    padding: 15px !important;
+    border-radius: 8px !important;
     text-decoration: none !important;
+    margin-bottom: 10px;
 }

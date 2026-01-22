@@ -83,12 +83,11 @@
         const contenedor = document.getElementById('contenedor-botones');
 
         if (rol === 'admin') {
-            // Inyectamos botones administrativos con texto para que no aparezcan vacíos
             contenedor.innerHTML += `
-                <a href="sucursales.html" class="btn-menu" style="border: 2px solid #fab387; background: #fff; color: #11111b;">
+                <a href="sucursales.html" class="btn-menu-admin" style="border: 2px solid #fab387; color: #fab387;">
                     ⚙️ Configurar Locales
                 </a>
-                <a href="usuarios.html" class="btn-menu" style="border: 2px solid #89b4fa; background: #fff; color: #11111b;">
+                <a href="usuarios.html" class="btn-menu-admin" style="border: 2px solid #89b4fa; color: #89b4fa;">
                     👥 Gestión de Usuarios
                 </a>
             `;

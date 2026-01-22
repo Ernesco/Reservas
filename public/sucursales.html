@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
     <title>One Box - Gestión de Sucursales</title>
     <link rel="stylesheet" href="style.css">
 </head>
@@ -12,41 +13,46 @@
         <a href="panel.html" class="btn-header">🏠 VOLVER</a>
     </header>
 
-    <main class="contenedor-lista">
-        <div class="caja-central" style="max-width: 800px; margin: 20px auto;">
-            <h3>📍 Horarios y Direcciones</h3>
+    <div class="contenedor-lista">    
+        <div class="encabezado-total">
+            <h2 style="margin-bottom: 10px; text-align: left;">📍 Horarios y Direcciones</h2>
             <p style="color: #bac2de; font-size: 0.9em; margin-bottom: 20px;">
                 La información aquí cargada se enviará automáticamente en los correos de "Pedido Disponible".
             </p>
-            
-            <table id="tablaSucursales" style="width: 100%; border-collapse: collapse;">
-                <thead>
-                    <tr style="border-bottom: 2px solid #45475a;">
-                        <th style="text-align: left; padding: 10px;">Sucursal (Nombre DB)</th>
-                        <th style="text-align: left; padding: 10px;">Dirección / Horarios</th>
-                        <th style="text-align: center; padding: 10px;">Acción</th>
+        </div>
+
+        <div class="tabla-scroll-container">
+            <table id="tablaReservas"> <thead>
+                    <tr>
+                        <th style="text-align: left;">Sucursal (Nombre DB)</th>
+                        <th style="text-align: left;">Dirección / Horarios</th>
+                        <th style="text-align: center;">Acción</th>
                     </tr>
                 </thead>
-                <tbody id="cuerpoSucursales"></tbody>
+                <tbody id="cuerpoSucursales">
+                    </tbody>
             </table>
         </div>
-    </main>
+    </div>
 
     <div id="modalSucursal" class="modal-overlay">
         <div class="modal-caja">
             <h3 id="tituloModal" style="color: #89b4fa;">Editar Local</h3>
             <form id="formSucursal">
                 <input type="hidden" id="sucId">
-                <label>Nombre de la Sucursal (Identico a Usuario):</label>
-                <input type="text" id="sucNombre" required placeholder="Ej: Local Abasto">
-                <label>Dirección:</label>
-                <input type="text" id="sucDireccion" required placeholder="Av. Corrientes 123">
-                <label>Horarios:</label>
-                <input type="text" id="sucHorarios" required placeholder="Lun a Vie 10-20hs">
-                <label>Teléfono de Contacto:</label>
-                <input type="text" id="sucContacto" placeholder="11 1234-5678">
+                <label style="color: #bac2de; display: block; margin-top: 10px;">Nombre de la Sucursal (Identico a Usuario):</label>
+                <input type="text" id="sucNombre" required placeholder="Ej: Local Abasto" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
                 
-                <div class="modal-botones" style="margin-top: 20px;">
+                <label style="color: #bac2de; display: block; margin-top: 10px;">Dirección:</label>
+                <input type="text" id="sucDireccion" required placeholder="Av. Corrientes 123" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
+                
+                <label style="color: #bac2de; display: block; margin-top: 10px;">Horarios:</label>
+                <input type="text" id="sucHorarios" required placeholder="Lun a Vie 10-20hs" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
+                
+                <label style="color: #bac2de; display: block; margin-top: 10px;">Teléfono de Contacto:</label>
+                <input type="text" id="sucContacto" placeholder="11 1234-5678" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
+                
+                <div class="modal-botones" style="margin-top: 25px;">
                     <button type="submit" class="btn-azul">GUARDAR</button>
                     <button type="button" onclick="cerrarModal()" class="btn-secundario">CANCELAR</button>
                 </div>
@@ -55,9 +61,7 @@
     </div>
 
     <script>
-        // Seguridad: Solo admin
         if (sessionStorage.getItem('usuario_rol') !== 'admin') {
-            alert("Acceso restringido a administradores");
             window.location.href = 'panel.html';
         }
 
@@ -69,13 +73,13 @@
 
             locales.forEach(l => {
                 cuerpo.innerHTML += `
-                    <tr style="border-bottom: 1px solid #313244;">
+                    <tr>
                         <td style="padding: 15px;"><strong>${l.nombre_sucursal}</strong></td>
-                        <td style="padding: 15px; font-size: 0.85em; color: #cdd6f4;">
-                            📍 ${l.direccion}<br>⏰ ${l.horarios}
+                        <td style="padding: 15px; font-size: 0.9em; color: #cdd6f4;">
+                            📍 ${l.direccion}<br><small>⏰ ${l.horarios}</small>
                         </td>
                         <td style="text-align: center;">
-                            <button class="btn-azul" style="padding: 5px 10px; font-size: 11px;" 
+                            <button class="btn-azul" style="padding: 8px 15px; font-size: 11px;" 
                                 onclick='abrirModal(${JSON.stringify(l)})'>EDITAR</button>
                         </td>
                     </tr>
