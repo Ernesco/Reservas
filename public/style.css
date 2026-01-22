@@ -546,26 +546,22 @@ footer p {
     background-color: #ffffff !important;
 }
 
-/* --- ESTILO UNIFICADO DE BOTONES DEL PANEL --- */
-.btn-menu, .btn-admin-panel {
+/* --- ESTILO UNIFICADO PARA BOTONES ADMIN --- */
+.btn-admin-panel {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
     width: 100% !important;
-    height: 50px !important; /* Altura idéntica a los botones de arriba */
-    margin-bottom: 12px !important;
+    height: 50px !important; /* Misma altura que 'Nueva Reserva' */
+    background-color: #313244 !important; /* Color oscuro original */
+    color: white !important;
     border-radius: 8px !important;
+    margin-bottom: 12px !important;
+    text-decoration: none !important;
     font-weight: 600 !important;
     font-size: 16px !important;
-    text-decoration: none !important;
-    box-sizing: border-box !important;
     border: none !important;
-}
-
-/* Colores oscuros para que combinen con el estilo original */
-.btn-admin-panel {
-    background-color: #313244 !important;
-    color: #ffffff !important;
+    transition: background 0.2s;
 }
 
 .btn-admin-panel:hover {
