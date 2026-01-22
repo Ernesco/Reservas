@@ -537,47 +537,35 @@ footer p {
     text-align: left;
 }
 
-/* --- ESTILO TIPO LISTA PARA SUCURSALES Y USUARIOS --- */
-
-/* Usamos el mismo contenedor de la lista para dar espacio */
-.contenedor-admin-full {
-    padding: 20px;
-    width: 95%;
-    max-width: 1200px;
-    margin: 0 auto;
+/* --- RESTAURACIÓN DEL PANEL (image_903d05) --- */
+#panel-box.caja-central {
+    max-width: 500px !important; /* Volver al ancho original */
+    width: 90% !important;
+    padding: 30px !important;
+    margin: 40px auto !important;
+    background-color: #ffffff !important;
 }
 
-/* Forzamos que las tablas administrativas se vean como la de reservas */
-.tabla-admin {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    background-color: #1e1e2e !important; /* Fondo oscuro igual a la lista */
-    color: #cdd6f4 !important;
-    margin-top: 20px;
-}
-
-.tabla-admin th {
-    background-color: #313244 !important;
-    padding: 15px !important;
-    border-bottom: 2px solid #45475a !important;
-    text-align: left;
-}
-
-.tabla-admin td {
-    padding: 15px !important;
-    border-bottom: 1px solid #313244 !important;
-}
-
-/* Arreglo de los botones del Panel (image_90c776) */
-.btn-menu-admin {
+/* --- BOTONES DEL PANEL IGUALES A LOS ORIGINALES (image_8fdb8e) --- */
+.btn-nuevo-panel {
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    background-color: #313244 !important; /* Volvemos al color oscuro del panel */
-    color: white !important;
-    border: 1px solid #45475a !important;
-    padding: 15px !important;
+    width: 100% !important;
+    height: 50px !important;
+    margin-bottom: 12px !important;
     border-radius: 8px !important;
+    font-weight: 600 !important;
     text-decoration: none !important;
-    margin-bottom: 10px;
+    box-sizing: border-box !important;
+}
+
+.btn-locales { background: #fff !important; color: #fab387 !important; border: 2px solid #fab387 !important; }
+.btn-usuarios { background: #fff !important; color: #89b4fa !important; border: 2px solid #89b4fa !important; }
+
+/* --- ARREGLO BOTÓN NUEVO USUARIO (image_8fd736) --- */
+.encabezado-total .btn-azul {
+    width: auto !important; /* Ya no se estira a lo ancho */
+    min-width: 150px;
+    padding: 10px 20px !important;
 }

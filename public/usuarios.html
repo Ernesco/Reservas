@@ -14,13 +14,14 @@
     </header>
 
     <div class="contenedor-lista">    
-        <div class="encabezado-total" style="display: flex; justify-content: space-between; align-items: center;">
+        <div class="encabezado-total" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="margin: 0; text-align: left;">👥 Usuarios del Sistema</h2>
-            <button class="btn-azul" onclick="abrirModalUsuario()">+ NUEVO USUARIO</button>
+            <button class="btn-azul" onclick="abrirModalUsuario()" style="width: auto; padding: 10px 25px;">+ NUEVO USUARIO</button>
         </div>
 
-        <div class="tabla-scroll-container" style="margin-top: 20px;">
-            <table id="tablaReservas"> <thead>
+        <div class="tabla-scroll-container">
+            <table id="tablaReservas"> 
+                <thead>
                     <tr>
                         <th style="padding: 15px; text-align: left;">Usuario</th>
                         <th style="padding: 15px; text-align: left;">Rol</th>
@@ -53,10 +54,10 @@
                     <option value="admin">Administrador (Control Total)</option>
                 </select>
                 
-                <label style="color: #bac2de; display: block; margin-top: 10px;">Sucursal (Debe coincidir con Horarios):</label>
+                <label style="color: #bac2de; display: block; margin-top: 10px;">Sucursal:</label>
                 <select id="userSucursal" required style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
                     <option value="ADMINISTRACION">ADMINISTRACION</option>
-                    </select>
+                </select>
                 
                 <div class="modal-botones" style="margin-top: 25px;">
                     <button type="submit" class="btn-azul">GUARDAR USUARIO</button>
@@ -70,12 +71,9 @@
         if (sessionStorage.getItem('usuario_rol') !== 'admin') window.location.href = 'panel.html';
 
         async function cargarDatos() {
-            // 1. Cargar Sucursales para el select
             const resSuc = await fetch('/admin/sucursales');
             const sucursales = await resSuc.json();
             const select = document.getElementById('userSucursal');
-            
-            // Limpiar opciones previas excepto la primera
             while (select.options.length > 1) select.remove(1);
             
             sucursales.forEach(s => {
@@ -85,7 +83,6 @@
                 select.appendChild(opt);
             });
 
-            // 2. Cargar Usuarios
             const resUser = await fetch('/admin/usuarios');
             const usuarios = await resUser.json();
             const tabla = document.getElementById('listaUsuarios');

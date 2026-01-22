@@ -22,11 +22,12 @@
         </div>
 
         <div class="tabla-scroll-container">
-            <table id="tablaReservas"> <thead>
+            <table id="tablaReservas"> 
+                <thead>
                     <tr>
-                        <th style="text-align: left;">Sucursal (Nombre DB)</th>
-                        <th style="text-align: left;">Dirección / Horarios</th>
-                        <th style="text-align: center;">Acción</th>
+                        <th style="text-align: left; padding: 15px;">Sucursal (Nombre DB)</th>
+                        <th style="text-align: left; padding: 15px;">Dirección / Horarios</th>
+                        <th style="text-align: center; padding: 15px;">Acción</th>
                     </tr>
                 </thead>
                 <tbody id="cuerpoSucursales">
@@ -40,7 +41,8 @@
             <h3 id="tituloModal" style="color: #89b4fa;">Editar Local</h3>
             <form id="formSucursal">
                 <input type="hidden" id="sucId">
-                <label style="color: #bac2de; display: block; margin-top: 10px;">Nombre de la Sucursal (Identico a Usuario):</label>
+                
+                <label style="color: #bac2de; display: block; margin-top: 10px;">Nombre de la Sucursal (Idéntico a Usuario):</label>
                 <input type="text" id="sucNombre" required placeholder="Ej: Local Abasto" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
                 
                 <label style="color: #bac2de; display: block; margin-top: 10px;">Dirección:</label>
@@ -61,30 +63,35 @@
     </div>
 
     <script>
+        // Seguridad: Solo admin
         if (sessionStorage.getItem('usuario_rol') !== 'admin') {
             window.location.href = 'panel.html';
         }
 
         async function cargarSucursales() {
-            const res = await fetch('/admin/sucursales');
-            const locales = await res.json();
-            const cuerpo = document.getElementById('cuerpoSucursales');
-            cuerpo.innerHTML = '';
+            try {
+                const res = await fetch('/admin/sucursales');
+                const locales = await res.json();
+                const cuerpo = document.getElementById('cuerpoSucursales');
+                cuerpo.innerHTML = '';
 
-            locales.forEach(l => {
-                cuerpo.innerHTML += `
-                    <tr>
-                        <td style="padding: 15px;"><strong>${l.nombre_sucursal}</strong></td>
-                        <td style="padding: 15px; font-size: 0.9em; color: #cdd6f4;">
-                            📍 ${l.direccion}<br><small>⏰ ${l.horarios}</small>
-                        </td>
-                        <td style="text-align: center;">
-                            <button class="btn-azul" style="padding: 8px 15px; font-size: 11px;" 
-                                onclick='abrirModal(${JSON.stringify(l)})'>EDITAR</button>
-                        </td>
-                    </tr>
-                `;
-            });
+                locales.forEach(l => {
+                    cuerpo.innerHTML += `
+                        <tr>
+                            <td style="padding: 15px;"><strong>${l.nombre_sucursal}</strong></td>
+                            <td style="padding: 15px; font-size: 0.9em; color: #cdd6f4;">
+                                📍 ${l.direccion}<br><small style="color: #bac2de;">⏰ ${l.horarios}</small>
+                            </td>
+                            <td style="text-align: center; padding: 15px;">
+                                <button class="btn-azul" style="padding: 8px 15px; font-size: 11px;" 
+                                    onclick='abrirModal(${JSON.stringify(l)})'>EDITAR</button>
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error("Error cargando sucursales:", error);
+            }
         }
 
         function abrirModal(datos = null) {
@@ -101,7 +108,9 @@
             }
         }
 
-        function cerrarModal() { document.getElementById('modalSucursal').style.display = 'none'; }
+        function cerrarModal() { 
+            document.getElementById('modalSucursal').style.display = 'none'; 
+        }
 
         document.getElementById('formSucursal').onsubmit = async (e) => {
             e.preventDefault();
@@ -113,18 +122,23 @@
                 contacto: document.getElementById('sucContacto').value
             };
 
-            const res = await fetch('/admin/sucursales', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(body)
-            });
+            try {
+                const res = await fetch('/admin/sucursales', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(body)
+                });
 
-            if (res.ok) {
-                cerrarModal();
-                cargarSucursales();
+                if (res.ok) {
+                    cerrarModal();
+                    cargarSucursales();
+                }
+            } catch (error) {
+                alert("Error al guardar los cambios.");
             }
         };
 
+        // Carga inicial
         cargarSucursales();
     </script>
 </body>

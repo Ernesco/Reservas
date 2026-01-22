@@ -83,16 +83,16 @@
         const contenedor = document.getElementById('contenedor-botones');
 
         if (rol === 'admin') {
+            // Inyectamos botones administrativos con el estilo de botón del panel restaurado
             contenedor.innerHTML += `
-                <a href="sucursales.html" class="btn-menu-admin" style="border: 2px solid #fab387; color: #fab387;">
+                <a href="sucursales.html" class="btn-nuevo-panel btn-locales">
                     ⚙️ Configurar Locales
                 </a>
-                <a href="usuarios.html" class="btn-menu-admin" style="border: 2px solid #89b4fa; color: #89b4fa;">
+                <a href="usuarios.html" class="btn-nuevo-panel btn-usuarios">
                     👥 Gestión de Usuarios
                 </a>
             `;
         } else {
-            // Si no es admin, ocultamos el botón de actualización masiva
             const btnActualizar = document.getElementById('btnActualizar');
             if(btnActualizar) btnActualizar.style.display = 'none';
         }
@@ -124,7 +124,6 @@
         function abrirSoporte() { document.getElementById('modalSoporte').style.display = 'flex'; }
         function cerrarSoporte() { document.getElementById('modalSoporte').style.display = 'none'; }
 
-        // --- ENVÍO DE SOPORTE ---
         document.getElementById('formSoporte').addEventListener('submit', async function(e) {
             e.preventDefault();
             const datos = {
