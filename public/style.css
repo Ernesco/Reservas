@@ -537,35 +537,32 @@ footer p {
     text-align: left;
 }
 
-/* --- RESTAURACIÓN DEL PANEL (image_903d05) --- */
+//* --- RESTAURACIÓN DEL CONTENEDOR BLANCO --- */
 #panel-box.caja-central {
-    max-width: 500px !important; /* Volver al ancho original */
+    max-width: 500px !important; /* Ancho original exacto */
     width: 90% !important;
     padding: 30px !important;
     margin: 40px auto !important;
     background-color: #ffffff !important;
 }
 
-/* --- BOTONES DEL PANEL IGUALES A LOS ORIGINALES (image_8fdb8e) --- */
-.btn-nuevo-panel {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
+/* --- ESTILO DE BOTONES ADMINISTRATIVOS --- */
+.btn-admin-prolijo {
+    display: block !important;
     width: 100% !important;
-    height: 50px !important;
+    padding: 15px !important;
     margin-bottom: 12px !important;
+    text-align: center !important;
+    text-decoration: none !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
-    text-decoration: none !important;
+    font-size: 16px !important;
     box-sizing: border-box !important;
+    background-color: #313244 !important; /* Mismo color que los botones de arriba */
+    color: white !important;
+    border: 1px solid #45475a !important;
 }
 
-.btn-locales { background: #fff !important; color: #fab387 !important; border: 2px solid #fab387 !important; }
-.btn-usuarios { background: #fff !important; color: #89b4fa !important; border: 2px solid #89b4fa !important; }
-
-/* --- ARREGLO BOTÓN NUEVO USUARIO (image_8fd736) --- */
-.encabezado-total .btn-azul {
-    width: auto !important; /* Ya no se estira a lo ancho */
-    min-width: 150px;
-    padding: 10px 20px !important;
+.btn-admin-prolijo:hover {
+    background-color: #45475a !important;
 }
