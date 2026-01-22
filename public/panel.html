@@ -83,10 +83,14 @@
         const contenedor = document.getElementById('contenedor-botones');
 
         if (rol === 'admin') {
-            // Inyectamos botones administrativos
+            // Inyectamos botones administrativos con texto para que no aparezcan vacíos
             contenedor.innerHTML += `
-                <a href="sucursales.html" class="btn-menu" style="border: 2px solid #fab387; background: transparent; color: #fab387;">⚙️ Configurar Locales</a>
-                <a href="usuarios.html" class="btn-menu" style="border: 2px solid #89b4fa; background: transparent; color: #89b4fa;">👥 Gestión de Usuarios</a>
+                <a href="sucursales.html" class="btn-menu" style="border: 2px solid #fab387; background: #fff; color: #11111b;">
+                    ⚙️ Configurar Locales
+                </a>
+                <a href="usuarios.html" class="btn-menu" style="border: 2px solid #89b4fa; background: #fff; color: #11111b;">
+                    👥 Gestión de Usuarios
+                </a>
             `;
         } else {
             // Si no es admin, ocultamos el botón de actualización masiva
@@ -101,7 +105,7 @@
             window.location.href = 'index.html';
         });
 
-        // --- GESTIÓN DE MODALES (SOPORTE Y AVISOS) ---
+        // --- GESTIÓN DE MODALES ---
         function mostrarAviso(titulo, mensaje, esError = true) {
             const modal = document.getElementById('modalAviso');
             const tituloH3 = document.getElementById('tituloAviso');

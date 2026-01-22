@@ -536,3 +536,74 @@ footer p {
     width: 100%;
     text-align: left;
 }
+
+/* --- CORRECCIONES PARA GESTIÓN ADMINISTRATIVA (v1.3.0) --- */
+
+/* 1. Ajuste para el Panel Principal (image_90c776) */
+.contenedor-menu .btn-menu {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+/* 2. Ajuste para la Tabla de Sucursales (image_90c794 y image_90c7f1) */
+.caja-central {
+    background-color: #ffffff; /* Mantenemos el fondo blanco para contraste */
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+#tablaSucursales, #tablaUsuarios {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 10px;
+    margin-top: 20px;
+    color: #1e1e2e; /* Texto oscuro para leer sobre el fondo blanco */
+}
+
+#tablaSucursales th, #tablaUsuarios th {
+    color: #585b70;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    letter-spacing: 1px;
+    padding: 10px;
+    border-bottom: 2px solid #f2f2f2;
+}
+
+#tablaSucursales td, #tablaUsuarios td {
+    padding: 15px 10px;
+    background-color: #f9fafb; /* Fondo sutil para las filas */
+    border-top: 1px solid #f1f1f1;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+/* 3. Estilo para los textos dentro de la tabla */
+.caja-central h3 {
+    color: #1e1e2e !important;
+    margin-bottom: 10px;
+}
+
+.caja-central p {
+    color: #6c7086 !important;
+}
+
+/* 4. Estilo de los botones Editar/Borrar en la gestión */
+.btn-accion-admin {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+}
+
+/* Asegura que el modal de edición se vea bien */
+.modal-caja label {
+    color: #cdd6f4;
+    font-weight: 500;
+}
