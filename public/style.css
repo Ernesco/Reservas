@@ -537,7 +537,7 @@ footer p {
     text-align: left;
 }
 
-//* --- RESTAURACIÓN DEL CONTENEDOR BLANCO --- */
+/* --- RESTAURACIÓN DEL CONTENEDOR BLANCO --- */
 #panel-box.caja-central {
     max-width: 500px !important; /* Ancho original exacto */
     width: 90% !important;
@@ -546,23 +546,28 @@ footer p {
     background-color: #ffffff !important;
 }
 
-/* --- ESTILO DE BOTONES ADMINISTRATIVOS --- */
-.btn-admin-prolijo {
-    display: block !important;
+/* --- ESTILO UNIFICADO DE BOTONES DEL PANEL --- */
+.btn-menu, .btn-admin-panel {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     width: 100% !important;
-    padding: 15px !important;
+    height: 50px !important; /* Altura idéntica a los botones de arriba */
     margin-bottom: 12px !important;
-    text-align: center !important;
-    text-decoration: none !important;
     border-radius: 8px !important;
     font-weight: 600 !important;
     font-size: 16px !important;
+    text-decoration: none !important;
     box-sizing: border-box !important;
-    background-color: #313244 !important; /* Mismo color que los botones de arriba */
-    color: white !important;
-    border: 1px solid #45475a !important;
+    border: none !important;
 }
 
-.btn-admin-prolijo:hover {
+/* Colores oscuros para que combinen con el estilo original */
+.btn-admin-panel {
+    background-color: #313244 !important;
+    color: #ffffff !important;
+}
+
+.btn-admin-panel:hover {
     background-color: #45475a !important;
 }
