@@ -13,34 +13,33 @@
         <a href="panel.html" class="btn-header">🏠 VOLVER</a>
     </header>
 
-    <div class="contenedor-lista">    
-        <div class="encabezado-total">
-            <h2>👥 Usuarios del Sistema</h2>
-            <button class="btn-azul" onclick="abrirModalUsuario()" style="margin-top: 15px; width: auto; padding: 10px 25px;">
+    <main class="contenedor-lista">    
+        <div class="encabezado-total" style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #ffffff; font-size: 24px; margin-bottom: 15px;">👥 Usuarios del Sistema</h2>
+            <button class="btn-azul" onclick="abrirModalUsuario()" style="width: auto; padding: 12px 30px; font-weight: bold;">
                 + NUEVO USUARIO
             </button>
         </div>
-    </div>
 
         <div class="tabla-scroll-container">
-            <table id="tablaReservas"> 
+            <table id="tablaReservas" style="width: 100%; background-color: #1e1e2e; border-collapse: collapse;"> 
                 <thead>
                     <tr>
-                        <th style="padding: 15px; text-align: left;">Usuario</th>
-                        <th style="padding: 15px; text-align: left;">Rol</th>
-                        <th style="padding: 15px; text-align: left;">Sucursal Asignada</th>
-                        <th style="padding: 15px; text-align: center;">Acciones</th>
+                        <th style="padding: 15px; text-align: left; background-color: #313244; color: #ffffff;">Usuario</th>
+                        <th style="padding: 15px; text-align: left; background-color: #313244; color: #ffffff;">Rol</th>
+                        <th style="padding: 15px; text-align: left; background-color: #313244; color: #ffffff;">Sucursal Asignada</th>
+                        <th style="padding: 15px; text-align: center; background-color: #313244; color: #ffffff;">Acciones</th>
                     </tr>
                 </thead>
                 <tbody id="listaUsuarios">
                     </tbody>
             </table>
         </div>
-    </div>
+    </main>
 
     <div id="modalUsuario" class="modal-overlay">
         <div class="modal-caja">
-            <h3 id="tituloModal" style="color: #89b4fa;">Datos del Usuario</h3>
+            <h3 id="tituloModal" style="color: #89b4fa; text-align: center;">Datos del Usuario</h3>
             <form id="formUsuario">
                 <input type="hidden" id="userId">
                 
@@ -62,7 +61,7 @@
                     <option value="ADMINISTRACION">ADMINISTRACION</option>
                 </select>
                 
-                <div class="modal-botones" style="margin-top: 25px;">
+                <div class="modal-botones" style="margin-top: 25px; display: flex; justify-content: center; gap: 10px;">
                     <button type="submit" class="btn-azul">GUARDAR USUARIO</button>
                     <button type="button" onclick="cerrarModal()" class="btn-secundario">CANCELAR</button>
                 </div>
@@ -93,13 +92,13 @@
             
             usuarios.forEach(u => {
                 tabla.innerHTML += `
-                    <tr>
-                        <td style="padding: 15px;"><strong>${u.usuario}</strong></td>
-                        <td style="padding: 15px;"><span class="badge" style="background:#45475a;">${u.rol.toUpperCase()}</span></td>
+                    <tr style="border-bottom: 1px solid #313244;">
+                        <td style="padding: 15px; color: #ffffff;"><strong>${u.usuario}</strong></td>
+                        <td style="padding: 15px;"><span class="badge" style="background:#45475a; padding: 4px 8px; border-radius: 4px; font-size: 10px;">${u.rol.toUpperCase()}</span></td>
                         <td style="padding: 15px; color: #cdd6f4;">${u.sucursal}</td>
                         <td style="text-align: center; padding: 15px;">
                             <button class="btn-azul" style="padding: 8px 12px; font-size: 11px;" onclick='editarU(${JSON.stringify(u)})'>EDITAR</button>
-                            <button class="btn-borrar" style="padding: 8px 12px; font-size: 11px; margin-left:5px;" onclick="eliminarU(${u.id})">BORRAR</button>
+                            <button class="btn-borrar" style="padding: 8px 12px; font-size: 11px; margin-left:5px; background: #f38ba8; border: none; color: white; border-radius: 4px; cursor: pointer;" onclick="eliminarU(${u.id})">BORRAR</button>
                         </td>
                     </tr>`;
             });

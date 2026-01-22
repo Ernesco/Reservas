@@ -567,3 +567,46 @@ footer p {
 .btn-admin-panel:hover {
     background-color: #45475a !important;
 }
+
+/* --- DISEÑO DARK FULL-SCREEN (Tipo Lista) --- */
+
+/* Contenedor principal que da el ancho de la lista */
+.seccion-admin-dark {
+    width: 95%;
+    max-width: 1200px;
+    margin: 30px auto;
+    padding: 0 20px;
+}
+
+/* Centrado prolijo de títulos sobre fondo oscuro */
+.header-gestion {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.header-gestion h2 {
+    color: #ffffff;
+    font-size: 2.2em;
+    margin-bottom: 10px;
+}
+
+.header-gestion p {
+    color: #bac2de;
+    font-size: 1em;
+}
+
+/* Botón de nuevo usuario centrado */
+.contenedor-accion-central {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+/* Ajuste de la tabla para que herede el estilo de lista.html */
+.tabla-gestion-dark {
+    width: 100%;
+    background-color: #1e1e2e;
+    border-radius: 12px;
+    overflow: hidden;
+    border-collapse: collapse;
+}

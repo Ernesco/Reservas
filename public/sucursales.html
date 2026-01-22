@@ -13,31 +13,32 @@
         <a href="panel.html" class="btn-header">🏠 VOLVER</a>
     </header>
 
-    <div class="contenedor-lista">    
-        <div class="encabezado-total">
-            <h2>📍 Horarios y Direcciones</h2>
-            <p>La información aquí cargada se enviará automáticamente en los correos de "Pedido Disponible".</p>
+    <main class="contenedor-lista">    
+        <div class="encabezado-total" style="text-align: center; margin-bottom: 30px;">
+            <h2 style="color: #ffffff; font-size: 24px;">📍 Horarios y Direcciones</h2>
+            <p style="color: #bac2de; max-width: 600px; margin: 10px auto;">
+                La información aquí cargada se enviará automáticamente en los correos de "Pedido Disponible".
+            </p>
         </div>
-    </div>
 
         <div class="tabla-scroll-container">
-            <table id="tablaReservas"> 
+            <table id="tablaReservas" style="width: 100%; background-color: #1e1e2e; border-collapse: collapse;"> 
                 <thead>
                     <tr>
-                        <th style="text-align: left; padding: 15px;">Sucursal (Nombre DB)</th>
-                        <th style="text-align: left; padding: 15px;">Dirección / Horarios</th>
-                        <th style="text-align: center; padding: 15px;">Acción</th>
+                        <th style="text-align: left; padding: 15px; background-color: #313244; color: #ffffff;">Sucursal (Nombre DB)</th>
+                        <th style="text-align: left; padding: 15px; background-color: #313244; color: #ffffff;">Dirección / Horarios</th>
+                        <th style="text-align: center; padding: 15px; background-color: #313244; color: #ffffff;">Acción</th>
                     </tr>
                 </thead>
                 <tbody id="cuerpoSucursales">
                     </tbody>
             </table>
         </div>
-    </div>
+    </main>
 
     <div id="modalSucursal" class="modal-overlay">
         <div class="modal-caja">
-            <h3 id="tituloModal" style="color: #89b4fa;">Editar Local</h3>
+            <h3 id="tituloModal" style="color: #89b4fa; text-align: center;">Editar Local</h3>
             <form id="formSucursal">
                 <input type="hidden" id="sucId">
                 
@@ -53,7 +54,7 @@
                 <label style="color: #bac2de; display: block; margin-top: 10px;">Teléfono de Contacto:</label>
                 <input type="text" id="sucContacto" placeholder="11 1234-5678" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
                 
-                <div class="modal-botones" style="margin-top: 25px;">
+                <div class="modal-botones" style="margin-top: 25px; display: flex; justify-content: center; gap: 10px;">
                     <button type="submit" class="btn-azul">GUARDAR</button>
                     <button type="button" onclick="cerrarModal()" class="btn-secundario">CANCELAR</button>
                 </div>
@@ -62,7 +63,6 @@
     </div>
 
     <script>
-        // Seguridad: Solo admin
         if (sessionStorage.getItem('usuario_rol') !== 'admin') {
             window.location.href = 'panel.html';
         }
@@ -76,8 +76,8 @@
 
                 locales.forEach(l => {
                     cuerpo.innerHTML += `
-                        <tr>
-                            <td style="padding: 15px;"><strong>${l.nombre_sucursal}</strong></td>
+                        <tr style="border-bottom: 1px solid #313244;">
+                            <td style="padding: 15px; color: #ffffff;"><strong>${l.nombre_sucursal}</strong></td>
                             <td style="padding: 15px; font-size: 0.9em; color: #cdd6f4;">
                                 📍 ${l.direccion}<br><small style="color: #bac2de;">⏰ ${l.horarios}</small>
                             </td>
@@ -137,7 +137,6 @@
             }
         };
 
-        // Carga inicial
         cargarSucursales();
     </script>
 </body>
