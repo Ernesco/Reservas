@@ -79,22 +79,6 @@
             document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2">${sucursal}</span>`;
         }
 
-        // --- LÓGICA DE BOTONES SEGÚN ROL ---
-        const contenedor = document.getElementById('contenedor-botones');
-        if (rol === 'admin') {
-            contenedor.innerHTML += `
-                <a href="sucursales.html" class="btn-menu">
-                    ⚙️ Configurar Locales
-                </a>
-                <a href="usuarios.html" class="btn-menu">
-                    👥 Gestión de Usuarios
-                </a>
-            `;
-        } else {
-            const btnActualizar = document.getElementById('btnActualizar');
-            if(btnActualizar) btnActualizar.style.display = 'none';
-        }
-
         // Botón Salir
         document.getElementById('btnSalir').addEventListener('click', (e) => {
             e.preventDefault();
