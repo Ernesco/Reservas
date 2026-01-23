@@ -17,7 +17,7 @@
         <div class="encabezado-total" style="text-align: center; margin-bottom: 30px;">
             <h2 style="color: #ffffff; font-size: 24px;">📍 Horarios y Direcciones</h2>
             <p style="color: #bac2de; max-width: 600px; margin: 10px auto;">
-                La información aquí cargada se enviará automáticamente en los correos de "Pedido Disponible".
+                Edite la información de contacto que se enviará en los correos automáticos.
             </p>
         </div>
 
@@ -25,37 +25,36 @@
             <table id="tablaReservas" style="width: 100%; background-color: #1e1e2e; border-collapse: collapse;"> 
                 <thead>
                     <tr>
-                        <th style="text-align: left; padding: 15px; background-color: #313244; color: #ffffff;">Sucursal (Nombre DB)</th>
+                        <th style="text-align: left; padding: 15px; background-color: #313244; color: #ffffff;">Sucursal</th>
                         <th style="text-align: left; padding: 15px; background-color: #313244; color: #ffffff;">Dirección / Horarios</th>
                         <th style="text-align: center; padding: 15px; background-color: #313244; color: #ffffff;">Acción</th>
                     </tr>
                 </thead>
-                <tbody id="cuerpoSucursales">
-                    </tbody>
+                <tbody id="cuerpoSucursales"></tbody>
             </table>
         </div>
     </main>
 
     <div id="modalSucursal" class="modal-overlay">
         <div class="modal-caja">
-            <h3 id="tituloModal" style="color: #89b4fa; text-align: center;">Editar Local</h3>
+            <h3 style="color: #89b4fa; text-align: center;">Editar Info de Local</h3>
             <form id="formSucursal">
                 <input type="hidden" id="sucId">
                 
-                <label style="color: #bac2de; display: block; margin-top: 10px;">Nombre de la Sucursal (Idéntico a Usuario):</label>
-                <input type="text" id="sucNombre" required placeholder="Ej: Local Abasto" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
+                <label style="color: #bac2de; display: block; margin-top: 10px;">Nombre Sucursal (No editable):</label>
+                <input type="text" id="sucNombre" readonly style="width: 100%; padding: 10px; margin-top: 5px; background: #1e1e2e; color: #888; border: 1px solid #45475a; border-radius: 6px;">
                 
                 <label style="color: #bac2de; display: block; margin-top: 10px;">Dirección:</label>
-                <input type="text" id="sucDireccion" required placeholder="Av. Corrientes 123" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
+                <input type="text" id="sucDireccion" required style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
                 
                 <label style="color: #bac2de; display: block; margin-top: 10px;">Horarios:</label>
-                <input type="text" id="sucHorarios" required placeholder="Lun a Vie 10-20hs" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
+                <input type="text" id="sucHorarios" required style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
                 
                 <label style="color: #bac2de; display: block; margin-top: 10px;">Teléfono de Contacto:</label>
-                <input type="text" id="sucContacto" placeholder="11 1234-5678" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
+                <input type="text" id="sucContacto" required style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
                 
                 <div class="modal-botones" style="margin-top: 25px; display: flex; justify-content: center; gap: 10px;">
-                    <button type="submit" class="btn-azul">GUARDAR</button>
+                    <button type="submit" class="btn-azul">ACTUALIZAR DATOS</button>
                     <button type="button" onclick="cerrarModal()" class="btn-secundario">CANCELAR</button>
                 </div>
             </form>
@@ -63,67 +62,56 @@
     </div>
 
     <script>
-        if (sessionStorage.getItem('usuario_rol') !== 'admin') {
-            window.location.href = 'panel.html';
-        }
+        if (sessionStorage.getItem('usuario_rol') !== 'admin') window.location.href = 'panel.html';
 
         async function cargarSucursales() {
             try {
-                const res = await fetch('/admin/sucursales');
-                const locales = await res.json();
+                // Ahora pedimos los datos a la tabla usuarios
+                const res = await fetch('/admin/usuarios');
+                const datos = await res.json();
                 const cuerpo = document.getElementById('cuerpoSucursales');
                 cuerpo.innerHTML = '';
 
-                locales.forEach(l => {
+                datos.forEach(l => {
                     cuerpo.innerHTML += `
                         <tr style="border-bottom: 1px solid #313244;">
-                            <td style="padding: 15px; color: #ffffff;"><strong>${l.nombre_sucursal}</strong></td>
+                            <td style="padding: 15px; color: #ffffff;"><strong>${l.sucursal}</strong></td>
                             <td style="padding: 15px; font-size: 0.9em; color: #cdd6f4;">
-                                📍 ${l.direccion}<br><small style="color: #bac2de;">⏰ ${l.horarios}</small>
+                                📍 ${l.direccion || 'No asignada'}<br><small style="color: #bac2de;">⏰ ${l.horarios || 'No asignado'}</small>
                             </td>
                             <td style="text-align: center; padding: 15px;">
                                 <button class="btn-azul" style="padding: 8px 15px; font-size: 11px;" 
-                                    onclick='abrirModal(${JSON.stringify(l)})'>EDITAR</button>
+                                    onclick='abrirModal(${JSON.stringify(l)})'>EDITAR INFO</button>
                             </td>
-                        </tr>
-                    `;
+                        </tr>`;
                 });
-            } catch (error) {
-                console.error("Error cargando sucursales:", error);
-            }
+            } catch (error) { console.error(error); }
         }
 
-        function abrirModal(datos = null) {
+        function abrirModal(l) {
             document.getElementById('modalSucursal').style.display = 'flex';
-            if (datos) {
-                document.getElementById('sucId').value = datos.id;
-                document.getElementById('sucNombre').value = datos.nombre_sucursal;
-                document.getElementById('sucDireccion').value = datos.direccion;
-                document.getElementById('sucHorarios').value = datos.horarios;
-                document.getElementById('sucContacto').value = datos.contacto_tel;
-            } else {
-                document.getElementById('formSucursal').reset();
-                document.getElementById('sucId').value = '';
-            }
+            document.getElementById('sucId').value = l.id;
+            document.getElementById('sucNombre').value = l.sucursal;
+            document.getElementById('sucDireccion').value = l.direccion || "";
+            document.getElementById('sucHorarios').value = l.horarios || "";
+            document.getElementById('sucContacto').value = l.contacto_tel || "";
         }
 
-        function cerrarModal() { 
-            document.getElementById('modalSucursal').style.display = 'none'; 
-        }
+        function cerrarModal() { document.getElementById('modalSucursal').style.display = 'none'; }
 
         document.getElementById('formSucursal').onsubmit = async (e) => {
             e.preventDefault();
             const body = {
                 id: document.getElementById('sucId').value,
-                nombre: document.getElementById('sucNombre').value,
                 direccion: document.getElementById('sucDireccion').value,
                 horarios: document.getElementById('sucHorarios').value,
-                contacto: document.getElementById('sucContacto').value
+                contacto_tel: document.getElementById('sucContacto').value
             };
 
             try {
-                const res = await fetch('/admin/sucursales', {
-                    method: 'POST',
+                // Usamos la ruta de actualización parcial
+                const res = await fetch('/admin/usuarios-info', {
+                    method: 'PUT',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(body)
                 });
@@ -131,10 +119,9 @@
                 if (res.ok) {
                     cerrarModal();
                     cargarSucursales();
+                    alert("✅ Información actualizada correctamente.");
                 }
-            } catch (error) {
-                alert("Error al guardar los cambios.");
-            }
+            } catch (error) { alert("Error al guardar."); }
         };
 
         cargarSucursales();

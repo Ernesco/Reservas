@@ -104,55 +104,33 @@
 
         function cerrarModal() { document.getElementById('modalUsuario').style.display = 'none'; }
 
-        // LÓGICA DE DOBLE INSERCIÓN (PARALELO)
         document.getElementById('formUsuario').onsubmit = async (e) => {
             e.preventDefault();
-            
-            const nombreUsuario = document.getElementById('userName').value.trim();
-            const nombreSucursal = document.getElementById('userSucursal').value.trim();
-            
-            const dataUsuario = {
+            const data = {
                 id: document.getElementById('userId').value,
-                usuario: nombreUsuario,
+                usuario: document.getElementById('userName').value.trim(),
                 password: document.getElementById('userPass').value,
                 rol: document.getElementById('userRol').value,
-                sucursal: nombreSucursal 
-            };
-
-            const dataSucursal = {
-                nombre: nombreSucursal,
-                direccion: "Pendiente configuración", 
-                horarios: "Pendiente configuración",
-                contacto: "Sin asignar"
+                sucursal: document.getElementById('userSucursal').value.trim()
             };
 
             try {
-                // Disparamos ambos INSERT INTO al mismo tiempo
-                const [resSuc, resUser] = await Promise.all([
-                    fetch('/admin/sucursales', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(dataSucursal)
-                    }).catch(() => ({ ok: true })), // Ignora error si el local ya existe
-                    
-                    fetch('/admin/usuarios', {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify(dataUsuario)
-                    })
-                ]);
+                // UN SOLO INSERT/UPDATE en la tabla usuarios (que ahora tiene todas las columnas)
+                const res = await fetch('/admin/usuarios', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
 
-                if(resUser.ok){
+                if(res.ok){
                     cerrarModal();
                     await cargarDatos();
-                    alert("✅ ÉXITO: Usuario '" + nombreUsuario + "' guardado correctamente en MySQL.");
+                    alert("✅ Usuario guardado correctamente en la tabla unificada.");
                 } else {
-                    const errorMsg = await resUser.json().catch(() => ({}));
-                    alert("❌ Error en Tabla Usuarios: " + (errorMsg.message || "El nombre ya existe o la sucursal no es válida."));
+                    const errorMsg = await res.json().catch(() => ({}));
+                    alert("❌ Error: " + (errorMsg.message || "No se pudo guardar."));
                 }
-            } catch (err) { 
-                alert("❌ Error de conexión crítica con el servidor.");
-            }
+            } catch (err) { alert("❌ Error de conexión."); }
         };
 
         async function eliminarU(id) {
