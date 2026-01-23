@@ -83,7 +83,7 @@
             <h3 id="tituloFirma" style="color: #89b4fa;">⚠️ Confirmación</h3>
             <p id="mensajeFirma" style="margin-bottom: 20px;"></p>
             <div id="contenedorInputFirma" style="margin-bottom: 20px; width: 100%;">
-                <label style="color: #cdd6f4; display: block; margin-bottom: 10px; text-align: left;">Ingrese su nombre para registrar la acción:</label>
+                <label style="color: #cdd6f4; display: block; margin-bottom: 10px; text-align: left;">Nombre del responsable:</label>
                 <input type="text" id="inputNombreResponsable" placeholder="Su nombre aquí..." 
                        style="background: #313244; color: white; border: 1px solid #45475a; padding: 12px; width: 100%; border-radius: 6px; box-sizing: border-box;">
             </div>
@@ -124,16 +124,12 @@
 
     function mostrarAviso(titulo, mensaje, esError = true) {
         const modal = document.getElementById('modalAviso');
-        const tituloH3 = document.getElementById('tituloAviso');
-        const textoP = document.getElementById('textoAviso');
-        const borde = document.getElementById('bordeModal');
-        const btn = document.getElementById('btnColorAviso');
-        tituloH3.textContent = titulo;
-        textoP.textContent = mensaje;
+        document.getElementById('tituloAviso').textContent = titulo;
+        document.getElementById('textoAviso').textContent = mensaje;
         const color = esError ? '#f38ba8' : '#a6e3a1';
-        tituloH3.style.color = color;
-        borde.style.borderColor = color;
-        btn.style.backgroundColor = color;
+        document.getElementById('tituloAviso').style.color = color;
+        document.getElementById('bordeModal').style.borderColor = color;
+        document.getElementById('btnColorAviso').style.backgroundColor = color;
         modal.style.display = 'flex';
     }
 
@@ -146,9 +142,9 @@
         const header = document.getElementById('encabezadoTabla');
         const rol = sessionStorage.getItem('usuario_rol');
         let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th><th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
-        if (estadoActualFiltrado === 'En Tránsito') columnas += `<th>Destino (Aviso)</th><th>Operador</th>`;
-        else if (estadoActualFiltrado === 'Pendiente de Retiro') columnas += `<th>Ingreso Local (Fecha)</th>`;
-        else if (estadoActualFiltrado === 'Finalizado') columnas += `<th>Cierre (Fecha)</th>`;
+        if (estadoActualFiltrado === 'En Tránsito') columnas += `<th>Destino</th><th>Operador</th>`;
+        else if (estadoActualFiltrado === 'Pendiente de Retiro') columnas += `<th>Ingreso Local</th>`;
+        else if (estadoActualFiltrado === 'Finalizado') columnas += `<th>Cierre</th>`;
         else if (estadoActualFiltrado === 'Eliminados') columnas += `<th>Ingresó</th><th>Finalizó</th><th>Operador</th>`;
         if (rol === 'admin') columnas += `<th>Origen</th>`;
         columnas += `<th>Acciones</th>`;
@@ -214,54 +210,30 @@
                 botones += `<button class="btn-azul" style="background:#f39c12; margin-left:5px;" onclick='abrirModalEditar(${itemData})'>EDITAR</button>`;
             }
         } else if (item.estado === 'Pendiente de Retiro') {
-            botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar retiro?')">RETIRADO</button>`;
-            botones += `<button class="btn-borrar" style="margin-left:5px;" onclick="moverAPapelera(${item.id})">CANCELAR/BORRAR</button>`;
+            botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar entrega al cliente?')">ENTREGAR</button>`;
+            botones += `<button class="btn-borrar" style="margin-left:5px;" onclick="moverAPapelera(${item.id})">BORRAR</button>`;
         } else if (item.estado === 'Retirado' || item.estado === 'Cancelado') {
             if (rol === 'admin') {
-                botones += `<button class="btn-borrar" onclick="moverAPapelera(${item.id})">MOVER A PAPELERA</button>`;
+                botones += `<button class="btn-borrar" onclick="moverAPapelera(${item.id})">BORRAR</button>`;
             }
         }
         return botones;
     }
 
-    function abrirModalEditar(item) {
-        document.getElementById('editId').value = item.id;
-        document.getElementById('editNombre').value = item.cliente_nombre;
-        document.getElementById('editTel').value = item.cliente_telefono;
-        document.getElementById('editEmail').value = item.cliente_email;
-        document.getElementById('editCodigo').value = item.prod_codigo;
-        document.getElementById('editDesc').value = item.descripcion;
-        document.getElementById('editCant').value = item.prod_cantidad;
-        document.getElementById('editTotal').value = item.total_reserva;
-        document.getElementById('modalEditar').style.display = 'flex';
-    }
-
-    function guardarEdicion() {
-        const id = document.getElementById('editId').value;
-        const data = {
-            cliente_nombre: document.getElementById('editNombre').value,
-            cliente_telefono: document.getElementById('editTel').value,
-            cliente_email: document.getElementById('editEmail').value,
-            prod_codigo: document.getElementById('editCodigo').value,
-            descripcion: document.getElementById('editDesc').value,
-            prod_cantidad: document.getElementById('editCant').value,
-            total_reserva: document.getElementById('editTotal').value
-        };
-        fetch(`/reservas/${id}/editar`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        }).then(() => { cerrarEditar(); cargarReservas(); });
-    }
-
     function moverAPapelera(id) {
-        if(confirm("¿Mover esta reserva a la pestaña de Eliminados?")) {
-            fetch(`/reservas/${id}`, { method: 'DELETE' }).then(() => cargarReservas());
-        }
+        abrirModalFirma("¿Deseas mover esta reserva a la papelera (Eliminados)?", false, () => {
+            fetch(`/reservas/${id}`, { method: 'DELETE' }).then(res => {
+                if(res.ok) {
+                    cerrarModalFirma();
+                    cargarReservas();
+                    mostrarAviso('✅ Papelera', 'Reserva movida a eliminados.', false);
+                }
+            });
+        });
     }
 
     async function confirmarEliminarDefinitivo(id) {
-        if (confirm("⚠️ ¿BORRAR PERMANENTEMENTE DE MYSQL? Esta acción no tiene vuelta atrás.")) {
+        if (confirm("⚠️ ¿BORRAR PERMANENTEMENTE DE MYSQL? Esta acción no se puede deshacer.")) {
             const res = await fetch(`/admin/reservas-eliminar/${id}`, { method: 'DELETE' });
             if (res.ok) cargarReservas();
         }
@@ -299,7 +271,7 @@
         let tel = item.cliente_telefono.replace(/\D/g, '');
         if (tel.startsWith('0')) tel = tel.substring(1);
         if (!tel.startsWith('549')) tel = '549' + tel;
-        const msg = `Hola ${item.cliente_nombre}, tu producto "${item.descripcion}" ya está disponible para retirar.`;
+        const msg = `Hola ${item.cliente_nombre}, tu reserva "${item.descripcion}" ya está disponible para retirar.`;
         const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
         document.getElementById('modalQR').style.display = 'flex';
         setTimeout(() => { QRCode.toCanvas(document.getElementById('canvasQR'), url, { width: 240, margin: 2 }); }, 200);
