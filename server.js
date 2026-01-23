@@ -12,7 +12,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Configuración de Multer para subida temporal de archivos (CSV de precios)
+// Configuración de Multer para subida temporal de archivos
 const upload = multer({ dest: 'uploads/' });
 
 // 1. CONFIGURACIÓN DE RESEND
@@ -30,7 +30,7 @@ const db = mysql.createPool({
     connectionLimit: 10
 });
 
-// 3. FUNCIÓN AUXILIAR: Enviar Correo (Ahora busca info en tabla USUARIOS)
+// 3. FUNCIÓN AUXILIAR: Enviar Correo (Busca info en tabla USUARIOS)
 async function enviarAvisoEmail(reserva, tipo) {
     let asunto = "";
     let mensajeHtml = "";
@@ -40,7 +40,6 @@ async function enviarAvisoEmail(reserva, tipo) {
         if (!destinatario || destinatario === '---' || !destinatario.includes('@')) return;
     }
 
-    // Unificación: Buscamos dirección y horarios en la tabla USUARIOS filtrando por sucursal
     let infoSucursal = { horarios: "Consultar en local", direccion: "Dirección habitual", contacto_tel: "" };
     if (tipo === 'DISPONIBLE') {
         try {
@@ -50,7 +49,7 @@ async function enviarAvisoEmail(reserva, tipo) {
             );
             if (rows.length > 0) infoSucursal = rows[0];
         } catch (err) {
-            console.error("Error al obtener info de local desde tabla usuarios:", err);
+            console.error("Error al obtener info de local:", err);
         }
     }
 
@@ -69,7 +68,7 @@ async function enviarAvisoEmail(reserva, tipo) {
     } else if (tipo === 'SOPORTE') {
         destinatario = 'erco.efc@gmail.com'; 
         asunto = `🛠️ Soporte: ${reserva.tipo_ticket} - ${reserva.usuario}`;
-        mensajeHtml = `<h2>Nuevo Ticket</h2><p><strong>De:</strong> ${reserva.usuario}</p><p>${reserva.descripcion_ticket}</p>${footerHtml}`;
+        mensajeHtml = `<h2>Nuevo Ticket de Soporte</h2><p><strong>De:</strong> ${reserva.usuario}</p><p><strong>Mensaje:</strong> ${reserva.descripcion_ticket}</p>${footerHtml}`;
     }
 
     try {
@@ -82,29 +81,43 @@ async function enviarAvisoEmail(reserva, tipo) {
     } catch (error) { console.error("Error mail:", error); }
 }
 
-// --- RUTA: ACTUALIZACIÓN MASIVA DE PRECIOS ---
+// --- RUTA: ACTUALIZACIÓN MASIVA DE PRECIOS (CON LIMPIEZA DE DATOS) ---
 app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
     if (!req.file) return res.status(400).json({ success: false, message: 'Archivo no recibido.' });
 
     const resultados = [];
+    // Usamos un separador flexible para detectar comas o puntos y comas
     fs.createReadStream(req.file.path)
-        .pipe(csv())
-        .on('data', (data) => resultados.push(data))
+        .pipe(csv({ separator: undefined })) 
+        .on('data', (data) => {
+            // Limpieza de nombres de columnas y valores (quita espacios y caracteres raros)
+            const filaLimpia = {};
+            for (let key in data) {
+                const nuevaLlave = key.trim().replace(/^\uFEFF/, '').toLowerCase();
+                filaLimpia[nuevaLlave] = data[key].trim();
+            }
+            resultados.push(filaLimpia);
+        })
         .on('end', async () => {
             try {
                 let contador = 0;
                 for (const fila of resultados) {
-                    if (fila.codigo && fila.precio_unitario) {
-                        await db.promise().query(
+                    // Buscamos las columnas 'codigo' y 'precio_unitario' sin importar mayúsculas
+                    const codigo = fila.codigo || fila.cod || fila['código'];
+                    const precio = fila.precio_unitario || fila.precio || fila['precio unitario'];
+
+                    if (codigo && precio) {
+                        const [resUpdate] = await db.promise().query(
                             "UPDATE productos SET precio_unitario = ? WHERE codigo = ?",
-                            [fila.precio_unitario, fila.codigo]
+                            [precio.replace(',', '.'), codigo] // Cambia coma por punto para MySQL
                         );
-                        contador++;
+                        if (resUpdate.affectedRows > 0) contador++;
                     }
                 }
-                fs.unlinkSync(req.file.path); // Borrar temporal
+                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
                 res.json({ success: true, count: contador });
             } catch (err) {
+                console.error("Error DB Precios:", err);
                 res.status(500).json({ success: false, message: 'Error en base de datos' });
             }
         });
@@ -121,7 +134,7 @@ app.post('/admin/soporte', async (req, res) => {
     }
 });
 
-// --- RUTAS DE USUARIOS (TABLA UNIFICADA) ---
+// --- RUTAS DE USUARIOS ---
 app.get('/admin/usuarios', (req, res) => {
     db.query("SELECT * FROM usuarios ORDER BY sucursal ASC", (err, results) => {
         if (err) return res.status(500).send(err);
@@ -153,7 +166,7 @@ app.delete('/admin/usuarios/:id', (req, res) => {
     });
 });
 
-// --- RUTAS DE RESERVAS Y LOGIN (Iguales a las tuyas) ---
+// --- OTRAS RUTAS (LOGIN, RESERVAS, PRODUCTOS) ---
 app.get('/productos/:codigo', (req, res) => {
     db.query("SELECT descripcion, precio_unitario FROM productos WHERE codigo = ?", [req.params.codigo], (err, results) => {
         if (err || results.length === 0) return res.status(404).send('Error');
@@ -195,4 +208,4 @@ app.post('/login', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 One Box listo en puerto ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 One Box funcionando en ${PORT}`));
