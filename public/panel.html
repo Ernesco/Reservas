@@ -22,8 +22,7 @@
             <a href="lista.html" class="btn-menu">📋 Ver Lista de Reservas</a>
             <a href="procesos.html" class="btn-menu" style="background-color: #585b70;">📖 Manual de Procesos</a>
             <a href="actualizar.html" class="btn-menu btn-destacado" id="btnActualizar">📈 Actualizar Precios</a>
-            
-            </div>
+        </div>
     </div>
 
     <footer>
@@ -31,8 +30,8 @@
             <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
         </div>
             <img src="./img/Ob_Logo.png" alt="One Box Logo" class="footer-logo">
-            <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
-        <div class="footer-version">v1.3.0</div> 
+            <p>&copy; 2026 One Box. Todos los derechos reservados.</p>
+        <div class="footer-version">v1.3.5</div> 
     </footer>
 
     <div id="modalSoporte" class="modal-overlay">
@@ -67,17 +66,25 @@
 
     <script>
         // --- SEGURIDAD Y SESIÓN ---
-        if (!sessionStorage.getItem('usuario_nombre')) {
-            window.location.href = 'index.html';
-        }
-
         const nombre = sessionStorage.getItem('usuario_nombre');
         const sucursal = sessionStorage.getItem('usuario_sucursal');
         const rol = sessionStorage.getItem('usuario_rol'); 
 
-        if (nombre) {
-            document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2">${sucursal}</span>`;
+        if (!nombre) {
+            window.location.href = 'index.html';
         }
+
+        // --- LÓGICA DE VISIBILIDAD PARA ADMIN ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnActualizar = document.getElementById('btnActualizar');
+            if (rol !== 'admin' && btnActualizar) {
+                btnActualizar.remove(); // Elimina el botón si no es admin
+            }
+            
+            if (nombre) {
+                document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2">${sucursal}</span>`;
+            }
+        });
 
         // Botón Salir
         document.getElementById('btnSalir').addEventListener('click', (e) => {
@@ -106,15 +113,17 @@
         function abrirSoporte() { document.getElementById('modalSoporte').style.display = 'flex'; }
         function cerrarSoporte() { document.getElementById('modalSoporte').style.display = 'none'; }
 
+        // --- ENVÍO DE SOPORTE CORREGIDO ---
         document.getElementById('formSoporte').addEventListener('submit', async function(e) {
             e.preventDefault();
             const datos = {
                 tipo: document.getElementById('tipo_ticket').value,
-                descripcion: document.getElementById('desc_ticket').value,
+                mensaje: document.getElementById('desc_ticket').value,
                 usuario: sessionStorage.getItem('usuario_nombre') || 'Usuario Panel'
             };
             try {
-                const res = await fetch('/enviar-ticket', {
+                // Ruta corregida para coincidir con el server.js
+                const res = await fetch('/admin/soporte', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(datos)
@@ -127,7 +136,7 @@
                     mostrarAviso('❌ Error', 'No se pudo enviar el ticket.', true);
                 }
             } catch {
-                mostrarAviso('❌ Error', 'Falla de red.', true);
+                mostrarAviso('❌ Error', 'Falla de red con el servidor.', true);
             }
         });
     </script>
