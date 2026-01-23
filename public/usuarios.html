@@ -4,20 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
-    <title>One Box - Gestión de Usuarios</title>
+    <title>One Box - Gestión de Usuarios y Locales</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <div class="logo-texto">👥 Gestión de Personal</div>
+        <div class="logo-texto">👥 Gestión de Personal y Sucursales</div>
         <a href="panel.html" class="btn-header">🏠 VOLVER</a>
     </header>
 
     <main class="contenedor-lista">    
         <div class="encabezado-total" style="text-align: center; margin-bottom: 30px; margin-top: 20px;">
-            <h2 style="color: #ffffff; font-size: 26px; margin-bottom: 15px;">👥 Usuarios del Sistema</h2>
+            <h2 style="color: #ffffff; font-size: 26px; margin-bottom: 15px;">👥 Usuarios Registrados</h2>
             <button class="btn-azul" onclick="abrirModalUsuario()" style="width: auto; padding: 12px 30px; font-weight: bold;">
-                + NUEVO USUARIO
+                + NUEVO USUARIO / LOCAL
             </button>
         </div>
 
@@ -27,7 +27,7 @@
                     <tr>
                         <th style="padding: 15px; text-align: left; background-color: #313244; color: #ffffff;">Usuario</th>
                         <th style="padding: 15px; text-align: left; background-color: #313244; color: #ffffff;">Rol</th>
-                        <th style="padding: 15px; text-align: left; background-color: #313244; color: #ffffff;">Sucursal Asignada</th>
+                        <th style="padding: 15px; text-align: left; background-color: #313244; color: #ffffff;">Nombre del Local</th>
                         <th style="padding: 15px; text-align: center; background-color: #313244; color: #ffffff;">Acciones</th>
                     </tr>
                 </thead>
@@ -38,7 +38,7 @@
 
     <div id="modalUsuario" class="modal-overlay">
         <div class="modal-caja">
-            <h3 id="tituloModal" style="color: #89b4fa; text-align: center;">Datos del Usuario</h3>
+            <h3 id="tituloModal" style="color: #89b4fa; text-align: center;">Datos de Acceso</h3>
             <form id="formUsuario">
                 <input type="hidden" id="userId">
                 
@@ -55,11 +55,11 @@
                     <option value="admin">Administrador (Control Total)</option>
                 </select>
                 
-                <label style="color: #bac2de; display: block; margin-top: 10px;">Sucursal (Nombre del local):</label>
+                <label style="color: #bac2de; display: block; margin-top: 10px;">Nombre de Sucursal:</label>
                 <input type="text" id="userSucursal" required placeholder="Ej: Local Olleros" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
                 
                 <div class="modal-botones" style="margin-top: 25px; display: flex; justify-content: center; gap: 10px;">
-                    <button type="submit" class="btn-azul">GUARDAR USUARIO</button>
+                    <button type="submit" class="btn-azul">GUARDAR EN BASE DE DATOS</button>
                     <button type="button" onclick="cerrarModal()" class="btn-secundario">CANCELAR</button>
                 </div>
             </form>
@@ -71,6 +71,7 @@
 
         async function cargarDatos() {
             try {
+                // Obtenemos todo de la tabla usuarios
                 const resUser = await fetch('/admin/usuarios');
                 const usuarios = await resUser.json();
                 const tabla = document.getElementById('listaUsuarios');
@@ -85,17 +86,19 @@
                             <button class="btn-borrar" style="padding: 8px 12px; font-size: 11px; margin-left:5px; background: #f38ba8; border: none; color: white; border-radius: 4px; cursor: pointer;" onclick="eliminarU(${u.id})">BORRAR</button>
                         </td></tr>`;
                 });
-            } catch (err) { console.error("Error cargando usuarios:", err); }
+            } catch (err) { console.error("Error al leer MySQL:", err); }
         }
 
         function abrirModalUsuario() {
             document.getElementById('modalUsuario').style.display = 'flex';
             document.getElementById('formUsuario').reset();
             document.getElementById('userId').value = '';
+            document.getElementById('tituloModal').innerText = "Nuevo Registro Unificado";
         }
 
         function editarU(u) {
             abrirModalUsuario();
+            document.getElementById('tituloModal').innerText = "Editar Registro";
             document.getElementById('userId').value = u.id;
             document.getElementById('userName').value = u.usuario;
             document.getElementById('userRol').value = u.rol;
@@ -104,6 +107,7 @@
 
         function cerrarModal() { document.getElementById('modalUsuario').style.display = 'none'; }
 
+        // LÓGICA DE TABLA ÚNICA
         document.getElementById('formUsuario').onsubmit = async (e) => {
             e.preventDefault();
             const data = {
@@ -111,11 +115,15 @@
                 usuario: document.getElementById('userName').value.trim(),
                 password: document.getElementById('userPass').value,
                 rol: document.getElementById('userRol').value,
-                sucursal: document.getElementById('userSucursal').value.trim()
+                sucursal: document.getElementById('userSucursal').value.trim(),
+                // Al ser tabla única, enviamos valores vacíos para las nuevas columnas si es nuevo
+                direccion: "Pendiente configuración",
+                horarios: "Pendiente configuración",
+                contacto_tel: "Sin asignar"
             };
 
             try {
-                // UN SOLO INSERT/UPDATE en la tabla usuarios (que ahora tiene todas las columnas)
+                // Una sola petición, una sola tabla en MySQL
                 const res = await fetch('/admin/usuarios', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -125,16 +133,18 @@
                 if(res.ok){
                     cerrarModal();
                     await cargarDatos();
-                    alert("✅ Usuario guardado correctamente en la tabla unificada.");
+                    alert("✅ Guardado exitoso en la tabla usuarios.");
                 } else {
                     const errorMsg = await res.json().catch(() => ({}));
-                    alert("❌ Error: " + (errorMsg.message || "No se pudo guardar."));
+                    alert("❌ Error: " + (errorMsg.message || "El usuario ya existe."));
                 }
-            } catch (err) { alert("❌ Error de conexión."); }
+            } catch (err) { 
+                alert("❌ Error de conexión con el servidor administrativo.");
+            }
         };
 
         async function eliminarU(id) {
-            if(confirm("¿Eliminar usuario?")) {
+            if(confirm("¿Eliminar este registro completo?")) {
                 const res = await fetch(`/admin/usuarios/${id}`, { method: 'DELETE' });
                 if(res.ok) await cargarDatos();
             }
