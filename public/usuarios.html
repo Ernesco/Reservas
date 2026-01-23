@@ -31,8 +31,7 @@
                         <th style="padding: 15px; text-align: center; background-color: #313244; color: #ffffff;">Acciones</th>
                     </tr>
                 </thead>
-                <tbody id="listaUsuarios">
-                </tbody>
+                <tbody id="listaUsuarios"></tbody>
             </table>
         </div>
     </main>
@@ -42,23 +41,18 @@
             <h3 id="tituloModal" style="color: #89b4fa; text-align: center;">Datos del Usuario</h3>
             <form id="formUsuario">
                 <input type="hidden" id="userId">
-                
                 <label style="color: #bac2de; display: block; margin-top: 10px;">Nombre de Usuario (Login):</label>
                 <input type="text" id="userName" required style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
-                
                 <label style="color: #bac2de; display: block; margin-top: 10px;">Contraseña:</label>
                 <input type="password" id="userPass" placeholder="Nueva o actual..." style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
-                
                 <label style="color: #bac2de; display: block; margin-top: 10px;">Rol del Sistema:</label>
                 <select id="userRol" required style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
                     <option value="local">Local (Operador)</option>
                     <option value="encargado">Encargado (Ver todo su local)</option>
                     <option value="admin">Administrador (Control Total)</option>
                 </select>
-                
                 <label style="color: #bac2de; display: block; margin-top: 10px;">Sucursal (Nombre del local):</label>
                 <input type="text" id="userSucursal" required placeholder="Ej: Local Olleros" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
-                
                 <div class="modal-botones" style="margin-top: 25px; display: flex; justify-content: center; gap: 10px;">
                     <button type="submit" class="btn-azul">GUARDAR USUARIO</button>
                     <button type="button" onclick="cerrarModal()" class="btn-secundario">CANCELAR</button>
@@ -76,22 +70,17 @@
                 const usuarios = await resUser.json();
                 const tabla = document.getElementById('listaUsuarios');
                 tabla.innerHTML = '';
-                
                 usuarios.forEach(u => {
-                    tabla.innerHTML += `
-                        <tr style="border-bottom: 1px solid #313244;">
-                            <td style="padding: 15px; color: #ffffff;"><strong>${u.usuario}</strong></td>
-                            <td style="padding: 15px;"><span class="badge" style="background:#45475a; padding: 4px 8px; border-radius: 4px; font-size: 10px;">${u.rol.toUpperCase()}</span></td>
-                            <td style="padding: 15px; color: #cdd6f4;">${u.sucursal}</td>
-                            <td style="text-align: center; padding: 15px;">
-                                <button class="btn-azul" style="padding: 8px 12px; font-size: 11px;" onclick='editarU(${JSON.stringify(u)})'>EDITAR</button>
-                                <button class="btn-borrar" style="padding: 8px 12px; font-size: 11px; margin-left:5px; background: #f38ba8; border: none; color: white; border-radius: 4px; cursor: pointer;" onclick="eliminarU(${u.id})">BORRAR</button>
-                            </td>
-                        </tr>`;
+                    tabla.innerHTML += `<tr style="border-bottom: 1px solid #313244;">
+                        <td style="padding: 15px; color: #ffffff;"><strong>${u.usuario}</strong></td>
+                        <td style="padding: 15px;"><span class="badge" style="background:#45475a; padding: 4px 8px; border-radius: 4px; font-size: 10px;">${u.rol.toUpperCase()}</span></td>
+                        <td style="padding: 15px; color: #cdd6f4;">${u.sucursal}</td>
+                        <td style="text-align: center; padding: 15px;">
+                            <button class="btn-azul" style="padding: 8px 12px; font-size: 11px;" onclick='editarU(${JSON.stringify(u)})'>EDITAR</button>
+                            <button class="btn-borrar" style="padding: 8px 12px; font-size: 11px; margin-left:5px; background: #f38ba8; border: none; color: white; border-radius: 4px; cursor: pointer;" onclick="eliminarU(${u.id})">BORRAR</button>
+                        </td></tr>`;
                 });
-            } catch (err) {
-                console.error("Error cargando usuarios:", err);
-            }
+            } catch (err) { console.error("Error cargando usuarios:", err); }
         }
 
         function abrirModalUsuario() {
@@ -110,13 +99,10 @@
             document.getElementById('userSucursal').value = u.sucursal;
         }
 
-        function cerrarModal() { 
-            document.getElementById('modalUsuario').style.display = 'none'; 
-        }
+        function cerrarModal() { document.getElementById('modalUsuario').style.display = 'none'; }
 
         document.getElementById('formUsuario').onsubmit = async (e) => {
             e.preventDefault();
-            
             const nombreSucursal = document.getElementById('userSucursal').value.trim();
             const dataUsuario = {
                 id: document.getElementById('userId').value,
@@ -127,19 +113,21 @@
             };
 
             try {
-                // PASO 1: Intentar crear la sucursal primero para que el servidor la reconozca
-                await fetch('/admin/sucursales', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        nombre: nombreSucursal,
-                        direccion: "Pendiente configuración", 
-                        horarios: "Pendiente configuración",
-                        contacto: "Sin asignar"
-                    })
-                });
+                // PASO 1: Silencioso. Si falla (ya existe), sigue adelante.
+                try {
+                    await fetch('/admin/sucursales', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            nombre: nombreSucursal,
+                            direccion: "Pendiente configuración", 
+                            horarios: "Pendiente configuración",
+                            contacto: "Sin asignar"
+                        })
+                    });
+                } catch (err) { console.log("Sucursal existente."); }
 
-                // PASO 2: Ahora crear el usuario vinculado a esa sucursal
+                // PASO 2: Creación de credenciales.
                 const res = await fetch('/admin/usuarios', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -149,28 +137,20 @@
                 if(res.ok){
                     cerrarModal();
                     await cargarDatos();
-                    alert("✅ Usuario registrado. Recuerda configurar los datos de '" + nombreSucursal + "' en la sección de Locales.");
+                    alert("✅ Usuario '" + dataUsuario.usuario + "' guardado.");
                 } else {
                     const errorMsg = await res.json().catch(() => ({}));
-                    alert("Error al guardar: " + (errorMsg.message || "Verifique si el nombre de usuario ya existe."));
+                    alert("❌ Error: " + (errorMsg.message || "Usuario ya existe."));
                 }
-            } catch (err) {
-                console.error("Error en el proceso:", err);
-                alert("Error de conexión con el servidor.");
-            }
+            } catch (err) { alert("Error de conexión."); }
         };
 
         async function eliminarU(id) {
-            if(confirm("¿Eliminar este usuario? No podrá volver a ingresar.")) {
-                try {
-                    const res = await fetch(`/admin/usuarios/${id}`, { method: 'DELETE' });
-                    if(res.ok) await cargarDatos();
-                } catch (err) {
-                    console.error("Error eliminando:", err);
-                }
+            if(confirm("¿Eliminar usuario?")) {
+                const res = await fetch(`/admin/usuarios/${id}`, { method: 'DELETE' });
+                if(res.ok) await cargarDatos();
             }
         }
-
         cargarDatos();
     </script>
 </body>
