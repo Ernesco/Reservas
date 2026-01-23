@@ -100,12 +100,14 @@
             mostrarAviso('⏳ Procesando', 'Actualizando precios masivamente...', false);
 
             try {
-                // CORRECCIÓN: Se agrega /admin/ para coincidir con la ruta del servidor
+                // Se utiliza la ruta administrativa para evitar errores de conexión
                 const response = await fetch('/admin/actualizar-precios', {
                     method: 'POST',
                     body: formData
                 });
                 
+                if (!response.ok) throw new Error('Fallo en la comunicación');
+
                 const data = await response.json();
 
                 if (data.success) {
@@ -118,7 +120,8 @@
                 }
             } catch (error) {
                 console.error("Falla de red:", error);
-                mostrarAviso('❌ Error de Conexión', 'No se pudo contactar con el servidor. Revisá tu conexión o si Render terminó el Deploy.', true);
+                // Captura del error de conexión visualizado anteriormente
+                mostrarAviso('❌ Error de Conexión', 'No se pudo contactar con el servidor. Revisá si Render terminó el Deploy.', true);
             }
         };
     </script>
