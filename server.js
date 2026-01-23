@@ -63,7 +63,7 @@ async function enviarAvisoEmail(reserva, tipo) {
     if (tipo === 'CONFIRMACION') {
         asunto = `Confirmación de Reserva #${reserva.id} - En Tránsito`;
         mensajeHtml = `<h2>¡Hola ${reserva.cliente_nombre}!</h2>
-                        <p>Tu reserva ah sido registrada correctamente y ya está en camino.</p>
+                        <p>Tu reserva ha sido registrada correctamente y ya está en camino.</p>
                         <p><strong>Producto: </strong> ${reserva.descripcion}</p>
                         <p>Te avisaremos por este medio y por whatsapp cuando llegue y lo puedas pasar a retirar.</p>
                         ${footerHtml}`;
@@ -72,9 +72,9 @@ async function enviarAvisoEmail(reserva, tipo) {
         mensajeHtml = `<div style="font-family: sans-serif; border: 1px solid #a6e3a1; padding: 20px;">
             <h2>¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
             <p>Tu reserva: <strong>${reserva.descripcion}</strong> ya se encuentra disponible en la sucursal <strong>${reserva.sucursal_nombre}</strong>.</p>
-            <p>Te esperamos!</p>
             <p>📍 Dirección: ${infoSucursal.direccion}<br>⏰ Horarios: ${infoSucursal.horarios}</p>
             ${infoSucursal.contacto_tel ? `<p>📞 Teléfono: ${infoSucursal.contacto_tel}</p>` : ''}
+            <p>¡Te esperamos!</p>
             </div>${footerHtml}`;
     } else if (tipo === 'SOPORTE') {
         destinatario = 'erco.efc@gmail.com'; 
@@ -92,7 +92,7 @@ async function enviarAvisoEmail(reserva, tipo) {
     } catch (error) { console.error("Error mail:", error); }
 }
 
-// --- RUTA: CAMBIO DE ESTADO DE RESERVA (RESTAURADO Y CORREGIDO) ---
+// --- RUTA: CAMBIO DE ESTADO DE RESERVA ---
 app.put('/reservas/:id/estado', (req, res) => {
     const id = req.params.id;
     const { estado, borrado, responsable } = req.body;
@@ -120,7 +120,6 @@ app.put('/reservas/:id/estado', (req, res) => {
         db.query(sqlUpdate, valores, (err) => {
             if (err) return res.status(500).send('Error');
             
-            // Si el estado es 'Pendiente de Retiro', enviamos el email buscando info en tabla usuarios
             if (estado === 'Pendiente de Retiro') {
                 db.query("SELECT * FROM reservas WHERE id = ?", [id], (err, results) => {
                     if (!err && results.length > 0) {
@@ -135,8 +134,21 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
-// --- RUTA: ACTUALIZACIÓN MASIVA DE PRECIOS ---
+// --- RUTA: BORRADO DEFINITIVO ---
+app.delete('/admin/reservas-eliminar/:id', (req, res) => {
+    db.query("DELETE FROM reservas WHERE id = ?", [req.params.id], (err) => {
+        if (err) return res.status(500).send('Error');
+        res.send('OK');
+    });
+});
+
+// --- RUTA: ACTUALIZACIÓN MASIVA DE PRECIOS (CON SEGURIDAD ADMIN) ---
 app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
+    const rolUsuario = req.headers['user-role'];
+    if (rolUsuario !== 'admin') {
+        return res.status(403).json({ success: false, message: 'Acceso denegado.' });
+    }
+
     if (!req.file) return res.status(400).json({ success: false, message: 'Archivo no recibido.' });
 
     const resultados = [];
@@ -184,7 +196,7 @@ app.post('/admin/soporte', async (req, res) => {
     }
 });
 
-// --- RUTAS DE USUARIOS (MANTENIDAS PARA CARGA MANUAL O EDICIÓN) ---
+// --- RUTAS DE USUARIOS ---
 app.get('/admin/usuarios', (req, res) => {
     db.query("SELECT * FROM usuarios ORDER BY sucursal ASC", (err, results) => {
         if (err) return res.status(500).send(err);
@@ -192,7 +204,7 @@ app.get('/admin/usuarios', (req, res) => {
     });
 });
 
-// ... El resto de tus rutas (Login, Reservar, etc.) se mantienen igual ...
+// --- LOGIN, RESERVAS Y PRODUCTOS ---
 app.get('/productos/:codigo', (req, res) => {
     db.query("SELECT descripcion, precio_unitario FROM productos WHERE codigo = ?", [req.params.codigo], (err, results) => {
         if (err || results.length === 0) return res.status(404).send('Error');
