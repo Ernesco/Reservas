@@ -15,7 +15,7 @@
 
     <main class="contenedor-lista">    
         <div class="encabezado-total" style="text-align: center; margin-bottom: 30px; margin-top: 20px;">
-            <h2 style="color: #ffffff; font-size: 26px; margin-bottom: 15px;">👥 Usuarios del Sistema</h2>
+            <h2 style="color: #ffffff; font-size: 24px; margin-bottom: 15px;">👥 Usuarios del Sistema</h2>
             <button class="btn-azul" onclick="abrirModalUsuario()" style="width: auto; padding: 12px 30px; font-weight: bold;">
                 + NUEVO USUARIO
             </button>
@@ -55,8 +55,8 @@
                     <option value="admin">Administrador (Control Total)</option>
                 </select>
                 
-                <label style="color: #bac2de; display: block; margin-top: 10px;">Sucursal (Nombre exacto en MySQL):</label>
-                <input type="text" id="userSucursal" required placeholder="Ej: Local Lomas" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
+                <label style="color: #bac2de; display: block; margin-top: 10px;">Sucursal (Nombre del local):</label>
+                <input type="text" id="userSucursal" required placeholder="Ej: Local Olleros" style="width: 100%; padding: 10px; margin-top: 5px; background: #313244; color: white; border: 1px solid #45475a; border-radius: 6px;">
                 
                 <div class="modal-botones" style="margin-top: 25px; display: flex; justify-content: center; gap: 10px;">
                     <button type="submit" class="btn-azul">GUARDAR USUARIO</button>
@@ -67,6 +67,7 @@
     </div>
 
     <script>
+        // Bloqueo de seguridad
         if (sessionStorage.getItem('usuario_rol') !== 'admin') window.location.href = 'panel.html';
 
         async function cargarDatos() {
@@ -92,10 +93,12 @@
             document.getElementById('modalUsuario').style.display = 'flex';
             document.getElementById('formUsuario').reset();
             document.getElementById('userId').value = '';
+            document.getElementById('tituloModal').innerText = "Nuevo Usuario";
         }
 
         function editarU(u) {
             abrirModalUsuario();
+            document.getElementById('tituloModal').innerText = "Editar Usuario";
             document.getElementById('userId').value = u.id;
             document.getElementById('userName').value = u.usuario;
             document.getElementById('userRol').value = u.rol;
@@ -104,18 +107,39 @@
 
         function cerrarModal() { document.getElementById('modalUsuario').style.display = 'none'; }
 
-        // FLUJO DIRECTO A MYSQL
+        // LÓGICA DE GUARDADO CORREGIDA
         document.getElementById('formUsuario').onsubmit = async (e) => {
             e.preventDefault();
+            
+            const nombreUsuario = document.getElementById('userName').value.trim();
+            const nombreSucursal = document.getElementById('userSucursal').value.trim();
+            
             const dataUsuario = {
                 id: document.getElementById('userId').value,
-                usuario: document.getElementById('userName').value.trim(),
+                usuario: nombreUsuario,
                 password: document.getElementById('userPass').value,
                 rol: document.getElementById('userRol').value,
-                sucursal: document.getElementById('userSucursal').value.trim() 
+                sucursal: nombreSucursal 
             };
 
             try {
+                // PASO 1: Asegurar la sucursal (Silencioso)
+                try {
+                    await fetch('/admin/sucursales', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            nombre: nombreSucursal,
+                            direccion: "Pendiente configuración", 
+                            horarios: "Pendiente configuración",
+                            contacto: "Sin asignar"
+                        })
+                    });
+                } catch (errSuc) {
+                    console.log("Sucursal ya existente, procediendo con el usuario...");
+                }
+
+                // PASO 2: Crear el usuario en MySQL
                 const res = await fetch('/admin/usuarios', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
@@ -125,22 +149,25 @@
                 if(res.ok){
                     cerrarModal();
                     await cargarDatos();
-                    alert("✅ Usuario '" + dataUsuario.usuario + "' guardado en MySQL.");
+                    alert("✅ ÉXITO: Usuario '" + nombreUsuario + "' guardado correctamente.");
                 } else {
                     const errorMsg = await res.json().catch(() => ({}));
-                    alert("❌ Error: " + (errorMsg.message || "La sucursal debe existir previamente o el usuario ya existe."));
+                    alert("❌ Error: " + (errorMsg.message || "Verifique si el nombre ya existe."));
                 }
             } catch (err) { 
-                alert("❌ Error de conexión con el servidor administrativo.");
+                alert("❌ Error de conexión con el servidor.");
             }
         };
 
         async function eliminarU(id) {
             if(confirm("¿Eliminar usuario?")) {
-                const res = await fetch(`/admin/usuarios/${id}`, { method: 'DELETE' });
-                if(res.ok) await cargarDatos();
+                try {
+                    const res = await fetch(`/admin/usuarios/${id}`, { method: 'DELETE' });
+                    if(res.ok) await cargarDatos();
+                } catch (err) { console.error("Error eliminando:", err); }
             }
         }
+
         cargarDatos();
     </script>
 </body>
