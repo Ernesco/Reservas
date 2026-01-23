@@ -55,16 +55,24 @@ async function enviarAvisoEmail(reserva, tipo) {
         }
     }
 
-    const footerHtml = `<br><hr><footer style="color: #666; font-family: sans-serif;"><p>One Box - Gestión de Reservas</p></footer>`;
+    const footerHtml = `<br><hr><footer style="color: #666; font-family: sans-serif;">
+                        <p><strong>Gestión de Reservas Mo</strong></p>
+                        <p>Este es un mensaje automatico, enviado por el sistema Onebox</p>
+                        </footer>`;
 
     if (tipo === 'CONFIRMACION') {
         asunto = `Confirmación de Reserva #${reserva.id} - En Tránsito`;
-        mensajeHtml = `<h2>¡Hola ${reserva.cliente_nombre}!</h2><p>Tu reserva de ${reserva.descripcion} está en camino.</p>${footerHtml}`;
+        mensajeHtml = `<h2>¡Hola ${reserva.cliente_nombre}!</h2>
+                        <p>Tu reserva ah sido registrada correctamente y ya está en camino.</p>
+                        <p><strong>Producto: </strong> ${reserva.descripcion}</p>
+                        <p>Te avisaremos por este medio y por whatsapp cuando llegue y lo puedas pasar a retirar.</p>
+                        ${footerHtml}`;
     } else if (tipo === 'DISPONIBLE') {
         asunto = `¡Tu pedido ya llegó! Reserva #${reserva.id}`;
         mensajeHtml = `<div style="font-family: sans-serif; border: 1px solid #a6e3a1; padding: 20px;">
             <h2>¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
-            <p>Retirá tu <strong>${reserva.descripcion}</strong> en <strong>${reserva.sucursal_nombre}</strong>.</p>
+            <p>Tu reserva: <strong>${reserva.descripcion}</strong> ya se encuentra disponible en la sucursal <strong>${reserva.sucursal_nombre}</strong>.</p>
+            <p>Te esperamos!</p>
             <p>📍 Dirección: ${infoSucursal.direccion}<br>⏰ Horarios: ${infoSucursal.horarios}</p>
             ${infoSucursal.contacto_tel ? `<p>📞 Teléfono: ${infoSucursal.contacto_tel}</p>` : ''}
             </div>${footerHtml}`;
