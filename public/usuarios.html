@@ -15,7 +15,7 @@
 
     <main class="contenedor-lista">    
         <div class="encabezado-total" style="text-align: center; margin-bottom: 30px; margin-top: 20px;">
-            <h2 style="color: #ffffff; font-size: 24px; margin-bottom: 15px;">👥 Usuarios del Sistema</h2>
+            <h2 style="color: #ffffff; font-size: 26px; margin-bottom: 15px;">👥 Usuarios del Sistema</h2>
             <button class="btn-azul" onclick="abrirModalUsuario()" style="width: auto; padding: 12px 30px; font-weight: bold;">
                 + NUEVO USUARIO
             </button>
@@ -67,7 +67,6 @@
     </div>
 
     <script>
-        // Bloqueo de seguridad
         if (sessionStorage.getItem('usuario_rol') !== 'admin') window.location.href = 'panel.html';
 
         async function cargarDatos() {
@@ -93,12 +92,10 @@
             document.getElementById('modalUsuario').style.display = 'flex';
             document.getElementById('formUsuario').reset();
             document.getElementById('userId').value = '';
-            document.getElementById('tituloModal').innerText = "Nuevo Usuario";
         }
 
         function editarU(u) {
             abrirModalUsuario();
-            document.getElementById('tituloModal').innerText = "Editar Usuario";
             document.getElementById('userId').value = u.id;
             document.getElementById('userName').value = u.usuario;
             document.getElementById('userRol').value = u.rol;
@@ -107,7 +104,7 @@
 
         function cerrarModal() { document.getElementById('modalUsuario').style.display = 'none'; }
 
-        // LÓGICA DE GUARDADO CORREGIDA
+        // LÓGICA DE DOBLE INSERCIÓN (PARALELO)
         document.getElementById('formUsuario').onsubmit = async (e) => {
             e.preventDefault();
             
@@ -122,52 +119,48 @@
                 sucursal: nombreSucursal 
             };
 
+            const dataSucursal = {
+                nombre: nombreSucursal,
+                direccion: "Pendiente configuración", 
+                horarios: "Pendiente configuración",
+                contacto: "Sin asignar"
+            };
+
             try {
-                // PASO 1: Asegurar la sucursal (Silencioso)
-                try {
-                    await fetch('/admin/sucursales', {
+                // Disparamos ambos INSERT INTO al mismo tiempo
+                const [resSuc, resUser] = await Promise.all([
+                    fetch('/admin/sucursales', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            nombre: nombreSucursal,
-                            direccion: "Pendiente configuración", 
-                            horarios: "Pendiente configuración",
-                            contacto: "Sin asignar"
-                        })
-                    });
-                } catch (errSuc) {
-                    console.log("Sucursal ya existente, procediendo con el usuario...");
-                }
+                        body: JSON.stringify(dataSucursal)
+                    }).catch(() => ({ ok: true })), // Ignora error si el local ya existe
+                    
+                    fetch('/admin/usuarios', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(dataUsuario)
+                    })
+                ]);
 
-                // PASO 2: Crear el usuario en MySQL
-                const res = await fetch('/admin/usuarios', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(dataUsuario)
-                });
-
-                if(res.ok){
+                if(resUser.ok){
                     cerrarModal();
                     await cargarDatos();
-                    alert("✅ ÉXITO: Usuario '" + nombreUsuario + "' guardado correctamente.");
+                    alert("✅ ÉXITO: Usuario '" + nombreUsuario + "' guardado correctamente en MySQL.");
                 } else {
-                    const errorMsg = await res.json().catch(() => ({}));
-                    alert("❌ Error: " + (errorMsg.message || "Verifique si el nombre ya existe."));
+                    const errorMsg = await resUser.json().catch(() => ({}));
+                    alert("❌ Error en Tabla Usuarios: " + (errorMsg.message || "El nombre ya existe o la sucursal no es válida."));
                 }
             } catch (err) { 
-                alert("❌ Error de conexión con el servidor.");
+                alert("❌ Error de conexión crítica con el servidor.");
             }
         };
 
         async function eliminarU(id) {
             if(confirm("¿Eliminar usuario?")) {
-                try {
-                    const res = await fetch(`/admin/usuarios/${id}`, { method: 'DELETE' });
-                    if(res.ok) await cargarDatos();
-                } catch (err) { console.error("Error eliminando:", err); }
+                const res = await fetch(`/admin/usuarios/${id}`, { method: 'DELETE' });
+                if(res.ok) await cargarDatos();
             }
         }
-
         cargarDatos();
     </script>
 </body>
