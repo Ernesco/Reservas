@@ -7,6 +7,18 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <link rel="stylesheet" href="style.css">
     <title>One Box - Gestión de Reservas</title>
+    <style>
+        .select-restaurar {
+            background: #313244;
+            color: white;
+            border: 1px solid #45475a;
+            padding: 5px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
 
@@ -143,7 +155,6 @@
         const rol = sessionStorage.getItem('usuario_rol');
         let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th><th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
         
-        // CORRECCIÓN DE TÍTULOS: ORIGEN es a donde se pide el artículo.
         if (estadoActualFiltrado === 'En Tránsito') columnas += `<th>Origen</th><th>Operador</th>`;
         else if (estadoActualFiltrado === 'Pendiente de Retiro') columnas += `<th>Ingreso Local</th>`;
         else if (estadoActualFiltrado === 'Finalizado') columnas += `<th>Cierre</th>`;
@@ -202,8 +213,17 @@
         let botones = "";
         
         if (item.borrado === 1) {
-            if (rol === 'admin') {
-                return `<button class="btn-borrar" onclick="confirmarEliminarDefinitivo(${item.id})">ELIMINAR DB</button>`;
+            if (rol === 'admin' || rol === 'encargado') {
+                botones += `
+                    <select onchange="restaurarReserva(${item.id}, this.value)" class="select-restaurar">
+                        <option value="">Restaurar a...</option>
+                        <option value="En Tránsito">En Tránsito</option>
+                        <option value="Pendiente de Retiro">Pendiente de Retiro</option>
+                    </select>`;
+                if (rol === 'admin') {
+                    botones += `<button class="btn-borrar" onclick="confirmarEliminarDefinitivo(${item.id})">ELIMINAR DB</button>`;
+                }
+                return botones;
             }
             return "";
         }
@@ -225,7 +245,28 @@
         return botones;
     }
 
-    // CORRECCIÓN: Esta función ahora vincula correctamente el ID al botón del modal
+    function restaurarReserva(id, nuevoEstado) {
+        if (!nuevoEstado) return;
+        const btnAceptar = document.getElementById('modalAceptar');
+        btnAceptar.onclick = async function() {
+            const res = await fetch(`/reservas/${id}/estado`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    estado: nuevoEstado, 
+                    borrado: 0,
+                    responsable: sessionStorage.getItem('usuario_nombre') 
+                })
+            });
+            if(res.ok) {
+                cerrarModalFirma();
+                cargarReservas();
+                mostrarAviso('✅ Recuperada', 'Reserva restaurada con éxito.', false);
+            }
+        };
+        abrirModalFirma(`¿Recuperar reserva y pasar a estado "${nuevoEstado}"?`, false, null);
+    }
+
     function abrirModalBorradoLógico(id) {
         const btnAceptar = document.getElementById('modalAceptar');
         btnAceptar.onclick = async function() {
@@ -240,7 +281,7 @@
     }
 
     async function confirmarEliminarDefinitivo(id) {
-        if (confirm("⚠️ ¿BORRAR PERMANENTEMENTE DE MYSQL?")) {
+        if (confirm("⚠️ ¿BORRAR PERMANENTEMENTE DE MYSQL? Esta acción no se puede deshacer.")) {
             const res = await fetch(`/admin/reservas-eliminar/${id}`, { method: 'DELETE' });
             if (res.ok) cargarReservas();
         }
@@ -271,11 +312,9 @@
         document.getElementById('mensajeFirma').textContent = pregunta;
         document.getElementById('contenedorInputFirma').style.display = requiereInput ? 'block' : 'none';
         document.getElementById('modalFirma').style.display = 'flex';
-        // Si se pasa una acción directa se asigna, sino se maneja en las funciones padre
         if(accionOpcional) document.getElementById('modalAceptar').onclick = accionOpcional;
     }
 
-    // ... (resto de funciones editar, mostrarQR, DOMContentLoaded) ...
     function abrirModalEditar(item) {
         document.getElementById('editId').value = item.id;
         document.getElementById('editNombre').value = item.cliente_nombre;
