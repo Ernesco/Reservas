@@ -6,60 +6,75 @@
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
     <link rel="stylesheet" href="style.css">
     <title>One Box - Nueva Reserva</title>
-<style>
-    /* Tabla de resumen mejorada */
-    .tabla-resumen { 
-        width: 100%; 
-        border-collapse: separate; 
-        border-spacing: 0 8px; /* Espacio entre filas */
-        margin-top: 15px; 
-    }
-    .tabla-resumen th { 
-        color: #89b4fa; 
-        padding: 10px; 
-        text-align: left; 
-        font-size: 0.8em; 
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        border-bottom: 1px solid #45475a;
-    }
-    .tabla-resumen td { 
-        padding: 12px 10px; 
-        background: #313244; /* Color de fondo de la fila */
-        color: #cdd6f4; 
-        font-size: 0.9em;
-    }
-    /* Redondear esquinas de las filas */
-    .tabla-resumen td:first-child { border-radius: 8px 0 0 8px; }
-    .tabla-resumen td:last-child { border-radius: 0 8px 8px 0; text-align: right; }
+    <style>
+        /* --- MEJORAS VISUALES PARA LA TABLA DE ITEMS --- */
+        #contenedorResumen {
+            background: #1e1e2e;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            border: 1px solid #45475a;
+        }
+        .tabla-resumen { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0 8px; 
+            margin-top: 10px; 
+        }
+        .tabla-resumen th { 
+            color: #89b4fa; 
+            padding: 10px; 
+            text-align: left; 
+            font-size: 0.75em; 
+            text-transform: uppercase;
+            border-bottom: 1px solid #45475a;
+        }
+        .tabla-resumen td { 
+            padding: 12px 10px; 
+            background: #313244; 
+            color: #cdd6f4; 
+            font-size: 0.9em;
+        }
+        /* Redondear filas */
+        .tabla-resumen td:first-child { border-radius: 8px 0 0 8px; }
+        .tabla-resumen td:last-child { border-radius: 0 8px 8px 0; text-align: right; }
 
-    .btn-eliminar-item { 
-        background: #f38ba8; 
-        color: #1e1e2e; 
-        border: none; 
-        width: 24px;
-        height: 24px;
-        border-radius: 50%; 
-        cursor: pointer; 
-        font-weight: bold;
-        transition: 0.3s;
-    }
-    .btn-eliminar-item:hover { transform: scale(1.1); background: #eba0ac; }
+        .btn-eliminar-item { 
+            background: #f38ba8; 
+            color: #1e1e2e; 
+            border: none; 
+            width: 26px;
+            height: 26px;
+            border-radius: 50%; 
+            cursor: pointer; 
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .btn-eliminar-item:hover { transform: scale(1.1); background: #eba0ac; }
 
-    .btn-agregar-item { 
-        background: transparent; 
-        color: #89b4fa; 
-        border: 2px solid #89b4fa; 
-        padding: 10px; 
-        border-radius: 8px; 
-        cursor: pointer; 
-        font-weight: bold; 
-        width: 100%; 
-        margin-top: 15px; 
-        transition: 0.3s; 
-    }
-    .btn-agregar-item:hover { background: #89b4fa; color: #1e1e2e; }
-</style>
+        .btn-agregar-item { 
+            background: transparent; 
+            color: #89b4fa; 
+            border: 2px solid #89b4fa; 
+            padding: 12px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            margin-top: 15px; 
+            transition: 0.3s; 
+        }
+        .btn-agregar-item:hover { background: #89b4fa; color: #1e1e2e; }
+
+        .total-display-container {
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-top: 15px; 
+            padding-top: 10px;
+            border-top: 1px solid #45475a;
+        }
+    </style>
 </head>
 <body>
 
@@ -89,12 +104,12 @@
             <input type="text" id="prod_codigo" placeholder="Ingrese código y presione TAB">
             
             <label>Descripción</label>
-            <input type="text" id="prod_descripcion" readonly style="background-color: #f8f9fa; color: #666;" placeholder="Autocompletado">
+            <input type="text" id="prod_descripcion" readonly style="background-color: #313244; color: #cdd6f4; border: 1px solid #45475a;" placeholder="Autocompletado">
 
             <div style="display: flex; gap: 10px;">
                 <div style="flex: 1;">
                     <label>Precio Unitario</label>
-                    <input type="number" id="precio_unitario" readonly style="background-color: #f8f9fa; color: #666;">
+                    <input type="number" id="precio_unitario" readonly style="background-color: #313244; color: #cdd6f4; border: 1px solid #45475a;">
                 </div>
                 <div style="flex: 1;">
                     <label>Cantidad <span class="requerido">*</span></label>
@@ -105,22 +120,25 @@
             <button type="button" class="btn-agregar-item" onclick="agregarArticulo()">➕ AGREGAR AL PEDIDO</button>
 
             <div id="contenedorResumen" style="display: none;">
-                <h4 style="color: #cad3f5; margin-top: 20px;">Items en esta reserva:</h4>
+                <h4 style="color: #cdd6f4; margin-bottom: 5px; font-size: 0.9em;">📦 Items en esta reserva:</h4>
                 <table class="tabla-resumen">
                     <thead>
                         <tr>
-                            <th>Cant.</th>
-                            <th>Descripción</th>
-                            <th>Subtotal</th>
-                            <th></th>
+                            <th style="width: 10%;">Cant.</th>
+                            <th style="width: 60%;">Descripción</th>
+                            <th style="width: 25%;">Subtotal</th>
+                            <th style="width: 5%;"></th>
                         </tr>
                     </thead>
                     <tbody id="cuerpoResumen"></tbody>
                 </table>
-            </div>
 
-            <label style="font-weight: bold; color: #2ecc71; margin-top: 15px; display: block;">TOTAL DE LA RESERVA</label>
-            <input type="text" id="total_reserva" readonly value="0.00" style="background-color: #d4edda; color: #155724; font-weight: bold; font-size: 1.1em;">
+                <div class="total-display-container">
+                    <span style="color: #a6e3a1; font-weight: bold; letter-spacing: 1px;">TOTAL RESERVA:</span>
+                    <input type="text" id="total_reserva" readonly value="0.00" 
+                           style="background: transparent; border: none; color: #a6e3a1; font-weight: bold; font-size: 1.5em; text-align: right; width: 180px;">
+                </div>
+            </div>
         </fieldset>
 
         <fieldset>
@@ -135,7 +153,7 @@
         <fieldset>
             <legend>📝 Operador</legend>
             <label>Local que gestiona (Tu Local)</label>
-            <input type="text" id="local_origen" readonly style="background-color: #f8f9fa; color: #666;">
+            <input type="text" id="local_origen" readonly style="background-color: #313244; color: #cdd6f4; border: 1px solid #45475a;">
 
             <label for="nombre_operador">Nombre <span class="requerido">*</span></label>
             <input type="text" id="nombre_operador" placeholder="Escriba su nombre" required>
@@ -146,26 +164,6 @@
 
         <button type="submit" class="btn-azul">💾 GUARDAR RESERVA FINAL</button>
     </form>
-
-    <div id="modalSoporte" class="modal-overlay">
-        <div class="modal-caja">
-            <h3 style="color: #89b4fa;">🛠️ Soporte Técnico</h3>
-            <form id="formSoporte">
-                <label style="color: #bac2de;">Tipo de solicitud:</label>
-                <select id="tipo_ticket" required>
-                    <option value="Falla">Reportar Falla</option>
-                    <option value="Modificacion">Solicitar Modificación</option>
-                    <option value="Sugerencia">Sugerencia</option>
-                </select>
-                <label style="color: #bac2de; margin-top: 10px;">Descripción detallada:</label>
-                <textarea id="desc_ticket" required placeholder="Describe el problema o sugerencia..."></textarea>
-                <div class="modal-botones">
-                    <button type="submit" class="btn-azul">ENVIAR TICKET</button>
-                    <button type="button" onclick="cerrarSoporte()" class="btn-secundario">CANCELAR</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <div id="modalAviso" class="modal-overlay">
         <div class="modal-caja" id="bordeModal">
@@ -182,9 +180,8 @@
     </div>
 
     <script>
-        let listaProductos = []; // Array para guardar los múltiples códigos cargados
+        let listaProductos = [];
 
-        // --- LÓGICA DE AGREGAR PRODUCTOS ---
         function agregarArticulo() {
             const cod = document.getElementById('prod_codigo').value.trim();
             const desc = document.getElementById('prod_descripcion').value;
@@ -192,11 +189,10 @@
             const cant = parseInt(document.getElementById('prod_cantidad').value) || 0;
 
             if (!cod || !desc || cant <= 0) {
-                mostrarAviso('⚠️ Atención', 'Debe buscar un código válido y asignar una cantidad.', true);
+                mostrarAviso('⚠️ Atención', 'Busca un código y asigna una cantidad.', true);
                 return;
             }
 
-            // Agregamos al array
             listaProductos.push({
                 codigo: cod,
                 descripcion: desc,
@@ -220,9 +216,9 @@
                 totalGeneral += item.subtotal;
                 cuerpo.innerHTML += `
                     <tr>
-                        <td>${item.cantidad}</td>
-                        <td>${item.descripcion} (${item.codigo})</td>
-                        <td>$${item.subtotal.toFixed(2)}</td>
+                        <td style="font-weight: bold;">${item.cantidad}</td>
+                        <td>${item.descripcion} <br><small style="color: #89b4fa;">Código: ${item.codigo}</small></td>
+                        <td style="font-weight: bold; color: #a6e3a1;">$${item.subtotal.toFixed(2)}</td>
                         <td><button type="button" class="btn-eliminar-item" onclick="eliminarItem(${index})">✕</button></td>
                     </tr>
                 `;
@@ -242,9 +238,9 @@
             document.getElementById('prod_descripcion').value = '';
             document.getElementById('precio_unitario').value = '';
             document.getElementById('prod_cantidad').value = '1';
+            document.getElementById('prod_codigo').focus();
         }
 
-        // --- BÚSQUEDA DE PRODUCTO ---
         document.getElementById('prod_codigo').addEventListener('blur', async () => {
             const codigo = document.getElementById('prod_codigo').value.trim();
             if (!codigo) return;
@@ -255,33 +251,26 @@
                     document.getElementById('prod_descripcion').value = producto.descripcion;
                     document.getElementById('precio_unitario').value = producto.precio_unitario;
                 } else {
-                    mostrarAviso('⚠️ No encontrado', 'El código de producto no existe en la base de datos.', true);
+                    mostrarAviso('⚠️ No encontrado', 'El código de producto no existe.', true);
                     limpiarCamposCarga();
                 }
             } catch (error) { console.error("Error:", error); }
         });
 
-        // --- GUARDAR RESERVA FINAL ---
         document.getElementById('formReservas').addEventListener('submit', function(e) {
             e.preventDefault();
-            
             if (listaProductos.length === 0) {
-                mostrarAviso('⚠️ Pedido Vacío', 'Debe agregar al menos un producto a la lista antes de guardar.', true);
+                mostrarAviso('⚠️ Pedido Vacío', 'Agrega al menos un producto.', true);
                 return;
             }
-
-            // Concatenamos los datos para guardarlos en la tabla actual de MySQL
-            const codigosFinales = listaProductos.map(p => p.codigo).join(', ');
-            const descripcionesFinales = listaProductos.map(p => `${p.cantidad}x ${p.descripcion}`).join(' | ');
-            const cantidadTotal = listaProductos.reduce((acc, p) => acc + p.cantidad, 0);
 
             const datos = {
                 cliente_nombre: document.getElementById('cliente_nombre').value,
                 cliente_telefono: document.getElementById('cliente_telefono').value,
                 cliente_email: document.getElementById('cliente_email').value,
-                prod_codigo: codigosFinales,
-                descripcion: descripcionesFinales,
-                prod_cantidad: cantidadTotal,
+                prod_codigo: listaProductos.map(p => p.codigo).join(', '),
+                descripcion: listaProductos.map(p => `${p.cantidad}x ${p.descripcion}`).join(' | '),
+                prod_cantidad: listaProductos.reduce((acc, p) => acc + p.cantidad, 0),
                 total_reserva: document.getElementById('total_reserva').value, 
                 local_destino: document.getElementById('local_destino').value,
                 contacto_sucursal: document.getElementById('contacto_sucursal').value,
@@ -294,18 +283,12 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datos)
-            })
-            .then(res => {
-                if (res.ok) {
-                    mostrarAviso('✅ Éxito', 'Reserva con múltiples artículos guardada.', false, true);
-                } else {
-                    mostrarAviso('❌ Error', 'Error al guardar en el servidor.', true);
-                }
-            })
-            .catch(err => mostrarAviso('❌ Error', 'Error de conexión.', true));
+            }).then(res => {
+                if (res.ok) mostrarAviso('✅ Éxito', 'Reserva guardada correctamente.', false, true);
+                else mostrarAviso('❌ Error', 'Error al guardar.', true);
+            });
         });
 
-        // --- UTILIDADES ---
         function mostrarAviso(titulo, mensaje, esError = true, esExitoReserva = false) {
             const modal = document.getElementById('modalAviso');
             document.getElementById('tituloAviso').textContent = titulo;
@@ -313,7 +296,6 @@
             const color = esError ? '#f38ba8' : '#a6e3a1';
             document.getElementById('tituloAviso').style.color = color;
             document.getElementById('bordeModal').style.borderColor = color;
-            document.getElementById('btnColorAviso').style.backgroundColor = color;
             document.getElementById('botonesAvisoNormal').style.display = esExitoReserva ? 'none' : 'flex';
             document.getElementById('botonesAvisoExito').style.display = esExitoReserva ? 'flex' : 'none';
             modal.style.display = 'flex';
