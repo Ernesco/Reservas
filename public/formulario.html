@@ -7,26 +7,39 @@
     <link rel="stylesheet" href="style.css">
     <title>One Box - Nueva Reserva</title>
     <style>
-        /* --- ESTILOS PARA LA LISTA INTEGRADA EN BLANCO --- */
-        .lista-productos-blanca {
+        /* --- FUERZA AL FORMULARIO A SER EL LÍMITE REAL --- */
+        #formReservas {
+            background-color: #ffffff;
+            width: 95%; 
+            max-width: 600px; 
+            margin: 30px auto; 
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            box-sizing: border-box; /* Crucial para que el padding no estire el contenedor */
+            overflow: hidden; 
+        }
+
+        /* --- LISTA SIMPLE INTEGRADA (SIN BLOQUE OSCURO) --- */
+        .lista-productos-integrada {
             width: 100%;
             margin-top: 20px;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            overflow: hidden;
             background-color: #ffffff;
+            box-sizing: border-box;
         }
 
         .tabla-items {
             width: 100%;
             border-collapse: collapse;
-            table-layout: fixed;
+            table-layout: fixed; /* Obliga a respetar el ancho del contenedor blanco */
         }
 
         .tabla-items th {
             background-color: #f8f9fa;
-            color: #555;
-            font-size: 0.8em;
+            color: #666;
+            font-size: 0.75em;
             text-transform: uppercase;
             padding: 12px;
             text-align: left;
@@ -37,41 +50,19 @@
             padding: 12px;
             border-bottom: 1px solid #eee;
             color: #333;
-            font-size: 0.9em;
-            word-wrap: break-word;
+            font-size: 0.85em;
+            word-wrap: break-word; /* Evita que descripciones largas empujen la tabla afuera */
         }
 
-        /* Botón eliminar circular y discreto */
-        .btn-quitar {
-            background-color: #ffeded;
-            color: #ff4d4d;
-            border: 1px solid #ffcccc;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-        .btn-quitar:hover {
-            background-color: #ff4d4d;
-            color: white;
-        }
-
-        /* Contenedor del Total integrado */
-        .pie-lista {
-            padding: 15px;
-            background-color: #fcfcfc;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 2px solid #f0f0f0;
-        }
-
-        .total-texto {
-            font-weight: bold;
-            color: #2ecc71;
-            font-size: 1.2em;
+        /* Inputs al 100% del ancho interno */
+        input[type="text"], input[type="tel"], input[type="email"], input[type="number"], textarea {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 12px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-family: inherit;
         }
 
         .btn-agregar-producto { 
@@ -83,7 +74,33 @@
             cursor: pointer; 
             font-weight: bold; 
             width: 100%; 
-            margin-top: 15px;
+            margin-bottom: 10px;
+            transition: 0.3s;
+        }
+        .btn-agregar-producto:hover { background: #357abd; }
+
+        .btn-quitar {
+            color: #ff4d4d;
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .pie-lista {
+            padding: 15px;
+            background-color: #fafafa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 2px solid #eee;
+        }
+
+        .total-texto {
+            font-weight: bold;
+            color: #2ecc71;
+            font-size: 1.3em;
         }
     </style>
 </head>
@@ -94,48 +111,45 @@
         <a href="panel.html" class="btn-header">🏠 INICIO</a>
     </header>
 
-    <form id="formReservas" class="caja-central" style="max-width: 650px; margin: 30px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.05);">
+    <form id="formReservas">
+        <h2 style="color: #4a90e2; margin-bottom: 20px; text-align: center;">Nueva Reserva</h2>
         
-        <h2 style="color: #4a90e2; margin-bottom: 25px; text-align: center;">Nueva Reserva</h2>
-        
-        <fieldset style="border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
-            <legend style="padding: 0 10px; font-weight: bold; color: #777;">👤 Cliente</legend>
-            <label>Nombre <span class="requerido">*</span></label>
-            <input type="text" id="cliente_nombre" required style="width: 100%; margin-bottom: 10px;">
-            
-            <label>Teléfono <span class="requerido">*</span></label>
-            <input type="tel" id="cliente_telefono" required style="width: 100%; margin-bottom: 10px;">
-            
+        <fieldset style="border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <legend style="color: #888; font-weight: bold;">👤 Cliente</legend>
+            <label>Nombre *</label>
+            <input type="text" id="cliente_nombre" required>
+            <label>Teléfono *</label>
+            <input type="tel" id="cliente_telefono" required>
             <label>Email (opcional)</label>
-            <input type="email" id="cliente_email" style="width: 100%;">
+            <input type="email" id="cliente_email">
         </fieldset>
 
-        <fieldset style="border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
-            <legend style="padding: 0 10px; font-weight: bold; color: #777;">📦 Selección de Productos</legend>
-            <label>Código <span class="requerido">*</span></label>
-            <input type="text" id="prod_codigo" placeholder="Escriba el código y presione TAB" style="width: 100%; margin-bottom: 10px;">
+        <fieldset style="border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <legend style="color: #888; font-weight: bold;">📦 Productos</legend>
+            <label>Código *</label>
+            <input type="text" id="prod_codigo" placeholder="Escriba código y presione TAB">
             
             <label>Descripción</label>
-            <input type="text" id="prod_descripcion" readonly style="background-color: #f9f9f9; color: #555; width: 100%; margin-bottom: 10px;">
+            <input type="text" id="prod_descripcion" readonly style="background: #f9f9f9;">
 
-            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
+            <div style="display: flex; gap: 10px;">
                 <div style="flex: 1;">
-                    <label>Precio Unitario</label>
-                    <input type="number" id="precio_unitario" readonly style="background-color: #f9f9f9; color: #555; width: 100%;">
+                    <label>Precio</label>
+                    <input type="number" id="precio_unitario" readonly style="background: #f9f9f9;">
                 </div>
                 <div style="flex: 1;">
-                    <label>Cantidad <span class="requerido">*</span></label>
-                    <input type="number" id="prod_cantidad" min="1" value="1" style="width: 100%;">
+                    <label>Cantidad *</label>
+                    <input type="number" id="prod_cantidad" min="1" value="1">
                 </div>
             </div>
 
             <button type="button" class="btn-agregar-producto" onclick="agregarArticulo()">➕ AGREGAR PRODUCTO</button>
 
-            <div id="contenedorResumen" class="lista-productos-blanca" style="display: none;">
+            <div id="contenedorResumen" class="lista-productos-integrada" style="display: none;">
                 <table class="tabla-items">
                     <thead>
                         <tr>
-                            <th style="width: 15%;">Cant</th>
+                            <th style="width: 15%; text-align: center;">Cant</th>
                             <th style="width: 55%;">Descripción</th>
                             <th style="width: 20%;">Total</th>
                             <th style="width: 10%;"></th>
@@ -144,22 +158,21 @@
                     <tbody id="cuerpoResumen"></tbody>
                 </table>
                 <div class="pie-lista">
-                    <span style="color: #777; font-weight: bold; font-size: 0.9em;">TOTAL DEL PEDIDO:</span>
+                    <span style="font-size: 0.85em; color: #777; font-weight: bold;">TOTAL PEDIDO:</span>
                     <span id="total_reserva_texto" class="total-texto">$0.00</span>
                 </div>
             </div>
         </fieldset>
 
-        <fieldset style="border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
-            <legend style="padding: 0 10px; font-weight: bold; color: #777;">🏢 Logística</legend>
-            <label>Local destino <span class="requerido">*</span></label>
-            <input type="text" id="local_destino" required style="width: 100%; margin-bottom: 10px;">
-
-            <label>Contacto en sucursal <span class="requerido">*</span></label>
-            <input type="text" id="contacto_sucursal" required style="width: 100%;">
+        <fieldset style="border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <legend style="color: #888; font-weight: bold;">🏢 Sucursal</legend>
+            <label>Local destino *</label>
+            <input type="text" id="local_destino" required>
+            <label>Contacto sucursal *</label>
+            <input type="text" id="contacto_sucursal" required>
         </fieldset>
 
-        <button type="submit" class="btn-azul" style="width: 100%; padding: 15px; font-size: 1.1em; border-radius: 10px;">💾 GUARDAR RESERVA FINAL</button>
+        <button type="submit" class="btn-azul" style="width: 100%; padding: 15px; font-weight: bold; border-radius: 8px;">💾 GUARDAR RESERVA FINAL</button>
     </form>
 
     <div id="modalAviso" class="modal-overlay">
@@ -186,7 +199,7 @@
             const cant = parseInt(document.getElementById('prod_cantidad').value) || 0;
 
             if (!cod || !desc || cant <= 0) {
-                mostrarAviso('⚠️ Atención', 'Selecciona un producto válido.', true);
+                mostrarAviso('⚠️ Atención', 'Seleccione un producto válido.', true);
                 return;
             }
 
@@ -246,36 +259,17 @@
                     const producto = await response.json();
                     document.getElementById('prod_descripcion').value = producto.descripcion;
                     document.getElementById('precio_unitario').value = producto.precio_unitario;
+                } else {
+                    mostrarAviso('⚠️ No encontrado', 'Código de producto inexistente.', true);
+                    limpiarCamposCarga();
                 }
             } catch (error) { console.error("Error:", error); }
         });
 
-        // El resto de funciones (submit, avisos, etc) se mantienen iguales...
-        function mostrarAviso(titulo, mensaje, esError = true, esExitoReserva = false) {
-            const modal = document.getElementById('modalAviso');
-            document.getElementById('tituloAviso').textContent = titulo;
-            document.getElementById('textoAviso').textContent = mensaje;
-            const color = esError ? '#f38ba8' : '#a6e3a1';
-            document.getElementById('tituloAviso').style.color = color;
-            document.getElementById('bordeModal').style.borderColor = color;
-            document.getElementById('botonesAvisoNormal').style.display = esExitoReserva ? 'none' : 'flex';
-            document.getElementById('botonesAvisoExito').style.display = esExitoReserva ? 'flex' : 'none';
-            modal.style.display = 'flex';
-        }
-
-        function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
-        
-        function nuevaCarga() { 
-            listaProductos = [];
-            actualizarVistaTabla();
-            document.getElementById('formReservas').reset(); 
-            cerrarAviso(); 
-        }
-
         document.getElementById('formReservas').addEventListener('submit', function(e) {
             e.preventDefault();
             if (listaProductos.length === 0) {
-                mostrarAviso('⚠️ Vacío', 'Agrega al menos un producto.', true);
+                mostrarAviso('⚠️ Vacío', 'Agregue al menos un producto.', true);
                 return;
             }
 
@@ -290,7 +284,7 @@
                 local_destino: document.getElementById('local_destino').value,
                 contacto_sucursal: document.getElementById('contacto_sucursal').value,
                 local_origen: sessionStorage.getItem('usuario_sucursal') || 'Admin',
-                operador_nombre: sessionStorage.getItem('usuario_nombre') || 'Desconocido',
+                operador_nombre: sessionStorage.getItem('usuario_nombre') || 'Operador',
                 comentarios: ''
             };
 
@@ -299,10 +293,30 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datos)
             }).then(res => {
-                if (res.ok) mostrarAviso('✅ Éxito', 'Reserva guardada.', false, true);
+                if (res.ok) mostrarAviso('✅ Éxito', 'Reserva guardada correctamente.', false, true);
                 else mostrarAviso('❌ Error', 'Error al guardar.', true);
             });
         });
+
+        function mostrarAviso(titulo, mensaje, esError = true, esExitoReserva = false) {
+            const modal = document.getElementById('modalAviso');
+            document.getElementById('tituloAviso').textContent = titulo;
+            document.getElementById('textoAviso').textContent = mensaje;
+            const color = esError ? '#f38ba8' : '#a6e3a1';
+            document.getElementById('tituloAviso').style.color = color;
+            document.getElementById('bordeModal').style.borderColor = color;
+            document.getElementById('botonesAvisoNormal').style.display = esExitoReserva ? 'none' : 'flex';
+            document.getElementById('botonesAvisoExito').style.display = esExitoReserva ? 'flex' : 'none';
+            modal.style.display = 'flex';
+        }
+
+        function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
+        function nuevaCarga() { 
+            listaProductos = [];
+            actualizarVistaTabla();
+            document.getElementById('formReservas').reset(); 
+            cerrarAviso(); 
+        }
     </script>
 </body>
 </html>
