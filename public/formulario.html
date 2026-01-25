@@ -7,7 +7,39 @@
     <link rel="stylesheet" href="style.css">
     <title>One Box - Nueva Reserva</title>
     <style>
-        /* --- ESTILOS PARA LA LISTA SIMPLE INTEGRADA EN BLANCO --- */
+        /* --- ESTILOS DE MÓDULOS Y SEPARADORES --- */
+        #formReservas {
+            background: white;
+            max-width: 650px;
+            margin: 30px auto;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+
+        /* Línea divisora entre fieldsets */
+        fieldset {
+            border: none;
+            border-top: 1px solid #e0e0e0; /* Línea de diferenciación solicitada */
+            padding: 25px 0 10px 0;
+            margin: 10px 0 20px 0;
+            position: relative;
+        }
+
+        /* Estilo del título del módulo (legend) */
+        legend {
+            font-weight: bold;
+            color: #4a90e2;
+            padding: 0 10px;
+            font-size: 0.95em;
+            position: absolute;
+            top: -12px;
+            left: 10px;
+            background: white;
+        }
+
+        /* --- ESTILOS PARA LA LISTA TIPO TICKET --- */
         #listaPedido {
             margin-top: 15px;
             padding: 15px;
@@ -45,7 +77,6 @@
             border-radius: 50%;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -58,17 +89,6 @@
             text-align: right;
             border-top: 2px solid #4a90e2;
             padding-top: 10px;
-        }
-
-        /* Forzar que el formulario respete el ancho */
-        #formReservas {
-            background: white;
-            max-width: 650px;
-            margin: 30px auto;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-            box-sizing: border-box;
         }
 
         input, textarea { width: 100%; box-sizing: border-box; margin-bottom: 12px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
@@ -96,10 +116,10 @@
     </header>
 
     <form id="formReservas">
-        <h2 style="color: #4a90e2; text-align: center; margin-bottom: 25px;">Nueva Reserva</h2>
+        <h2 style="color: #4a90e2; text-align: center; margin-bottom: 35px;">Nueva Reserva</h2>
         
-        <fieldset style="border: 1px solid #eee; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-            <legend style="font-weight: bold; color: #888; padding: 0 10px;">👤 Cliente</legend>
+        <fieldset>
+            <legend>👤 Cliente</legend>
             <label>Nombre *</label>
             <input type="text" id="cliente_nombre" required>
             <label>Teléfono *</label>
@@ -108,8 +128,8 @@
             <input type="email" id="cliente_email">
         </fieldset>
 
-        <fieldset style="border: 1px solid #eee; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-            <legend style="font-weight: bold; color: #888; padding: 0 10px;">📦 Productos</legend>
+        <fieldset>
+            <legend>📦 Productos</legend>
             <label>Código *</label>
             <input type="text" id="prod_codigo" placeholder="Escriba el código y presione TAB">
             
@@ -130,7 +150,7 @@
             <button type="button" class="btn-agregar-producto" onclick="agregarArticulo()">➕ AGREGAR PRODUCTO</button>
 
             <div id="listaPedido" style="display: none;">
-                <h4 style="color: #666; margin-bottom: 10px; font-size: 0.9em;">Items cargados:</h4>
+                <h4 style="color: #666; margin-bottom: 10px; font-size: 0.85em;">Items cargados:</h4>
                 <div id="contenedorItems"></div>
                 
                 <div class="total-final-contenedor">
@@ -140,17 +160,17 @@
             </div>
         </fieldset>
 
-        <fieldset style="border: 1px solid #eee; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-            <legend style="font-weight: bold; color: #888; padding: 0 10px;">🏢 Sucursal</legend>
-            <label>Local destino *</label>
-            <input type="text" id="local_destino" required placeholder="¿A qué local se pide?">
-            <label>Contacto *</label>
+        <fieldset>
+            <legend>🏢 Sucursal Destino</legend>
+            <label>Local a quien se le pide *</label>
+            <input type="text" id="local_destino" required placeholder="Ej: Alto Palermo">
+            <label>Contacto en sucursal *</label>
             <input type="text" id="contacto_sucursal" required placeholder="¿Con quién hablaste?">
         </fieldset>
 
-        <fieldset style="border: 1px solid #eee; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-            <legend style="font-weight: bold; color: #888; padding: 0 10px;">📝 Operador</legend>
-            <label>Local que gestiona (Tu Local)</label>
+        <fieldset>
+            <legend>📝 Operador</legend>
+            <label>Tu Local (Origen)</label>
             <input type="text" id="local_origen" readonly style="background-color: #f8f9fa; color: #666;">
 
             <label for="nombre_operador">Quien realiza la reserva *</label>
