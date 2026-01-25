@@ -18,6 +18,28 @@
             margin-right: 5px;
             cursor: pointer;
         }
+        /* Ajuste para el grid de 3 columnas en el modal */
+        .grid-editar {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            text-align: left;
+        }
+        .col-editar label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.85em;
+        }
+        .col-editar input, .col-editar textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            background: #1e1e2e;
+            border: 1px solid #45475a;
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
     </style>
 </head>
 <body>
@@ -52,46 +74,43 @@
         </div>
     </div>
 
-    <footer>
-        <div class="footer-links">
-            <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
-        </div>
-        <img src="./img/Ob_Logo.png" alt="One Box Logo" class="footer-logo">
-        <p>&copy; 2026 One Box. Todos los derechos reservados.</p>
-        <div class="footer-version">v1.3.5</div> 
-    </footer>
-
-<div id="modalEditar" class="modal-overlay" style="display: none;">
-    <div class="modal-caja modal-ancho-editar" style="max-width: 850px;">
-        <h3 style="color: #fab387; margin-bottom: 20px; text-align: center;">📝 Editar Reserva</h3>
-        <input type="hidden" id="editId">
-        <form id="formEditar" class="grid-editar" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: left;">
-            <div class="col-editar">
-                <label style="color: #4a90e2; font-weight: bold;">👤 Cliente</label>
-                <input type="text" id="editNombre" placeholder="Nombre">
-                <input type="text" id="editTel" placeholder="Teléfono">
-                <input type="email" id="editEmail" placeholder="Email">
+    <div id="modalEditar" class="modal-overlay" style="display: none;">
+        <div class="modal-caja modal-ancho-editar" style="max-width: 850px;">
+            <h3 style="color: #fab387; margin-bottom: 20px; text-align: center;">📝 Editar Reserva</h3>
+            <input type="hidden" id="editId">
+            <form id="formEditar" class="grid-editar">
+                <div class="col-editar">
+                    <label style="color: #4a90e2; font-weight: bold;">👤 Cliente</label>
+                    <label>Nombre:</label>
+                    <input type="text" id="editNombre">
+                    <label>Teléfono:</label>
+                    <input type="text" id="editTel">
+                    <label>Email:</label>
+                    <input type="email" id="editEmail">
+                </div>
+                <div class="col-editar">
+                    <label style="color: #4a90e2; font-weight: bold;">📦 Producto</label>
+                    <label>Código:</label>
+                    <input type="text" id="editCodigo" onblur="buscarProductoEditar()">
+                    <label>Descripción:</label>
+                    <textarea id="editDesc" readonly style="background: #313244; height: 60px;"></textarea>
+                    <label>Cantidad:</label>
+                    <input type="number" id="editCant" oninput="calcularTotalEditar()">
+                </div>
+                <div class="col-editar">
+                    <label style="color: #4a90e2; font-weight: bold;">💰 Valores</label>
+                    <label>Precio Unitario:</label>
+                    <input type="number" id="editPrecioU" readonly style="background: #313244;">
+                    <label>Total Reserva ($):</label>
+                    <input type="number" id="editTotal" readonly style="background: #313244; font-weight: bold; color: #a6e3a1;">
+                </div>
+            </form>
+            <div class="modal-botones" style="margin-top: 30px;">
+                <button onclick="guardarEdicion()" class="btn-azul">GUARDAR CAMBIOS</button>
+                <button onclick="cerrarEditar()" class="btn-secundario">CANCELAR</button>
             </div>
-            <div class="col-editar">
-                <label style="color: #4a90e2; font-weight: bold;">📦 Producto</label>
-                <input type="text" id="editCodigo" placeholder="Código" onblur="buscarProductoEditar()">
-                <textarea id="editDesc" placeholder="Descripción" readonly style="background: #313244; height: 60px;"></textarea>
-                <input type="number" id="editCant" placeholder="Cantidad" oninput="calcularTotalEditar()">
-            </div>
-            <div class="col-editar">
-                <label style="color: #4a90e2; font-weight: bold;">💰 Valores</label>
-                <label><small>Precio Unitario:</small></label>
-                <input type="number" id="editPrecioU" readonly style="background: #313244;">
-                <label><small>Total Reserva:</small></label>
-                <input type="number" id="editTotal" readonly style="background: #313244; font-weight: bold; color: #a6e3a1;">
-            </div>
-        </form>
-        <div class="modal-botones" style="margin-top: 30px;">
-            <button onclick="guardarEdicion()" class="btn-azul">GUARDAR CAMBIOS</button>
-            <button onclick="cerrarEditar()" class="btn-secundario">CANCELAR</button>
         </div>
     </div>
-</div>
 
     <div id="modalFirma" class="modal-overlay">
         <div class="modal-caja">
@@ -137,6 +156,7 @@
 
     if (!sessionStorage.getItem('usuario_nombre')) window.location.href = 'index.html';
 
+    // FUNCIONES DE SOPORTE
     function mostrarAviso(titulo, mensaje, esError = true) {
         const modal = document.getElementById('modalAviso');
         document.getElementById('tituloAviso').textContent = titulo;
@@ -200,7 +220,6 @@
                     
                     let fila = `<tr><td>#${item.id}</td><td style="font-size: 0.85em;">${fReg}</td><td><strong>${item.cliente_nombre}</strong><br><small>${item.cliente_telefono}</small></td><td><small>${item.cliente_email || '---'}</small></td><td><code>${item.prod_codigo}</code></td><td style="font-size: 0.85em;">${item.descripcion}</td><td style="text-align:center">${item.prod_cantidad}</td><td style="font-weight:bold">$${item.total_reserva}</td><td><span class="badge">${item.estado}</span></td>`;
                     
-                    // MODIFICACIÓN: Mostrar Contacto Sucursal entre paréntesis
                     if (estadoActualFiltrado === 'En Tránsito') {
                         fila += `<td><strong>${item.sucursal_nombre}</strong><br><small>(${item.sucursal_contacto || 'Sin Datos'})</small></td><td>${item.operador_nombre}</td>`;
                     }
@@ -252,51 +271,102 @@
         return botones;
     }
 
-    function restaurarReserva(id, nuevoEstado) {
-        if (!nuevoEstado) return;
-        const btnAceptar = document.getElementById('modalAceptar');
-        btnAceptar.onclick = async function() {
-            const res = await fetch(`/reservas/${id}/estado`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    estado: nuevoEstado, 
-                    borrado: 0,
-                    responsable: sessionStorage.getItem('usuario_nombre') 
-                })
-            });
-            if(res.ok) {
-                cerrarModalFirma();
-                cargarReservas();
-                mostrarAviso('✅ Recuperada', 'Reserva restaurada con éxito.', false);
-            }
-        };
-        abrirModalFirma(`¿Recuperar reserva y pasar a estado "${nuevoEstado}"?`, false, null);
+    // --- LÓGICA DE EDICIÓN ---
+
+    function abrirModalEditar(item) {
+        document.getElementById('editId').value = item.id;
+        document.getElementById('editNombre').value = item.cliente_nombre;
+        document.getElementById('editTel').value = item.cliente_telefono;
+        document.getElementById('editEmail').value = item.cliente_email || '';
+        document.getElementById('editCodigo').value = item.prod_codigo;
+        document.getElementById('editDesc').value = item.descripcion;
+        document.getElementById('editCant').value = item.prod_cantidad;
+        document.getElementById('editTotal').value = item.total_reserva;
+        
+        // Buscamos el precio unitario del producto para permitir cálculos
+        buscarProductoEditar();
+        
+        document.getElementById('modalEditar').style.display = 'flex';
     }
 
-    function abrirModalBorradoLogico(id) {
-        const btnAceptar = document.getElementById('modalAceptar');
-        btnAceptar.onclick = async function() {
-            const res = await fetch(`/reservas/${id}`, { method: 'DELETE' });
-            if(res.ok) {
-                cerrarModalFirma();
-                cargarReservas();
-                mostrarAviso('✅ Éxito', 'Reserva movida a Eliminados.', false);
-            }
-        };
-        abrirModalFirma("¿Deseas mover esta reserva a la papelera?", false, null);
-    }
-
-    async function confirmarEliminarDefinitivo(id) {
-        if (confirm("⚠️ ¿TRASPASAR A HISTÓRICO Y BORRAR DE TABLA ACTIVA? Esta acción no se puede deshacer.")) {
-            const res = await fetch(`/admin/reservas-eliminar/${id}`, { method: 'DELETE' });
+    async function buscarProductoEditar() {
+        const codigo = document.getElementById('editCodigo').value.trim();
+        if (!codigo) return;
+        try {
+            const res = await fetch(`/productos/${codigo}`);
             if (res.ok) {
-                cargarReservas();
-                mostrarAviso('✅ Archivado', 'La reserva se movió a la tabla borrados_definitivos.', false);
+                const p = await res.json();
+                document.getElementById('editDesc').value = p.descripcion;
+                document.getElementById('editPrecioU').value = p.precio_unitario;
+                calcularTotalEditar();
             }
-        }
+        } catch (e) { console.error("Error al buscar producto", e); }
     }
 
+    function calcularTotalEditar() {
+        const precio = parseFloat(document.getElementById('editPrecioU').value) || 0;
+        const cant = parseInt(document.getElementById('editCant').value) || 0;
+        document.getElementById('editTotal').value = (precio * cant).toFixed(2);
+    }
+
+    function guardarEdicion() {
+        const id = document.getElementById('editId').value;
+        const data = {
+            cliente_nombre: document.getElementById('editNombre').value,
+            cliente_telefono: document.getElementById('editTel').value,
+            cliente_email: document.getElementById('editEmail').value,
+            prod_codigo: document.getElementById('editCodigo').value,
+            descripcion: document.getElementById('editDesc').value,
+            prod_cantidad: document.getElementById('editCant').value,
+            total_reserva: document.getElementById('editTotal').value
+        };
+
+        fetch(`/reservas/${id}/editar`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        })
+        .then(res => {
+            if (res.ok) {
+                cerrarEditar();
+                cargarReservas();
+                mostrarAviso('✅ Actualizado', 'La reserva se modificó correctamente.', false);
+            } else {
+                mostrarAviso('❌ Error', 'No se pudieron guardar los cambios.');
+            }
+        });
+    }
+
+    // --- OTRAS FUNCIONES (QR, Firma, etc) ---
+
+    function mostrarQR(id) {
+        const item = reservasCargadas.find(r => r.id == id);
+        if (!item) return;
+        let tel = item.cliente_telefono.replace(/\D/g, '');
+        if (tel.startsWith('0')) tel = tel.substring(1);
+        if (!tel.startsWith('549')) tel = '549' + tel;
+
+        const msg = `Hola *${item.cliente_nombre}*! 👋\n\n` +
+                    `Tu pedido ya llegó y está listo para retirar en:\n` +
+                    `📍 *${item.local_origen}*\n` +
+                    `🏠 Dirección: ${item.direccion || "Dirección habitual"}\n` +
+                    `⏰ Horario: ${item.horarios || "Horario comercial"}\n\n` +
+                    `Reserva: ${item.descripcion}\n\n` +
+                    `¡Te esperamos! 🛒`;
+
+        const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+        
+        document.getElementById('modalQR').style.display = 'flex';
+        setTimeout(() => { 
+            QRCode.toCanvas(document.getElementById('canvasQR'), url, { 
+                width: 240, 
+                margin: 2,
+                color: { dark: "#075E54", light: "#FFFFFF" }
+            }); 
+        }, 200);
+    }
+
+    // Función genérica para cambiar estado
     function cambiarEstadoConFirma(id, nuevoEstado, preg, activarQR = false) {
         const btnAceptar = document.getElementById('modalAceptar');
         btnAceptar.onclick = function() {
@@ -324,68 +394,6 @@
         document.getElementById('modalFirma').style.display = 'flex';
         if(accionOpcional) document.getElementById('modalAceptar').onclick = accionOpcional;
     }
-
-    function abrirModalEditar(item) {
-        document.getElementById('editId').value = item.id;
-        document.getElementById('editNombre').value = item.cliente_nombre;
-        document.getElementById('editTel').value = item.cliente_telefono;
-        document.getElementById('editCodigo').value = item.prod_codigo;
-        document.getElementById('editDesc').value = item.descripcion;
-        document.getElementById('editTotal').value = item.total_reserva;
-        document.getElementById('modalEditar').style.display = 'flex';
-    }
-
-    function guardarEdicion() {
-        const id = document.getElementById('editId').value;
-        const data = {
-            cliente_nombre: document.getElementById('editNombre').value,
-            cliente_telefono: document.getElementById('editTel').value,
-            prod_codigo: document.getElementById('editCodigo').value,
-            descripcion: document.getElementById('editDesc').value,
-            total_reserva: document.getElementById('editTotal').value
-        };
-        fetch(`/reservas/${id}/editar`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        }).then(() => { cerrarEditar(); cargarReservas(); });
-    }
-
-function mostrarQR(id) {
-    const item = reservasCargadas.find(r => r.id == id);
-    if (!item) return;
-
-    // 1. Limpieza y formato del teléfono
-    let tel = item.cliente_telefono.replace(/\D/g, '');
-    if (tel.startsWith('0')) tel = tel.substring(1);
-    if (!tel.startsWith('549')) tel = '549' + tel;
-
-    // 2. Construcción del mensaje dinámico
-    // Usamos los campos que ya usas para los mails: item.direccion e item.horario
-const msg = `Hola *${item.cliente_nombre}*! 👋\n\n` +
-                `Tu pedido ya llegó y está listo para retirar en:\n` +
-                `📍 *${item.local_origen}*\n` +
-                `🏠 Dirección: ${item.direccion || "Dirección habitual"}\n` +
-                `⏰ Horario: ${item.horarios || "Horario comercial"}\n\n` +
-                `Reserva: ${item.descripcion}\n\n` +
-                `¡Te esperamos! 🛒`;
-
-    // 3. Generación de la URL de WhatsApp
-    const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
-    
-    // 4. Mostrar modal y renderizar QR
-    document.getElementById('modalQR').style.display = 'flex';
-    setTimeout(() => { 
-        QRCode.toCanvas(document.getElementById('canvasQR'), url, { 
-            width: 240, 
-            margin: 2,
-            color: {
-                dark: "#075E54", // Verde WhatsApp
-                light: "#FFFFFF"
-            }
-        }); 
-    }, 200);
-}
 
     document.addEventListener('DOMContentLoaded', () => {
         const rol = sessionStorage.getItem('usuario_rol');

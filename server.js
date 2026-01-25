@@ -136,7 +136,7 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
-// NUEVA RUTA: GUARDAR EDICIÓN COMPLETA
+// --- RUTA DE EDICIÓN CORREGIDA PARA GUARDAR TODOS LOS CAMPOS ---
 app.put('/reservas/:id/editar', (req, res) => {
     const id = req.params.id;
     const { 
@@ -171,7 +171,7 @@ app.put('/reservas/:id/editar', (req, res) => {
         id
     ], (err, result) => {
         if (err) {
-            console.error("Error al editar reserva:", err);
+            console.error("Error al editar reserva en MySQL:", err);
             return res.status(500).send('Error al actualizar');
         }
         res.send('OK');
