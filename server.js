@@ -52,7 +52,7 @@ async function enviarAvisoEmail(reserva, tipo) {
 
     const footerHtml = `<br><hr><footer style="color: #666; font-family: sans-serif;">
                         <p><strong>Gestión de Reservas Mo</strong></p>
-                        <p>Este es un mensaje automático, enviado por el sistema Onebox</p>
+                        <p>Este es un mensaje automático, enviado por el sistema de Onebox</p>
                         </footer>`;
 
     if (tipo === 'CONFIRMACION') {
@@ -60,12 +60,14 @@ async function enviarAvisoEmail(reserva, tipo) {
         mensajeHtml = `<h2>¡Hola ${reserva.cliente_nombre}!</h2>
                         <p>Tu reserva ha sido registrada correctamente y ya está en camino.</p>
                         <p><strong>Producto: </strong> ${reserva.descripcion}</p>
+                        <p>Te avisaremos por este medio y por Wathsapp cuando puedas pasar a retirarla</p>
                         ${footerHtml}`;
     } else if (tipo === 'DISPONIBLE') {
         asunto = `¡Tu pedido ya llegó! Reserva #${reserva.id}`;
         mensajeHtml = `<div style="font-family: sans-serif; border: 1px solid #a6e3a1; padding: 20px;">
             <h2>¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
             <p>Tu reserva: <strong>${reserva.descripcion}</strong> ya está en <strong>${reserva.sucursal_nombre}</strong>.</p>
+            <p>Te esperamos!</p>
             <p>📍 Dirección: ${infoSucursal.direccion}<br>⏰ Horarios: ${infoSucursal.horarios}</p>
             </div>${footerHtml}`;
     } else if (tipo === 'SOPORTE') {

@@ -348,17 +348,41 @@
         }).then(() => { cerrarEditar(); cargarReservas(); });
     }
 
-    function mostrarQR(id) {
-        const item = reservasCargadas.find(r => r.id == id);
-        if (!item) return;
-        let tel = item.cliente_telefono.replace(/\D/g, '');
-        if (tel.startsWith('0')) tel = tel.substring(1);
-        if (!tel.startsWith('549')) tel = '549' + tel;
-        const msg = `Hola ${item.cliente_nombre}, tu reserva "${item.descripcion}" ya está disponible para retirar.`;
-        const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
-        document.getElementById('modalQR').style.display = 'flex';
-        setTimeout(() => { QRCode.toCanvas(document.getElementById('canvasQR'), url, { width: 240, margin: 2 }); }, 200);
-    }
+function mostrarQR(id) {
+    const item = reservasCargadas.find(r => r.id == id);
+    if (!item) return;
+
+    // 1. Limpieza y formato del teléfono
+    let tel = item.cliente_telefono.replace(/\D/g, '');
+    if (tel.startsWith('0')) tel = tel.substring(1);
+    if (!tel.startsWith('549')) tel = '549' + tel;
+
+    // 2. Construcción del mensaje dinámico
+    // Usamos los campos que ya usas para los mails: item.direccion e item.horario
+    const msg = `Hola *${item.cliente_nombre}*! 👋\n\n` +
+                `Te avisamos que tu reserva ya está disponible para retirar en:\n` +
+                `📍 *${item.local_destino}*\n` +
+                `🏠 Dirección: ${item.direccion || 'Consultar en local'}\n` +
+                `⏰ Horario: ${item.horario || 'Consultar en local'}\n\n` +
+                `*Detalle:* ${item.descripcion}\n\n` +
+                `¡Te esperamos!`;
+
+    // 3. Generación de la URL de WhatsApp
+    const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+    
+    // 4. Mostrar modal y renderizar QR
+    document.getElementById('modalQR').style.display = 'flex';
+    setTimeout(() => { 
+        QRCode.toCanvas(document.getElementById('canvasQR'), url, { 
+            width: 240, 
+            margin: 2,
+            color: {
+                dark: "#075E54", // Verde WhatsApp
+                light: "#FFFFFF"
+            }
+        }); 
+    }, 200);
+}
 
     document.addEventListener('DOMContentLoaded', () => {
         const rol = sessionStorage.getItem('usuario_rol');
