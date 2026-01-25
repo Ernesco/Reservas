@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <title>One Box - Nueva Reserva</title>
     <style>
-        /* --- ESTILOS DE MÓDULOS Y SEPARADORES --- */
+        /* --- ESTILOS DE MÓDULOS CERRADOS Y MARCADOS --- */
         #formReservas {
             background: white;
             max-width: 650px;
@@ -18,34 +18,38 @@
             box-sizing: border-box;
         }
 
-        /* Línea divisora entre fieldsets */
+        /* Recuadro completo para cada módulo solicitado */
         fieldset {
-            border: none;
-            border-top: 1px solid #e0e0e0; /* Línea de diferenciación solicitada */
-            padding: 25px 0 10px 0;
-            margin: 10px 0 20px 0;
+            border: 1px solid #d1d9e6; /* Borde completo marcado */
+            border-radius: 10px;
+            padding: 25px 20px 15px 20px;
+            margin-bottom: 30px;
+            background-color: #fcfdfe; /* Fondo muy sutil para dar profundidad */
             position: relative;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
         }
 
-        /* Estilo del título del módulo (legend) */
+        /* Título del módulo (legend) con efecto de corte sobre el borde */
         legend {
             font-weight: bold;
             color: #4a90e2;
-            padding: 0 10px;
+            padding: 0 12px;
             font-size: 0.95em;
-            position: absolute;
-            top: -12px;
-            left: 10px;
             background: white;
+            border-radius: 5px;
+            position: absolute;
+            top: -14px;
+            left: 15px;
+            border: 1px solid #d1d9e6;
         }
 
-        /* --- ESTILOS PARA LA LISTA TIPO TICKET --- */
+        /* Estilos de la lista tipo ticket */
         #listaPedido {
             margin-top: 15px;
             padding: 15px;
-            border: 1px solid #eee;
+            border: 1px solid #e2e8f0;
             border-radius: 8px;
-            background-color: #fcfcfc;
+            background-color: #ffffff;
             width: 100%;
             box-sizing: border-box;
         }
@@ -55,43 +59,28 @@
             justify-content: space-between;
             align-items: center;
             padding: 10px 0;
-            border-bottom: 1px dashed #ddd;
+            border-bottom: 1px dashed #cbd5e0;
             font-size: 0.9em;
             color: #333;
         }
 
         .renglon-producto:last-child { border-bottom: none; }
 
-        .info-producto {
-            flex: 1;
-            padding-right: 10px;
-            line-height: 1.4;
+        input, textarea { 
+            width: 100%; 
+            box-sizing: border-box; 
+            margin-bottom: 12px; 
+            padding: 11px; 
+            border: 1px solid #cbd5e0; 
+            border-radius: 7px; 
+            font-family: inherit;
         }
 
-        .btn-quitar-item {
-            color: #ff4d4d;
-            background: #fff0f0;
-            border: 1px solid #ffcccc;
-            width: 26px;
-            height: 26px;
-            border-radius: 50%;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
         }
-
-        .btn-quitar-item:hover { background: #ff4d4d; color: white; }
-
-        .total-final-contenedor {
-            margin-top: 15px;
-            text-align: right;
-            border-top: 2px solid #4a90e2;
-            padding-top: 10px;
-        }
-
-        input, textarea { width: 100%; box-sizing: border-box; margin-bottom: 12px; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
         
         .btn-agregar-producto { 
             background: #4a90e2; 
@@ -103,9 +92,16 @@
             font-weight: bold; 
             cursor: pointer;
             margin-top: 5px;
-            transition: 0.3s;
+            transition: background 0.3s ease;
         }
         .btn-agregar-producto:hover { background: #357abd; }
+
+        .total-final-contenedor {
+            margin-top: 15px;
+            text-align: right;
+            border-top: 2px solid #4a90e2;
+            padding-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -116,7 +112,7 @@
     </header>
 
     <form id="formReservas">
-        <h2 style="color: #4a90e2; text-align: center; margin-bottom: 35px;">Nueva Reserva</h2>
+        <h2 style="color: #4a90e2; text-align: center; margin-bottom: 40px; font-weight: 800;">Nueva Reserva</h2>
         
         <fieldset>
             <legend>👤 Cliente</legend>
@@ -134,12 +130,12 @@
             <input type="text" id="prod_codigo" placeholder="Escriba el código y presione TAB">
             
             <label>Descripción</label>
-            <input type="text" id="prod_descripcion" readonly style="background: #f9f9f9;" placeholder="Autocompletado">
+            <input type="text" id="prod_descripcion" readonly style="background: #f8fafc;" placeholder="Autocompletado">
             
             <div style="display: flex; gap: 15px;">
                 <div style="flex: 1;">
                     <label>Precio Unitario</label>
-                    <input type="number" id="precio_unitario" readonly style="background: #f9f9f9;">
+                    <input type="number" id="precio_unitario" readonly style="background: #f8fafc;">
                 </div>
                 <div style="flex: 1;">
                     <label>Cantidad *</label>
@@ -150,12 +146,12 @@
             <button type="button" class="btn-agregar-producto" onclick="agregarArticulo()">➕ AGREGAR PRODUCTO</button>
 
             <div id="listaPedido" style="display: none;">
-                <h4 style="color: #666; margin-bottom: 10px; font-size: 0.85em;">Items cargados:</h4>
+                <h4 style="color: #64748b; margin-bottom: 10px; font-size: 0.85em; font-weight: 600;">Items cargados:</h4>
                 <div id="contenedorItems"></div>
                 
                 <div class="total-final-contenedor">
-                    <span style="font-weight: bold; color: #666; font-size: 0.9em;">TOTAL RESERVA: </span>
-                    <span id="txtTotal" style="font-weight: bold; color: #2ecc71; font-size: 1.3em;">$0.00</span>
+                    <span style="font-weight: bold; color: #475569; font-size: 0.9em;">TOTAL RESERVA: </span>
+                    <span id="txtTotal" style="font-weight: bold; color: #10b981; font-size: 1.4em;">$0.00</span>
                 </div>
             </div>
         </fieldset>
@@ -171,7 +167,7 @@
         <fieldset>
             <legend>📝 Operador</legend>
             <label>Tu Local (Origen)</label>
-            <input type="text" id="local_origen" readonly style="background-color: #f8f9fa; color: #666;">
+            <input type="text" id="local_origen" readonly style="background-color: #f8fafc; color: #64748b;">
 
             <label for="nombre_operador">Quien realiza la reserva *</label>
             <input type="text" id="nombre_operador" placeholder="Su nombre" required>
@@ -180,7 +176,7 @@
             <textarea id="comentarios" placeholder="Notas adicionales..." style="min-height: 80px;"></textarea>
         </fieldset>
 
-        <button type="submit" class="btn-azul" style="width: 100%; padding: 15px; font-size: 1.1em; font-weight: bold;">💾 GUARDAR RESERVA FINAL</button>
+        <button type="submit" class="btn-azul" style="width: 100%; padding: 16px; font-size: 1.1em; font-weight: bold; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(74, 144, 226, 0.2);">💾 GUARDAR RESERVA FINAL</button>
     </form>
 
     <div id="modalAviso" class="modal-overlay">
