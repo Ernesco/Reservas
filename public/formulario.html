@@ -7,35 +7,36 @@
     <link rel="stylesheet" href="style.css">
     <title>One Box - Nueva Reserva</title>
     <style>
-        /* --- MEJORAS VISUALES PARA LA TABLA DE ITEMS --- */
+        /* --- CORRECCIÓN DE CONTENEDOR INTERNO --- */
         #contenedorResumen {
             background: #1e1e2e;
-            padding: 20px;
+            padding: 15px;
             border-radius: 12px;
             margin-top: 20px;
             border: 1px solid #45475a;
+            width: 100%; /* Obliga a mantenerse dentro del fieldset */
+            box-sizing: border-box; /* Incluye el padding en el cálculo del ancho */
         }
         .tabla-resumen { 
             width: 100%; 
             border-collapse: separate; 
             border-spacing: 0 8px; 
-            margin-top: 10px; 
+            table-layout: fixed; /* Evita que la tabla se ensanche por contenido largo */
         }
         .tabla-resumen th { 
             color: #89b4fa; 
-            padding: 10px; 
+            padding: 8px; 
             text-align: left; 
             font-size: 0.75em; 
             text-transform: uppercase;
-            border-bottom: 1px solid #45475a;
         }
         .tabla-resumen td { 
-            padding: 12px 10px; 
+            padding: 10px; 
             background: #313244; 
             color: #cdd6f4; 
-            font-size: 0.9em;
+            font-size: 0.85em;
+            word-wrap: break-word; /* Rompe el texto largo si es necesario */
         }
-        /* Redondear filas */
         .tabla-resumen td:first-child { border-radius: 8px 0 0 8px; }
         .tabla-resumen td:last-child { border-radius: 0 8px 8px 0; text-align: right; }
 
@@ -43,28 +44,24 @@
             background: #f38ba8; 
             color: #1e1e2e; 
             border: none; 
-            width: 26px;
-            height: 26px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%; 
             cursor: pointer; 
             font-weight: bold;
-            transition: 0.2s;
         }
-        .btn-eliminar-item:hover { transform: scale(1.1); background: #eba0ac; }
 
         .btn-agregar-item { 
             background: transparent; 
             color: #89b4fa; 
             border: 2px solid #89b4fa; 
-            padding: 12px; 
+            padding: 10px; 
             border-radius: 8px; 
             cursor: pointer; 
             font-weight: bold; 
             width: 100%; 
-            margin-top: 15px; 
-            transition: 0.3s; 
+            margin-top: 10px; 
         }
-        .btn-agregar-item:hover { background: #89b4fa; color: #1e1e2e; }
 
         .total-display-container {
             display: flex; 
@@ -83,7 +80,7 @@
         <a href="panel.html" class="btn-header">🏠 INICIO</a>
     </header>
 
-    <form id="formReservas" class="caja-central" style="max-width: 650px; margin-top: 30px; margin-bottom: 50px;">
+    <form id="formReservas" class="caja-central" style="max-width: 650px; margin: 30px auto; padding: 20px;">
         <h2 style="color: #4a90e2; margin-bottom: 20px;">Nueva Reserva</h2>
         
         <fieldset>
@@ -104,12 +101,12 @@
             <input type="text" id="prod_codigo" placeholder="Ingrese código y presione TAB">
             
             <label>Descripción</label>
-            <input type="text" id="prod_descripcion" readonly style="background-color: #313244; color: #cdd6f4; border: 1px solid #45475a;" placeholder="Autocompletado">
+            <input type="text" id="prod_descripcion" readonly style="background-color: #f1f3f5; color: #495057;" placeholder="Autocompletado">
 
             <div style="display: flex; gap: 10px;">
                 <div style="flex: 1;">
                     <label>Precio Unitario</label>
-                    <input type="number" id="precio_unitario" readonly style="background-color: #313244; color: #cdd6f4; border: 1px solid #45475a;">
+                    <input type="number" id="precio_unitario" readonly style="background-color: #f1f3f5; color: #495057;">
                 </div>
                 <div style="flex: 1;">
                     <label>Cantidad <span class="requerido">*</span></label>
@@ -124,19 +121,19 @@
                 <table class="tabla-resumen">
                     <thead>
                         <tr>
-                            <th style="width: 10%;">Cant.</th>
-                            <th style="width: 60%;">Descripción</th>
-                            <th style="width: 25%;">Subtotal</th>
-                            <th style="width: 5%;"></th>
+                            <th style="width: 15%;">Cant.</th>
+                            <th style="width: 55%;">Descripción</th>
+                            <th style="width: 20%;">Subtotal</th>
+                            <th style="width: 10%;"></th>
                         </tr>
                     </thead>
                     <tbody id="cuerpoResumen"></tbody>
                 </table>
 
                 <div class="total-display-container">
-                    <span style="color: #a6e3a1; font-weight: bold; letter-spacing: 1px;">TOTAL RESERVA:</span>
+                    <span style="color: #a6e3a1; font-weight: bold; font-size: 0.9em;">TOTAL ACTUAL:</span>
                     <input type="text" id="total_reserva" readonly value="0.00" 
-                           style="background: transparent; border: none; color: #a6e3a1; font-weight: bold; font-size: 1.5em; text-align: right; width: 180px;">
+                           style="background: transparent; border: none; color: #a6e3a1; font-weight: bold; font-size: 1.4em; text-align: right; width: 140px; padding:0;">
                 </div>
             </div>
         </fieldset>
@@ -153,7 +150,7 @@
         <fieldset>
             <legend>📝 Operador</legend>
             <label>Local que gestiona (Tu Local)</label>
-            <input type="text" id="local_origen" readonly style="background-color: #313244; color: #cdd6f4; border: 1px solid #45475a;">
+            <input type="text" id="local_origen" readonly style="background-color: #f1f3f5; color: #495057;">
 
             <label for="nombre_operador">Nombre <span class="requerido">*</span></label>
             <input type="text" id="nombre_operador" placeholder="Escriba su nombre" required>
@@ -162,7 +159,7 @@
             <textarea id="comentarios" placeholder="Notas adicionales..."></textarea>
         </fieldset>
 
-        <button type="submit" class="btn-azul">💾 GUARDAR RESERVA FINAL</button>
+        <button type="submit" class="btn-azul" style="margin-top: 20px;">💾 GUARDAR RESERVA FINAL</button>
     </form>
 
     <div id="modalAviso" class="modal-overlay">
@@ -216,9 +213,9 @@
                 totalGeneral += item.subtotal;
                 cuerpo.innerHTML += `
                     <tr>
-                        <td style="font-weight: bold;">${item.cantidad}</td>
-                        <td>${item.descripcion} <br><small style="color: #89b4fa;">Código: ${item.codigo}</small></td>
-                        <td style="font-weight: bold; color: #a6e3a1;">$${item.subtotal.toFixed(2)}</td>
+                        <td>${item.cantidad}</td>
+                        <td>${item.descripcion} <br><small style="color: #89b4fa;">${item.codigo}</small></td>
+                        <td>$${item.subtotal.toFixed(2)}</td>
                         <td><button type="button" class="btn-eliminar-item" onclick="eliminarItem(${index})">✕</button></td>
                     </tr>
                 `;
@@ -251,7 +248,7 @@
                     document.getElementById('prod_descripcion').value = producto.descripcion;
                     document.getElementById('precio_unitario').value = producto.precio_unitario;
                 } else {
-                    mostrarAviso('⚠️ No encontrado', 'El código de producto no existe.', true);
+                    mostrarAviso('⚠️ No encontrado', 'El código no existe.', true);
                     limpiarCamposCarga();
                 }
             } catch (error) { console.error("Error:", error); }
@@ -260,7 +257,7 @@
         document.getElementById('formReservas').addEventListener('submit', function(e) {
             e.preventDefault();
             if (listaProductos.length === 0) {
-                mostrarAviso('⚠️ Pedido Vacío', 'Agrega al menos un producto.', true);
+                mostrarAviso('⚠️ Vacío', 'Agrega al menos un producto.', true);
                 return;
             }
 
@@ -284,7 +281,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datos)
             }).then(res => {
-                if (res.ok) mostrarAviso('✅ Éxito', 'Reserva guardada correctamente.', false, true);
+                if (res.ok) mostrarAviso('✅ Éxito', 'Reserva guardada.', false, true);
                 else mostrarAviso('❌ Error', 'Error al guardar.', true);
             });
         });
@@ -302,6 +299,7 @@
         }
 
         function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
+        
         function nuevaCarga() { 
             listaProductos = [];
             actualizarVistaTabla();
@@ -309,7 +307,7 @@
             cerrarAviso(); 
             document.getElementById('local_origen').value = sessionStorage.getItem('usuario_sucursal') || "Admin";
         }
-        
+
         document.addEventListener('DOMContentLoaded', () => {
             if (!sessionStorage.getItem('usuario_nombre')) window.location.href = 'index.html';
             document.getElementById('local_origen').value = sessionStorage.getItem('usuario_sucursal') || "Admin";
