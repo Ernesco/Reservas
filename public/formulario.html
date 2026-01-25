@@ -7,63 +7,69 @@
     <link rel="stylesheet" href="style.css">
     <title>One Box - Nueva Reserva</title>
     <style>
-        /* CONTENEDOR MAESTRO PARA CENTRAR TODO */
-        .main-container {
-            max-width: 650px;
-            margin: 30px auto;
-            padding: 0 15px; /* Margen de seguridad para móviles */
-        }
-
-        /* AJUSTE DEL FORMULARIO PARA QUE NO DESBORDE */
-        #formReservas {
-            width: 100%;
-            background-color: #ffffff; /* Fondo blanco del formulario */
-            border-radius: 12px;
-            padding: 25px;
-            box-sizing: border-box; /* Crucial: incluye padding en el ancho */
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        /* FIELDSETS DENTRO DEL CONTENEDOR */
-        fieldset {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
+        /* --- BLOQUE MAESTRO PARA CENTRAR EL FORMULARIO --- */
+        .wrapper-formulario {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
             width: 100%;
             box-sizing: border-box;
         }
 
-        /* EL CARRITO OSCURO AHORA RESPETA EL ANCHO */
+        /* --- CONTENEDOR BLANCO PRINCIPAL --- */
+        #formReservas {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 650px; /* Ancho máximo controlado */
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-sizing: border-box; /* Incluye el padding en el ancho total */
+        }
+
+        /* --- CONTENEDOR OSCURO INTERNO (CARRITO) --- */
         #contenedorResumen {
-            background: #1e1e2e; /* Fondo oscuro tipo Catppuccin */
-            padding: 15px;
+            background: #1e1e2e;
+            padding: 20px;
             border-radius: 12px;
             margin-top: 20px;
             border: 1px solid #45475a;
+            /* Estos parámetros aseguran que se quede ADENTRO del blanco */
             width: 100%; 
-            box-sizing: border-box; 
-            display: none; /* Se activa por JS */
+            max-width: 100%;
+            box-sizing: border-box;
+            display: none;
         }
 
         .tabla-resumen { 
             width: 100%; 
             border-collapse: separate; 
             border-spacing: 0 8px; 
-            table-layout: fixed; /* Evita que el contenido la empuje hacia afuera */
+            table-layout: fixed; /* Evita desbordes por texto largo */
         }
 
         .tabla-resumen td { 
-            padding: 10px; 
+            padding: 12px 10px; 
             background: #313244; 
             color: #cdd6f4; 
             font-size: 0.85em;
-            word-wrap: break-word; /* Rompe descripciones largas */
+            word-wrap: break-word;
         }
 
-        /* BORDES REDONDEADOS DE FILAS */
-        .tabla-resumen td:first-child { border-radius: 8px 0 0 8px; }
-        .tabla-resumen td:last-child { border-radius: 0 8px 8px 0; text-align: right; }
+        /* Botón Agregar corregido */
+        .btn-agregar-producto { 
+            background: #89b4fa; 
+            color: #1e1e2e; 
+            border: none; 
+            padding: 12px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            width: 100%; 
+            margin-top: 15px; 
+            transition: 0.3s;
+        }
+        .btn-agregar-producto:hover { background: #b4befe; }
 
         .btn-eliminar-item { 
             background: #f38ba8; 
@@ -76,19 +82,6 @@
             font-weight: bold;
         }
 
-        .btn-agregar-item { 
-            background: #89b4fa; 
-            color: #1e1e2e; 
-            border: none; 
-            padding: 12px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            width: 100%; 
-            margin-top: 10px; 
-            transition: 0.3s;
-        }
-
         .total-display-container {
             display: flex; 
             justify-content: space-between; 
@@ -96,19 +89,6 @@
             margin-top: 15px; 
             padding-top: 10px;
             border-top: 1px solid #45475a;
-        }
-
-        /* BOTÓN GUARDAR FINAL */
-        .btn-guardar-final {
-            background-color: #4a90e2;
-            color: white;
-            border: none;
-            padding: 15px;
-            width: 100%;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 1em;
         }
     </style>
 </head>
@@ -119,51 +99,51 @@
         <a href="panel.html" class="btn-header">🏠 INICIO</a>
     </header>
 
-    <div class="main-container">
+    <div class="wrapper-formulario">
         <form id="formReservas">
-            <h2 style="color: #4a90e2; margin-bottom: 20px; text-align: center;">Nueva Reserva</h2>
+            <h2 style="color: #4a90e2; margin-bottom: 25px; text-align: center;">Nueva Reserva</h2>
             
-            <fieldset>
-                <legend>👤 Cliente</legend>
+            <fieldset style="border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <legend style="padding: 0 10px; font-weight: bold; color: #666;">👤 Datos del Cliente</legend>
                 <label>Nombre <span class="requerido">*</span></label>
-                <input type="text" id="cliente_nombre" required style="width: 100%; box-sizing: border-box;">
+                <input type="text" id="cliente_nombre" required style="width: 100%; margin-bottom: 15px;">
                 
                 <label>Teléfono <span class="requerido">*</span></label>
-                <input type="tel" id="cliente_telefono" required style="width: 100%; box-sizing: border-box;">
+                <input type="tel" id="cliente_telefono" required style="width: 100%; margin-bottom: 15px;">
                 
                 <label>Email (opcional)</label>
-                <input type="email" id="cliente_email" style="width: 100%; box-sizing: border-box;">
+                <input type="email" id="cliente_email" style="width: 100%;">
             </fieldset>
 
-            <fieldset>
-                <legend>🛒 Cargar Productos</legend>
+            <fieldset style="border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <legend style="padding: 0 10px; font-weight: bold; color: #666;">📦 Selección de Productos</legend>
                 <label>Código <span class="requerido">*</span></label>
-                <input type="text" id="prod_codigo" placeholder="Ingrese código y presione TAB" style="width: 100%; box-sizing: border-box;">
+                <input type="text" id="prod_codigo" placeholder="Ingrese código y presione TAB" style="width: 100%; margin-bottom: 15px;">
                 
                 <label>Descripción</label>
-                <input type="text" id="prod_descripcion" readonly style="background-color: #f1f3f5; color: #495057; width: 100%; box-sizing: border-box;" placeholder="Autocompletado">
+                <input type="text" id="prod_descripcion" readonly style="background-color: #f1f3f5; color: #495057; width: 100%; margin-bottom: 15px;" placeholder="Autocompletado">
 
-                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <div style="display: flex; gap: 15px; margin-bottom: 15px;">
                     <div style="flex: 1;">
                         <label>Precio Unitario</label>
-                        <input type="number" id="precio_unitario" readonly style="background-color: #f1f3f5; color: #495057; width: 100%; box-sizing: border-box;">
+                        <input type="number" id="precio_unitario" readonly style="background-color: #f1f3f5; color: #495057; width: 100%;">
                     </div>
                     <div style="flex: 1;">
                         <label>Cantidad <span class="requerido">*</span></label>
-                        <input type="number" id="prod_cantidad" min="1" value="1" style="width: 100%; box-sizing: border-box;">
+                        <input type="number" id="prod_cantidad" min="1" value="1" style="width: 100%;">
                     </div>
                 </div>
 
-                <button type="button" class="btn-agregar-item" onclick="agregarArticulo()">➕ AGREGAR AL PEDIDO</button>
+                <button type="button" class="btn-agregar-producto" onclick="agregarArticulo()">➕ AGREGAR PRODUCTO</button>
 
                 <div id="contenedorResumen">
-                    <h4 style="color: #cdd6f4; margin-bottom: 5px; font-size: 0.9em;">📦 Items en esta reserva:</h4>
+                    <h4 style="color: #cdd6f4; margin-bottom: 5px; font-size: 0.9em;">🛒 Items en esta reserva:</h4>
                     <table class="tabla-resumen">
                         <thead>
                             <tr style="color: #89b4fa; font-size: 0.75em; text-transform: uppercase;">
-                                <th style="width: 15%; text-align: left; padding: 5px;">Cant</th>
-                                <th style="width: 55%; text-align: left; padding: 5px;">Descripción</th>
-                                <th style="width: 20%; text-align: left; padding: 5px;">Total</th>
+                                <th style="width: 15%; padding: 5px;">Cant</th>
+                                <th style="width: 55%; padding: 5px;">Descripción</th>
+                                <th style="width: 20%; padding: 5px;">Total</th>
                                 <th style="width: 10%;"></th>
                             </tr>
                         </thead>
@@ -178,28 +158,28 @@
                 </div>
             </fieldset>
 
-            <fieldset>
-                <legend>🏢 Sucursal</legend>
+            <fieldset style="border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 20px;">
+                <legend style="padding: 0 10px; font-weight: bold; color: #666;">🏢 Logística</legend>
                 <label>Local destino <span class="requerido">*</span></label>
-                <input type="text" id="local_destino" required style="width: 100%; box-sizing: border-box;">
+                <input type="text" id="local_destino" required style="width: 100%; margin-bottom: 15px;">
 
                 <label>Contacto en sucursal <span class="requerido">*</span></label>
-                <input type="text" id="contacto_sucursal" required style="width: 100%; box-sizing: border-box;">
+                <input type="text" id="contacto_sucursal" required style="width: 100%;">
             </fieldset>
 
-            <fieldset>
-                <legend>📝 Operador</legend>
+            <fieldset style="border: 1px solid #ddd; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+                <legend style="padding: 0 10px; font-weight: bold; color: #666;">📝 Operador</legend>
                 <label>Tu Local (Origen)</label>
-                <input type="text" id="local_origen" readonly style="background-color: #f1f3f5; color: #495057; width: 100%; box-sizing: border-box;">
+                <input type="text" id="local_origen" readonly style="background-color: #f1f3f5; color: #495057; width: 100%; margin-bottom: 15px;">
 
                 <label>Tu Nombre <span class="requerido">*</span></label>
-                <input type="text" id="nombre_operador" required style="width: 100%; box-sizing: border-box;">
+                <input type="text" id="nombre_operador" required style="width: 100%; margin-bottom: 15px;">
 
                 <label>Comentarios</label>
-                <textarea id="comentarios" style="width: 100%; box-sizing: border-box; min-height: 60px;"></textarea>
+                <textarea id="comentarios" style="width: 100%; min-height: 80px;"></textarea>
             </fieldset>
 
-            <button type="submit" class="btn-guardar-final">💾 GUARDAR RESERVA FINAL</button>
+            <button type="submit" class="btn-azul" style="width: 100%; padding: 15px; font-size: 1.1em; border-radius: 10px;">💾 GUARDAR RESERVA FINAL</button>
         </form>
     </div>
 
