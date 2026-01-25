@@ -136,11 +136,9 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
-// --- 3. RUTA: BORRADO FÍSICO Y TRASPASO A HISTÓRICO (Solo Admin) ---
-// CORREGIDO: Incluye cliente_telefono y cliente_email explícitamente
+// --- 3. RUTA: BORRADO FÍSICO Y TRASPASO A HISTÓRICO ---
 app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     const id = req.params.id;
-
     try {
         const sqlInsert = `
             INSERT INTO borrados_definitivos (
@@ -158,7 +156,6 @@ app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
             WHERE id = ?`;
 
         const [resCopia] = await db.promise().query(sqlInsert, [id]);
-
         if (resCopia.affectedRows > 0) {
             await db.promise().query("DELETE FROM reservas WHERE id = ?", [id]);
             res.send('OK');
@@ -166,16 +163,15 @@ app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
             res.status(404).send('No encontrada');
         }
     } catch (err) {
-        console.error("Error al archivar en borrados_definitivos:", err);
+        console.error("Error al archivar:", err);
         res.status(500).send('Error');
     }
 });
 
-// --- RUTA: PRECIOS (Solo Admin) ---
+// --- 4. RUTA: ACTUALIZAR PRECIOS ---
 app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
     const rolUsuario = req.headers['user-role'];
     if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
-
     if (!req.file) return res.status(400).json({ success: false });
 
     const resultados = [];
@@ -209,7 +205,7 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
         });
 });
 
-// --- SOPORTE, USUARIOS, LOGIN, PRODUCTOS Y RESERVAR (Sin cambios) ---
+// --- 5. RUTA: SOPORTE, USUARIOS, LOGIN, PRODUCTOS ---
 app.post('/admin/soporte', async (req, res) => {
     const { tipo, mensaje, usuario } = req.body;
     try {
@@ -251,12 +247,27 @@ app.post('/reservar', (req, res) => {
     });
 });
 
+// --- 6. RUTA: RESERVAS (MODIFICADA CON JOIN PARA WHATSAPP) ---
 app.get('/reservas', (req, res) => {
     const { q, sucursal, rol } = req.query;
-    let sql = "SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ?)";
+    
+    // El JOIN permite que cada reserva traiga los datos del local desde la tabla usuarios
+    let sql = `
+        SELECT r.*, u.direccion, u.horarios 
+        FROM reservas r
+        LEFT JOIN usuarios u ON r.local_origen = u.sucursal
+        WHERE (r.cliente_nombre LIKE ? OR r.prod_codigo LIKE ?)
+    `;
+    
     let par = [`%${q}%`, `%${q}%`];
-    if (rol !== 'admin') { sql += " AND local_origen = ?"; par.push(sucursal); }
-    sql += " ORDER BY id DESC";
+    
+    if (rol !== 'admin') { 
+        sql += " AND r.local_origen = ?"; 
+        par.push(sucursal); 
+    }
+    
+    sql += " ORDER BY r.id DESC";
+
     db.query(sql, par, (err, results) => {
         if (err) return res.status(500).send(err);
         res.json(results);
