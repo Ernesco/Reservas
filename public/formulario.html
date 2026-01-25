@@ -6,14 +6,60 @@
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
     <link rel="stylesheet" href="style.css">
     <title>One Box - Nueva Reserva</title>
-    <style>
-        .tabla-resumen { width: 100%; border-collapse: collapse; margin-top: 15px; background: #24273a; border-radius: 8px; overflow: hidden; }
-        .tabla-resumen th { background: #363a4f; color: #cad3f5; padding: 10px; text-align: left; font-size: 0.9em; }
-        .tabla-resumen td { padding: 10px; border-bottom: 1px solid #494d64; color: #b8c0e0; font-size: 0.85em; }
-        .btn-eliminar-item { background: #f38ba8; color: #1e1e2e; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .btn-agregar-item { background: #89b4fa; color: #1e1e2e; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
-        .btn-agregar-item:hover { background: #b4befe; }
-    </style>
+<style>
+    /* Tabla de resumen mejorada */
+    .tabla-resumen { 
+        width: 100%; 
+        border-collapse: separate; 
+        border-spacing: 0 8px; /* Espacio entre filas */
+        margin-top: 15px; 
+    }
+    .tabla-resumen th { 
+        color: #89b4fa; 
+        padding: 10px; 
+        text-align: left; 
+        font-size: 0.8em; 
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 1px solid #45475a;
+    }
+    .tabla-resumen td { 
+        padding: 12px 10px; 
+        background: #313244; /* Color de fondo de la fila */
+        color: #cdd6f4; 
+        font-size: 0.9em;
+    }
+    /* Redondear esquinas de las filas */
+    .tabla-resumen td:first-child { border-radius: 8px 0 0 8px; }
+    .tabla-resumen td:last-child { border-radius: 0 8px 8px 0; text-align: right; }
+
+    .btn-eliminar-item { 
+        background: #f38ba8; 
+        color: #1e1e2e; 
+        border: none; 
+        width: 24px;
+        height: 24px;
+        border-radius: 50%; 
+        cursor: pointer; 
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .btn-eliminar-item:hover { transform: scale(1.1); background: #eba0ac; }
+
+    .btn-agregar-item { 
+        background: transparent; 
+        color: #89b4fa; 
+        border: 2px solid #89b4fa; 
+        padding: 10px; 
+        border-radius: 8px; 
+        cursor: pointer; 
+        font-weight: bold; 
+        width: 100%; 
+        margin-top: 15px; 
+        transition: 0.3s; 
+    }
+    .btn-agregar-item:hover { background: #89b4fa; color: #1e1e2e; }
+</style>
 </head>
 <body>
 
