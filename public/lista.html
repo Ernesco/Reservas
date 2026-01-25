@@ -156,7 +156,6 @@
 
     if (!sessionStorage.getItem('usuario_nombre')) window.location.href = 'index.html';
 
-    // FUNCIONES DE SOPORTE
     function mostrarAviso(titulo, mensaje, esError = true) {
         const modal = document.getElementById('modalAviso');
         document.getElementById('tituloAviso').textContent = titulo;
@@ -237,23 +236,14 @@
     function getBotonesAccion(item) {
         const rol = sessionStorage.getItem('usuario_rol');
         let botones = "";
-        
         if (item.borrado === 1) {
             if (rol === 'admin' || rol === 'encargado') {
-                botones += `
-                    <select onchange="restaurarReserva(${item.id}, this.value)" class="select-restaurar">
-                        <option value="">Restaurar a...</option>
-                        <option value="En Tránsito">En Tránsito</option>
-                        <option value="Pendiente de Retiro">Pendiente de Retiro</option>
-                    </select>`;
-                if (rol === 'admin') {
-                    botones += `<button class="btn-borrar" onclick="confirmarEliminarDefinitivo(${item.id})">ELIMINAR DB</button>`;
-                }
+                botones += `<select onchange="restaurarReserva(${item.id}, this.value)" class="select-restaurar"><option value="">Restaurar a...</option><option value="En Tránsito">En Tránsito</option><option value="Pendiente de Retiro">Pendiente de Retiro</option></select>`;
+                if (rol === 'admin') botones += `<button class="btn-borrar" onclick="confirmarEliminarDefinitivo(${item.id})">ELIMINAR DB</button>`;
                 return botones;
             }
             return "";
         }
-
         if (item.estado === 'En Tránsito') {
             botones += `<button class="btn-azul" onclick="cambiarEstadoConFirma(${item.id}, 'Pendiente de Retiro', '¿Confirmar ingreso al local?', true)">CONFIRMAR INGRESO</button>`;
             if (rol === 'admin' || rol === 'encargado') {
@@ -264,16 +254,13 @@
             botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar entrega al cliente?')">RETIRADO</button>`;
             botones += `<button class="btn-borrar" style="margin-left:5px;" onclick="cambiarEstadoConFirma(${item.id}, 'Cancelado', '¿Desea cancelar esta reserva?')">CANCELADO</button>`;
         } else if (item.estado === 'Retirado' || item.estado === 'Cancelado') {
-            if (rol === 'admin') {
-                botones += `<button class="btn-borrar" onclick="abrirModalBorradoLogico(${item.id})">BORRAR</button>`;
-            }
+            if (rol === 'admin') botones += `<button class="btn-borrar" onclick="abrirModalBorradoLogico(${item.id})">BORRAR</button>`;
         }
         return botones;
     }
 
     // --- LÓGICA DE EDICIÓN ---
-
-    function abrirModalEditar(item) {
+    async function abrirModalEditar(item) {
         document.getElementById('editId').value = item.id;
         document.getElementById('editNombre').value = item.cliente_nombre;
         document.getElementById('editTel').value = item.cliente_telefono;
@@ -283,13 +270,12 @@
         document.getElementById('editCant').value = item.prod_cantidad;
         document.getElementById('editTotal').value = item.total_reserva;
         
-        // Buscamos el precio unitario del producto para permitir cálculos
-        buscarProductoEditar();
-        
+        // Carga precio unitario para habilitar cálculos inmediatos
+        await buscarProductoEditar(false);
         document.getElementById('modalEditar').style.display = 'flex';
     }
 
-    async function buscarProductoEditar() {
+    async function buscarProductoEditar(limpiarSiNoExiste = true) {
         const codigo = document.getElementById('editCodigo').value.trim();
         if (!codigo) return;
         try {
@@ -299,6 +285,10 @@
                 document.getElementById('editDesc').value = p.descripcion;
                 document.getElementById('editPrecioU').value = p.precio_unitario;
                 calcularTotalEditar();
+            } else if (limpiarSiNoExiste) {
+                document.getElementById('editDesc').value = 'Producto no encontrado';
+                document.getElementById('editPrecioU').value = 0;
+                document.getElementById('editTotal').value = 0;
             }
         } catch (e) { console.error("Error al buscar producto", e); }
     }
@@ -309,16 +299,32 @@
         document.getElementById('editTotal').value = (precio * cant).toFixed(2);
     }
 
-    function guardarEdicion() {
+function guardarEdicion() {
+    // Primero validamos que los campos básicos estén llenos
+    const nombreCli = document.getElementById('editNombre').value.trim();
+    const cant = parseInt(document.getElementById('editCant').value) || 0;
+
+    if (!nombreCli || cant <= 0) {
+        return alert("Por favor, completa los campos obligatorios.");
+    }
+
+    // En lugar de guardar directo, abrimos el modal de firma que ya tienes
+    const btnAceptar = document.getElementById('modalAceptar');
+    
+    btnAceptar.onclick = function() {
+        const responsable = document.getElementById('inputNombreResponsable').value.trim();
+        if (!responsable) return alert("Debes ingresar tu nombre para registrar la edición.");
+
         const id = document.getElementById('editId').value;
         const data = {
-            cliente_nombre: document.getElementById('editNombre').value,
-            cliente_telefono: document.getElementById('editTel').value,
-            cliente_email: document.getElementById('editEmail').value,
-            prod_codigo: document.getElementById('editCodigo').value,
-            descripcion: document.getElementById('editDesc').value,
-            prod_cantidad: document.getElementById('editCant').value,
-            total_reserva: document.getElementById('editTotal').value
+            cliente_nombre: nombreCli,
+            cliente_telefono: document.getElementById('editTel').value.trim(),
+            cliente_email: document.getElementById('editEmail').value.trim(),
+            prod_codigo: document.getElementById('editCodigo').value.trim(),
+            descripcion: document.getElementById('editDesc').value.trim(),
+            prod_cantidad: cant,
+            total_reserva: parseFloat(document.getElementById('editTotal').value) || 0,
+            responsable_edicion: responsable // Enviamos quién edita
         };
 
         fetch(`/reservas/${id}/editar`, {
@@ -328,17 +334,21 @@
         })
         .then(res => {
             if (res.ok) {
+                cerrarModalFirma();
                 cerrarEditar();
                 cargarReservas();
-                mostrarAviso('✅ Actualizado', 'La reserva se modificó correctamente.', false);
+                mostrarAviso('✅ Editado', 'Cambios guardados y operador actualizado.', false);
             } else {
-                mostrarAviso('❌ Error', 'No se pudieron guardar los cambios.');
+                mostrarAviso('❌ Error', 'No se pudo guardar la edición.');
             }
         });
-    }
+    };
 
-    // --- OTRAS FUNCIONES (QR, Firma, etc) ---
+    // Reutilizamos tu modal de confirmación
+    abrirModalFirma("¿Confirmas los cambios realizados en esta reserva?", true, null);
+}
 
+    // --- OTRAS FUNCIONES ---
     function mostrarQR(id) {
         const item = reservasCargadas.find(r => r.id == id);
         if (!item) return;
@@ -355,34 +365,23 @@
                     `¡Te esperamos! 🛒`;
 
         const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
-        
         document.getElementById('modalQR').style.display = 'flex';
         setTimeout(() => { 
-            QRCode.toCanvas(document.getElementById('canvasQR'), url, { 
-                width: 240, 
-                margin: 2,
-                color: { dark: "#075E54", light: "#FFFFFF" }
-            }); 
+            QRCode.toCanvas(document.getElementById('canvasQR'), url, { width: 240, margin: 2, color: { dark: "#075E54", light: "#FFFFFF" } }); 
         }, 200);
     }
 
-    // Función genérica para cambiar estado
     function cambiarEstadoConFirma(id, nuevoEstado, preg, activarQR = false) {
         const btnAceptar = document.getElementById('modalAceptar');
         btnAceptar.onclick = function() {
             const resp = document.getElementById('inputNombreResponsable').value.trim();
             if (!resp) return alert("Ingrese su nombre");
-            
             fetch(`/reservas/${id}/estado`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ estado: nuevoEstado, responsable: resp })
             }).then(res => { 
-                if(res.ok) { 
-                    cerrarModalFirma();
-                    if(activarQR) mostrarQR(id);
-                    else { cargarReservas(); }
-                } 
+                if(res.ok) { cerrarModalFirma(); if(activarQR) mostrarQR(id); else cargarReservas(); } 
             });
         };
         abrirModalFirma(preg, true, null);

@@ -146,8 +146,12 @@ app.put('/reservas/:id/editar', (req, res) => {
         prod_codigo, 
         descripcion, 
         prod_cantidad, 
-        total_reserva 
+        total_reserva,
+        responsable_edicion // Nuevo campo que viene del modal
     } = req.body;
+
+    // Concatenamos el nombre del responsable con la marca (Editado)
+    const operadorActualizado = `${responsable_edicion} (Editado)`;
 
     const sql = `
         UPDATE reservas 
@@ -157,7 +161,8 @@ app.put('/reservas/:id/editar', (req, res) => {
             prod_codigo = ?, 
             descripcion = ?, 
             prod_cantidad = ?, 
-            total_reserva = ? 
+            total_reserva = ?,
+            operador_nombre = ? 
         WHERE id = ?`;
 
     db.query(sql, [
@@ -168,10 +173,11 @@ app.put('/reservas/:id/editar', (req, res) => {
         descripcion, 
         prod_cantidad, 
         total_reserva, 
+        operadorActualizado, // Guardamos la marca de edición
         id
     ], (err, result) => {
         if (err) {
-            console.error("Error al editar reserva en MySQL:", err);
+            console.error("Error al editar reserva:", err);
             return res.status(500).send('Error al actualizar');
         }
         res.send('OK');
