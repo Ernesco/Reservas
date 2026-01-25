@@ -137,7 +137,6 @@ app.put('/reservas/:id/estado', (req, res) => {
 });
 
 // --- 3. RUTA: BORRADO FÍSICO Y TRASPASO A HISTÓRICO (Solo Admin) ---
-// CORREGIDO: Incluye cliente_telefono y cliente_email explícitamente
 app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     const id = req.params.id;
 
@@ -209,7 +208,6 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
         });
 });
 
-// --- SOPORTE, USUARIOS, LOGIN, PRODUCTOS Y RESERVAR (Sin cambios) ---
 app.post('/admin/soporte', async (req, res) => {
     const { tipo, mensaje, usuario } = req.body;
     try {
@@ -251,12 +249,27 @@ app.post('/reservar', (req, res) => {
     });
 });
 
+// --- RUTA MODIFICADA CON JOIN PARA WHATSAPP ---
 app.get('/reservas', (req, res) => {
     const { q, sucursal, rol } = req.query;
-    let sql = "SELECT * FROM reservas WHERE (cliente_nombre LIKE ? OR prod_codigo LIKE ?)";
+    
+    // Seleccionamos direccion y horarios de la tabla usuarios vinculando por sucursal
+    let sql = `
+        SELECT r.*, u.direccion, u.horarios 
+        FROM reservas r
+        LEFT JOIN usuarios u ON r.local_origen = u.sucursal
+        WHERE (r.cliente_nombre LIKE ? OR r.prod_codigo LIKE ?)
+    `;
+    
     let par = [`%${q}%`, `%${q}%`];
-    if (rol !== 'admin') { sql += " AND local_origen = ?"; par.push(sucursal); }
-    sql += " ORDER BY id DESC";
+    
+    if (rol !== 'admin') { 
+        sql += " AND r.local_origen = ?"; 
+        par.push(sucursal); 
+    }
+    
+    sql += " ORDER BY r.id DESC";
+
     db.query(sql, par, (err, results) => {
         if (err) return res.status(500).send(err);
         res.json(results);
