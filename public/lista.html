@@ -143,11 +143,11 @@
         const rol = sessionStorage.getItem('usuario_rol');
         // Títulos invertidos corregidos: Ahora dice Origen en lugar de Destino
         let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th><th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
-        if (estadoActualFiltrado === 'En Tránsito') columnas += `<th>Origen (Aviso)</th><th>Operador</th>`;
+        if (estadoActualFiltrado === 'En Tránsito') columnas += `<th>Origen</th><th>Operador</th>`;
         else if (estadoActualFiltrado === 'Pendiente de Retiro') columnas += `<th>Ingreso Local</th>`;
         else if (estadoActualFiltrado === 'Finalizado') columnas += `<th>Cierre</th>`;
         else if (estadoActualFiltrado === 'Eliminados') columnas += `<th>Ingresó</th><th>Finalizó</th><th>Operador</th>`;
-        if (rol === 'admin') columnas += `<th>Origen</th>`;
+        if (rol === 'admin') columnas += `<th>Local Op.</th>`;
         columnas += `<th>Acciones</th>`;
         header.innerHTML = columnas;
     }
