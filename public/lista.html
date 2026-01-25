@@ -61,34 +61,37 @@
         <div class="footer-version">v1.3.5</div> 
     </footer>
 
-    <div id="modalEditar" class="modal-overlay" style="display: none;">
-        <div class="modal-caja modal-ancho-editar">
-            <h3 style="color: #fab387; margin-bottom: 20px; text-align: center;">📝 Editar Reserva</h3>
-            <input type="hidden" id="editId">
-            <form id="formEditar" class="grid-editar">
-                <div class="col-editar">
-                    <label>Nombre Cliente:</label>
-                    <input type="text" id="editNombre">
-                    <label>Teléfono:</label>
-                    <input type="text" id="editTel">
-                </div>
-                <div class="col-editar">
-                    <label>Código Producto:</label>
-                    <input type="text" id="editCodigo">
-                    <label>Descripción:</label>
-                    <input type="text" id="editDesc">
-                </div>
-                <div class="col-editar">
-                    <label>Total Reserva ($):</label>
-                    <input type="number" id="editTotal">
-                </div>
-            </form>
-            <div class="modal-botones" style="margin-top: 30px;">
-                <button onclick="guardarEdicion()" class="btn-azul">GUARDAR CAMBIOS</button>
-                <button onclick="cerrarEditar()" class="btn-secundario">CANCELAR</button>
+<div id="modalEditar" class="modal-overlay" style="display: none;">
+    <div class="modal-caja modal-ancho-editar" style="max-width: 850px;">
+        <h3 style="color: #fab387; margin-bottom: 20px; text-align: center;">📝 Editar Reserva</h3>
+        <input type="hidden" id="editId">
+        <form id="formEditar" class="grid-editar" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: left;">
+            <div class="col-editar">
+                <label style="color: #4a90e2; font-weight: bold;">👤 Cliente</label>
+                <input type="text" id="editNombre" placeholder="Nombre">
+                <input type="text" id="editTel" placeholder="Teléfono">
+                <input type="email" id="editEmail" placeholder="Email">
             </div>
+            <div class="col-editar">
+                <label style="color: #4a90e2; font-weight: bold;">📦 Producto</label>
+                <input type="text" id="editCodigo" placeholder="Código" onblur="buscarProductoEditar()">
+                <textarea id="editDesc" placeholder="Descripción" readonly style="background: #313244; height: 60px;"></textarea>
+                <input type="number" id="editCant" placeholder="Cantidad" oninput="calcularTotalEditar()">
+            </div>
+            <div class="col-editar">
+                <label style="color: #4a90e2; font-weight: bold;">💰 Valores</label>
+                <label><small>Precio Unitario:</small></label>
+                <input type="number" id="editPrecioU" readonly style="background: #313244;">
+                <label><small>Total Reserva:</small></label>
+                <input type="number" id="editTotal" readonly style="background: #313244; font-weight: bold; color: #a6e3a1;">
+            </div>
+        </form>
+        <div class="modal-botones" style="margin-top: 30px;">
+            <button onclick="guardarEdicion()" class="btn-azul">GUARDAR CAMBIOS</button>
+            <button onclick="cerrarEditar()" class="btn-secundario">CANCELAR</button>
         </div>
     </div>
+</div>
 
     <div id="modalFirma" class="modal-overlay">
         <div class="modal-caja">

@@ -136,10 +136,50 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
+// NUEVA RUTA: GUARDAR EDICIÓN COMPLETA
+app.put('/reservas/:id/editar', (req, res) => {
+    const id = req.params.id;
+    const { 
+        cliente_nombre, 
+        cliente_telefono, 
+        cliente_email, 
+        prod_codigo, 
+        descripcion, 
+        prod_cantidad, 
+        total_reserva 
+    } = req.body;
+
+    const sql = `
+        UPDATE reservas 
+        SET cliente_nombre = ?, 
+            cliente_telefono = ?, 
+            cliente_email = ?, 
+            prod_codigo = ?, 
+            descripcion = ?, 
+            prod_cantidad = ?, 
+            total_reserva = ? 
+        WHERE id = ?`;
+
+    db.query(sql, [
+        cliente_nombre, 
+        cliente_telefono, 
+        cliente_email, 
+        prod_codigo, 
+        descripcion, 
+        prod_cantidad, 
+        total_reserva, 
+        id
+    ], (err, result) => {
+        if (err) {
+            console.error("Error al editar reserva:", err);
+            return res.status(500).send('Error al actualizar');
+        }
+        res.send('OK');
+    });
+});
+
 app.get('/reservas', (req, res) => {
     const { q, sucursal, rol } = req.query;
-    
-    // USAMOS SUBCONSULTAS: Evita duplicados y no oculta reservas si no hay coincidencia exacta
     let sql = `
         SELECT r.*, 
         (SELECT direccion FROM usuarios WHERE sucursal = r.local_origen LIMIT 1) as direccion,
@@ -147,14 +187,11 @@ app.get('/reservas', (req, res) => {
         FROM reservas r
         WHERE (r.cliente_nombre LIKE ? OR r.prod_codigo LIKE ?)
     `;
-    
     let par = [`%${q}%`, `%${q}%`];
-    
     if (rol !== 'admin') { 
         sql += " AND r.local_origen = ?"; 
         par.push(sucursal); 
     }
-    
     sql += " ORDER BY r.id DESC";
 
     db.query(sql, par, (err, results) => {
