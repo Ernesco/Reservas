@@ -83,7 +83,7 @@
             <h3 id="tituloFirma" style="color: #89b4fa;">⚠️ Confirmación</h3>
             <p id="mensajeFirma" style="margin-bottom: 20px;"></p>
             <div id="contenedorInputFirma" style="margin-bottom: 20px; width: 100%;">
-                <label style="color: #cdd6f4; display: block; margin-bottom: 10px; text-align: left;">Nombre del responsable:</label>
+                <label style="color: #cdd6f4; display: block; margin-bottom: 10px; text-align: left;">Ingrese su nombre para registrar la acción:</label>
                 <input type="text" id="inputNombreResponsable" placeholder="Su nombre aquí..." 
                        style="background: #313244; color: white; border: 1px solid #45475a; padding: 12px; width: 100%; border-radius: 6px; box-sizing: border-box;">
             </div>
@@ -141,8 +141,9 @@
     function actualizarEncabezados() {
         const header = document.getElementById('encabezadoTabla');
         const rol = sessionStorage.getItem('usuario_rol');
+        // Títulos invertidos corregidos: Ahora dice Origen en lugar de Destino
         let columnas = `<th>ID</th><th>Fecha</th><th>Cliente</th><th>Email</th><th>Código</th><th>Descripción</th><th>Cant.</th><th>Total</th><th>Estado</th>`;
-        if (estadoActualFiltrado === 'En Tránsito') columnas += `<th>Destino</th><th>Operador</th>`;
+        if (estadoActualFiltrado === 'En Tránsito') columnas += `<th>Origen (Aviso)</th><th>Operador</th>`;
         else if (estadoActualFiltrado === 'Pendiente de Retiro') columnas += `<th>Ingreso Local</th>`;
         else if (estadoActualFiltrado === 'Finalizado') columnas += `<th>Cierre</th>`;
         else if (estadoActualFiltrado === 'Eliminados') columnas += `<th>Ingresó</th><th>Finalizó</th><th>Operador</th>`;
@@ -211,16 +212,17 @@
             }
         } else if (item.estado === 'Pendiente de Retiro') {
             botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar entrega al cliente?')">ENTREGAR</button>`;
-            botones += `<button class="btn-borrar" style="margin-left:5px;" onclick="moverAPapelera(${item.id})">BORRAR</button>`;
+            botones += `<button class="btn-borrar" style="margin-left:5px;" onclick="abrirModalBorrado(${item.id})">BORRAR</button>`;
         } else if (item.estado === 'Retirado' || item.estado === 'Cancelado') {
             if (rol === 'admin') {
-                botones += `<button class="btn-borrar" onclick="moverAPapelera(${item.id})">BORRAR</button>`;
+                botones += `<button class="btn-borrar" onclick="abrirModalBorrado(${item.id})">BORRAR</button>`;
             }
         }
         return botones;
     }
 
-    function moverAPapelera(id) {
+    function abrirModalBorrado(id) {
+        // Abre el modal estético de firma para confirmar el borrado lógico
         abrirModalFirma("¿Deseas mover esta reserva a la papelera (Eliminados)?", false, () => {
             fetch(`/reservas/${id}`, { method: 'DELETE' }).then(res => {
                 if(res.ok) {
