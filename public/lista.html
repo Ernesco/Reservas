@@ -235,9 +235,7 @@
                 botones += `<button class="btn-azul" style="background:#f39c12; margin-left:5px;" onclick='abrirModalEditar(${itemData})'>EDITAR</button>`;
             }
         } else if (item.estado === 'Pendiente de Retiro') {
-            // BOTÓN RETIRADO
             botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar entrega al cliente?')">RETIRADO</button>`;
-            // BOTÓN CANCELADO
             botones += `<button class="btn-borrar" style="margin-left:5px;" onclick="cambiarEstadoConFirma(${item.id}, 'Cancelado', '¿Desea cancelar esta reserva?')">CANCELADO</button>`;
         } else if (item.estado === 'Retirado' || item.estado === 'Cancelado') {
             if (rol === 'admin') {
@@ -283,9 +281,12 @@
     }
 
     async function confirmarEliminarDefinitivo(id) {
-        if (confirm("⚠️ ¿BORRAR PERMANENTEMENTE DE MYSQL? Esta acción no se puede deshacer.")) {
+        if (confirm("⚠️ ¿TRASPASAR A HISTÓRICO Y BORRAR DE TABLA ACTIVA? Esta acción no se puede deshacer.")) {
             const res = await fetch(`/admin/reservas-eliminar/${id}`, { method: 'DELETE' });
-            if (res.ok) cargarReservas();
+            if (res.ok) {
+                cargarReservas();
+                mostrarAviso('✅ Archivado', 'La reserva se movió a la tabla borrados_definitivos.', false);
+            }
         }
     }
 

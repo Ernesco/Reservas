@@ -85,10 +85,8 @@ async function enviarAvisoEmail(reserva, tipo) {
 }
 
 // --- 1. RUTA DE BORRADO LÓGICO (Mueve de Finalizado a Eliminados) ---
-// Esta es la ruta que tu botón "Confirmar" de lista.html está buscando
 app.delete('/reservas/:id', (req, res) => {
     const id = req.params.id;
-    // Ponemos borrado = 1 para que desaparezca de las listas normales y vaya a la pestaña Eliminados
     db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [id], (err) => {
         if (err) return res.status(500).send('Error');
         res.send('OK');
@@ -136,12 +134,37 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
-// --- 3. RUTA: BORRADO FÍSICO (Solo Admin - Borra de MySQL) ---
-app.delete('/admin/reservas-eliminar/:id', (req, res) => {
-    db.query("DELETE FROM reservas WHERE id = ?", [req.params.id], (err) => {
-        if (err) return res.status(500).send('Error');
-        res.send('OK');
-    });
+// --- 3. RUTA: BORRADO FÍSICO Y ARCHIVADO (Solo Admin) ---
+// Esta ruta mueve la información a BORRADOS_DEFINITIVOS antes de quitarla de RESERVAS
+app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const sqlInsert = `
+            INSERT INTO borrados_definitivos (
+                id, fecha_registro, cliente_nombre, prod_codigo, descripcion, 
+                prod_cantidad, total_reserva, local_origen, operador_nombre, 
+                responsable_recibo, responsable_finalizado, estado
+            )
+            SELECT 
+                id, fecha_registro, cliente_nombre, prod_codigo, descripcion, 
+                prod_cantidad, total_reserva, local_origen, operador_nombre, 
+                responsable_recibo, responsable_finalizado, estado
+            FROM reservas 
+            WHERE id = ?`;
+
+        const [resCopia] = await db.promise().query(sqlInsert, [id]);
+
+        if (resCopia.affectedRows > 0) {
+            await db.promise().query("DELETE FROM reservas WHERE id = ?", [id]);
+            res.send('OK');
+        } else {
+            res.status(404).send('No encontrada');
+        }
+    } catch (err) {
+        console.error("Error al archivar:", err);
+        res.status(500).send('Error');
+    }
 });
 
 // --- RUTA: PRECIOS (Solo Admin) ---
@@ -239,4 +262,4 @@ app.get('/reservas', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => console.log(`🚀 Puerto ${PORT}`));
+app.listen(PORT, '0.0.0.0', () => console.log(`🚀 One Box operativo en puerto ${PORT}`));
