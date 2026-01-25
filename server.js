@@ -96,12 +96,16 @@ app.delete('/reservas/:id', (req, res) => {
     });
 });
 
+// MODIFICADO: Ruta de cambio de estado ahora soporta trazabilidad en borrado lógico
 app.put('/reservas/:id/estado', (req, res) => {
     const id = req.params.id;
     const { estado, borrado, responsable } = req.body;
 
     if (borrado !== undefined) {
-        db.query("UPDATE reservas SET borrado = ?, estado = ? WHERE id = ?", [borrado, estado, id], (err) => {
+        // Al mover a papelera, actualizamos el operador con el nombre del responsable
+        const operadorTrazable = responsable ? responsable : 'Sistema';
+        db.query("UPDATE reservas SET borrado = ?, estado = ?, operador_nombre = ? WHERE id = ?", 
+        [borrado, estado, operadorTrazable, id], (err) => {
             if (err) return res.status(500).send('Error');
             res.send('OK');
         });
@@ -136,7 +140,6 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
-// --- RUTA DE EDICIÓN CORREGIDA PARA GUARDAR TODOS LOS CAMPOS ---
 app.put('/reservas/:id/editar', (req, res) => {
     const id = req.params.id;
     const { 
@@ -147,10 +150,9 @@ app.put('/reservas/:id/editar', (req, res) => {
         descripcion, 
         prod_cantidad, 
         total_reserva,
-        responsable_edicion // Nuevo campo que viene del modal
+        responsable_edicion 
     } = req.body;
 
-    // Concatenamos el nombre del responsable con la marca (Editado)
     const operadorActualizado = `${responsable_edicion} (Editado)`;
 
     const sql = `
@@ -173,7 +175,7 @@ app.put('/reservas/:id/editar', (req, res) => {
         descripcion, 
         prod_cantidad, 
         total_reserva, 
-        operadorActualizado, // Guardamos la marca de edición
+        operadorActualizado, 
         id
     ], (err, result) => {
         if (err) {
@@ -205,8 +207,6 @@ app.get('/reservas', (req, res) => {
         res.json(results);
     });
 });
-
-// --- OTRAS RUTAS ---
 
 app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     const id = req.params.id;
