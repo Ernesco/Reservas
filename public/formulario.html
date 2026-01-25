@@ -6,6 +6,14 @@
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
     <link rel="stylesheet" href="style.css">
     <title>One Box - Nueva Reserva</title>
+    <style>
+        .tabla-resumen { width: 100%; border-collapse: collapse; margin-top: 15px; background: #24273a; border-radius: 8px; overflow: hidden; }
+        .tabla-resumen th { background: #363a4f; color: #cad3f5; padding: 10px; text-align: left; font-size: 0.9em; }
+        .tabla-resumen td { padding: 10px; border-bottom: 1px solid #494d64; color: #b8c0e0; font-size: 0.85em; }
+        .btn-eliminar-item { background: #f38ba8; color: #1e1e2e; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .btn-agregar-item { background: #89b4fa; color: #1e1e2e; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; transition: 0.3s; }
+        .btn-agregar-item:hover { background: #b4befe; }
+    </style>
 </head>
 <body>
 
@@ -30,9 +38,9 @@
         </fieldset>
 
         <fieldset>
-            <legend>🛒 Producto</legend>
+            <legend>🛒 Cargar Productos</legend>
             <label>Código <span class="requerido">*</span></label>
-            <input type="text" id="prod_codigo" placeholder="Ingrese código y presione TAB" required>
+            <input type="text" id="prod_codigo" placeholder="Ingrese código y presione TAB">
             
             <label>Descripción</label>
             <input type="text" id="prod_descripcion" readonly style="background-color: #f8f9fa; color: #666;" placeholder="Autocompletado">
@@ -44,12 +52,29 @@
                 </div>
                 <div style="flex: 1;">
                     <label>Cantidad <span class="requerido">*</span></label>
-                    <input type="number" id="prod_cantidad" required min="1" value="1">
+                    <input type="number" id="prod_cantidad" min="1" value="1">
                 </div>
             </div>
 
-            <label style="font-weight: bold; color: #2ecc71;">TOTAL ESTIMADO</label>
-            <input type="text" id="total_reserva" readonly style="background-color: #d4edda; color: #155724; font-weight: bold; font-size: 1.1em;">
+            <button type="button" class="btn-agregar-item" onclick="agregarArticulo()">➕ AGREGAR AL PEDIDO</button>
+
+            <div id="contenedorResumen" style="display: none;">
+                <h4 style="color: #cad3f5; margin-top: 20px;">Items en esta reserva:</h4>
+                <table class="tabla-resumen">
+                    <thead>
+                        <tr>
+                            <th>Cant.</th>
+                            <th>Descripción</th>
+                            <th>Subtotal</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="cuerpoResumen"></tbody>
+                </table>
+            </div>
+
+            <label style="font-weight: bold; color: #2ecc71; margin-top: 15px; display: block;">TOTAL DE LA RESERVA</label>
+            <input type="text" id="total_reserva" readonly value="0.00" style="background-color: #d4edda; color: #155724; font-weight: bold; font-size: 1.1em;">
         </fieldset>
 
         <fieldset>
@@ -73,17 +98,8 @@
             <textarea id="comentarios" placeholder="Notas adicionales..."></textarea>
         </fieldset>
 
-        <button type="submit" class="btn-azul">💾 GUARDAR RESERVA</button>
+        <button type="submit" class="btn-azul">💾 GUARDAR RESERVA FINAL</button>
     </form>
-
-    <footer>
-        <div class="footer-links">
-            <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
-        </div>
-        <img src="./img/Ob_Logo.png" alt="One Box Logo" class="footer-logo">
-        <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
-        <div class="footer-version">v1.2.0</div> 
-    </footer>
 
     <div id="modalSoporte" class="modal-overlay">
         <div class="modal-caja">
@@ -120,106 +136,107 @@
     </div>
 
     <script>
-        // --- GESTIÓN DE AVISOS ---
-        function mostrarAviso(titulo, mensaje, esError = true, esExitoReserva = false) {
-            const modal = document.getElementById('modalAviso');
-            const tituloH3 = document.getElementById('tituloAviso');
-            const textoP = document.getElementById('textoAviso');
-            const borde = document.getElementById('bordeModal');
-            const btn = document.getElementById('btnColorAviso');
-            const btnsNormal = document.getElementById('botonesAvisoNormal');
-            const btnsExito = document.getElementById('botonesAvisoExito');
+        let listaProductos = []; // Array para guardar los múltiples códigos cargados
 
-            tituloH3.textContent = titulo;
-            textoP.textContent = mensaje;
-            
-            const color = esError ? '#f38ba8' : '#a6e3a1';
-            tituloH3.style.color = color;
-            borde.style.borderColor = color;
-            btn.style.backgroundColor = color;
+        // --- LÓGICA DE AGREGAR PRODUCTOS ---
+        function agregarArticulo() {
+            const cod = document.getElementById('prod_codigo').value.trim();
+            const desc = document.getElementById('prod_descripcion').value;
+            const precio = parseFloat(document.getElementById('precio_unitario').value) || 0;
+            const cant = parseInt(document.getElementById('prod_cantidad').value) || 0;
 
-            if (esExitoReserva) {
-                btnsNormal.style.display = 'none';
-                btnsExito.style.display = 'flex';
-            } else {
-                btnsNormal.style.display = 'flex';
-                btnsExito.style.display = 'none';
+            if (!cod || !desc || cant <= 0) {
+                mostrarAviso('⚠️ Atención', 'Debe buscar un código válido y asignar una cantidad.', true);
+                return;
             }
 
-            modal.style.display = 'flex';
+            // Agregamos al array
+            listaProductos.push({
+                codigo: cod,
+                descripcion: desc,
+                cantidad: cant,
+                subtotal: (precio * cant)
+            });
+
+            actualizarVistaTabla();
+            limpiarCamposCarga();
         }
 
-        function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
-        function abrirSoporte() { document.getElementById('modalSoporte').style.display = 'flex'; }
-        function cerrarSoporte() { document.getElementById('modalSoporte').style.display = 'none'; }
+        function actualizarVistaTabla() {
+            const contenedor = document.getElementById('contenedorResumen');
+            const cuerpo = document.getElementById('cuerpoResumen');
+            const inputTotal = document.getElementById('total_reserva');
+            
+            cuerpo.innerHTML = '';
+            let totalGeneral = 0;
 
-        function nuevaCarga() {
-            document.getElementById('formReservas').reset();
-            cerrarAviso();
-            const sucursalLogueada = sessionStorage.getItem('usuario_sucursal');
-            document.getElementById('local_origen').value = sucursalLogueada || "Admin";
+            listaProductos.forEach((item, index) => {
+                totalGeneral += item.subtotal;
+                cuerpo.innerHTML += `
+                    <tr>
+                        <td>${item.cantidad}</td>
+                        <td>${item.descripcion} (${item.codigo})</td>
+                        <td>$${item.subtotal.toFixed(2)}</td>
+                        <td><button type="button" class="btn-eliminar-item" onclick="eliminarItem(${index})">✕</button></td>
+                    </tr>
+                `;
+            });
+
+            inputTotal.value = totalGeneral.toFixed(2);
+            contenedor.style.display = listaProductos.length > 0 ? 'block' : 'none';
         }
 
-        // --- LÓGICA DE PRODUCTOS ---
-        const inputCodigo = document.getElementById('prod_codigo');
-        const inputCantidad = document.getElementById('prod_cantidad');
-        const inputPrecio = document.getElementById('precio_unitario');
-        const inputTotal = document.getElementById('total_reserva');
-        const inputDescripcion = document.getElementById('prod_descripcion');
+        function eliminarItem(index) {
+            listaProductos.splice(index, 1);
+            actualizarVistaTabla();
+        }
 
-        inputCodigo.addEventListener('blur', async () => {
-            const codigo = inputCodigo.value.trim();
+        function limpiarCamposCarga() {
+            document.getElementById('prod_codigo').value = '';
+            document.getElementById('prod_descripcion').value = '';
+            document.getElementById('precio_unitario').value = '';
+            document.getElementById('prod_cantidad').value = '1';
+        }
+
+        // --- BÚSQUEDA DE PRODUCTO ---
+        document.getElementById('prod_codigo').addEventListener('blur', async () => {
+            const codigo = document.getElementById('prod_codigo').value.trim();
             if (!codigo) return;
             try {
                 const response = await fetch(`/productos/${codigo}`);
                 if (response.ok) {
                     const producto = await response.json();
-                    inputDescripcion.value = producto.descripcion;
-                    inputPrecio.value = producto.precio_unitario;
-                    calcularTotal();
+                    document.getElementById('prod_descripcion').value = producto.descripcion;
+                    document.getElementById('precio_unitario').value = producto.precio_unitario;
                 } else {
-                    mostrarAviso('⚠️ No encontrado', 'Código de producto no existe.', true);
-                    limpiarCamposProducto();
+                    mostrarAviso('⚠️ No encontrado', 'El código de producto no existe en la base de datos.', true);
+                    limpiarCamposCarga();
                 }
             } catch (error) { console.error("Error:", error); }
         });
 
-        inputCantidad.addEventListener('input', calcularTotal);
-
-        function calcularTotal() {
-            const precio = parseFloat(inputPrecio.value) || 0;
-            const cantidad = parseInt(inputCantidad.value) || 0;
-            inputTotal.value = (precio * cantidad).toFixed(2);
-        }
-
-        function limpiarCamposProducto() {
-            inputDescripcion.value = "";
-            inputPrecio.value = "";
-            inputTotal.value = "";
-        }
-
-        // --- CARGA INICIAL ---
-        document.addEventListener('DOMContentLoaded', () => {
-            if (!sessionStorage.getItem('usuario_nombre')) {
-                window.location.href = 'index.html';
-                return;
-            }
-            const sucursalLogueada = sessionStorage.getItem('usuario_sucursal');
-            document.getElementById('local_origen').value = sucursalLogueada || "Admin";
-        });
-
-        // --- GUARDAR RESERVA ---
+        // --- GUARDAR RESERVA FINAL ---
         document.getElementById('formReservas').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            if (listaProductos.length === 0) {
+                mostrarAviso('⚠️ Pedido Vacío', 'Debe agregar al menos un producto a la lista antes de guardar.', true);
+                return;
+            }
+
+            // Concatenamos los datos para guardarlos en la tabla actual de MySQL
+            const codigosFinales = listaProductos.map(p => p.codigo).join(', ');
+            const descripcionesFinales = listaProductos.map(p => `${p.cantidad}x ${p.descripcion}`).join(' | ');
+            const cantidadTotal = listaProductos.reduce((acc, p) => acc + p.cantidad, 0);
+
             const datos = {
                 cliente_nombre: document.getElementById('cliente_nombre').value,
                 cliente_telefono: document.getElementById('cliente_telefono').value,
                 cliente_email: document.getElementById('cliente_email').value,
-                prod_codigo: inputCodigo.value,
-                descripcion: inputDescripcion.value,
-                prod_cantidad: inputCantidad.value,
-                total_reserva: inputTotal.value, 
+                prod_codigo: codigosFinales,
+                descripcion: descripcionesFinales,
+                prod_cantidad: cantidadTotal,
+                total_reserva: document.getElementById('total_reserva').value, 
                 local_destino: document.getElementById('local_destino').value,
                 contacto_sucursal: document.getElementById('contacto_sucursal').value,
                 local_origen: document.getElementById('local_origen').value,
@@ -234,38 +251,40 @@
             })
             .then(res => {
                 if (res.ok) {
-                    mostrarAviso('✅ Éxito', 'Reserva guardada correctamente.', false, true);
+                    mostrarAviso('✅ Éxito', 'Reserva con múltiples artículos guardada.', false, true);
                 } else {
-                    mostrarAviso('❌ Error', 'No se pudo guardar la reserva.', true);
+                    mostrarAviso('❌ Error', 'Error al guardar en el servidor.', true);
                 }
             })
-            .catch(err => mostrarAviso('❌ Error', 'Error de conexión con el servidor.', true));
+            .catch(err => mostrarAviso('❌ Error', 'Error de conexión.', true));
         });
 
-        // --- SOPORTE ---
-        document.getElementById('formSoporte').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const datos = {
-                tipo: document.getElementById('tipo_ticket').value,
-                descripcion: document.getElementById('desc_ticket').value,
-                usuario: sessionStorage.getItem('usuario_nombre') || 'Usuario Formulario'
-            };
-            try {
-                const res = await fetch('/enviar-ticket', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(datos)
-                });
-                if (res.ok) {
-                    cerrarSoporte();
-                    this.reset();
-                    mostrarAviso('✅ Enviado', 'Ticket recibido correctamente.', false);
-                } else {
-                    mostrarAviso('❌ Error', 'No se pudo enviar el ticket.', true);
-                }
-            } catch {
-                mostrarAviso('❌ Error', 'Falla de red.', true);
-            }
+        // --- UTILIDADES ---
+        function mostrarAviso(titulo, mensaje, esError = true, esExitoReserva = false) {
+            const modal = document.getElementById('modalAviso');
+            document.getElementById('tituloAviso').textContent = titulo;
+            document.getElementById('textoAviso').textContent = mensaje;
+            const color = esError ? '#f38ba8' : '#a6e3a1';
+            document.getElementById('tituloAviso').style.color = color;
+            document.getElementById('bordeModal').style.borderColor = color;
+            document.getElementById('btnColorAviso').style.backgroundColor = color;
+            document.getElementById('botonesAvisoNormal').style.display = esExitoReserva ? 'none' : 'flex';
+            document.getElementById('botonesAvisoExito').style.display = esExitoReserva ? 'flex' : 'none';
+            modal.style.display = 'flex';
+        }
+
+        function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
+        function nuevaCarga() { 
+            listaProductos = [];
+            actualizarVistaTabla();
+            document.getElementById('formReservas').reset(); 
+            cerrarAviso(); 
+            document.getElementById('local_origen').value = sessionStorage.getItem('usuario_sucursal') || "Admin";
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!sessionStorage.getItem('usuario_nombre')) window.location.href = 'index.html';
+            document.getElementById('local_origen').value = sessionStorage.getItem('usuario_sucursal') || "Admin";
         });
     </script>
 </body>
