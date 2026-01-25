@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <title>One Box - Nueva Reserva</title>
     <style>
-        /* --- ESTILOS PARA LA LISTA SIMPLE INTEGRADA --- */
+        /* --- ESTILOS PARA LA LISTA SIMPLE INTEGRADA EN BLANCO --- */
         #listaPedido {
             margin-top: 15px;
             padding: 15px;
@@ -148,6 +148,18 @@
             <input type="text" id="contacto_sucursal" required placeholder="¿Con quién hablaste?">
         </fieldset>
 
+        <fieldset style="border: 1px solid #eee; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+            <legend style="font-weight: bold; color: #888; padding: 0 10px;">📝 Operador</legend>
+            <label>Local que gestiona (Tu Local)</label>
+            <input type="text" id="local_origen" readonly style="background-color: #f8f9fa; color: #666;">
+
+            <label for="nombre_operador">Quien realiza la reserva *</label>
+            <input type="text" id="nombre_operador" placeholder="Su nombre" required>
+
+            <label for="comentarios">Comentarios</label>
+            <textarea id="comentarios" placeholder="Notas adicionales..." style="min-height: 80px;"></textarea>
+        </fieldset>
+
         <button type="submit" class="btn-azul" style="width: 100%; padding: 15px; font-size: 1.1em; font-weight: bold;">💾 GUARDAR RESERVA FINAL</button>
     </form>
 
@@ -201,7 +213,6 @@
             itemsCargados.forEach((item, index) => {
                 sumaTotal += item.totalItem;
                 
-                // Formato solicitado: CODIGO DESCRIPCION xCANTIDAD TOTAL
                 contenedor.innerHTML += `
                     <div class="renglon-producto">
                         <div class="info-producto">
@@ -261,9 +272,9 @@
                 total_reserva: document.getElementById('txtTotal').textContent.replace('$', ''),
                 local_destino: document.getElementById('local_destino').value,
                 contacto_sucursal: document.getElementById('contacto_sucursal').value,
-                local_origen: sessionStorage.getItem('usuario_sucursal') || 'Admin',
-                operador_nombre: sessionStorage.getItem('usuario_nombre') || 'Operador',
-                comentarios: ''
+                local_origen: document.getElementById('local_origen').value,
+                operador_nombre: document.getElementById('nombre_operador').value,
+                comentarios: document.getElementById('comentarios').value
             };
 
             fetch('/reservar', {
@@ -289,12 +300,24 @@
         }
 
         function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
+        
         function nuevaCarga() { 
             itemsCargados = [];
             dibujarLista();
             document.getElementById('formReservas').reset(); 
             cerrarAviso(); 
+            const sucursalLogueada = sessionStorage.getItem('usuario_sucursal');
+            document.getElementById('local_origen').value = sucursalLogueada || "Admin";
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!sessionStorage.getItem('usuario_nombre')) {
+                window.location.href = 'index.html';
+                return;
+            }
+            const sucursalLogueada = sessionStorage.getItem('usuario_sucursal');
+            document.getElementById('local_origen').value = sucursalLogueada || "Admin";
+        });
     </script>
 </body>
 </html>
