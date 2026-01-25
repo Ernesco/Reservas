@@ -86,7 +86,8 @@ async function enviarAvisoEmail(reserva, tipo) {
     } catch (error) { console.error("Error mail:", error); }
 }
 
-// --- 1. RUTA DE BORRADO LÓGICO ---
+// --- RUTAS DE RESERVAS ---
+
 app.delete('/reservas/:id', (req, res) => {
     const id = req.params.id;
     db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [id], (err) => {
@@ -95,7 +96,6 @@ app.delete('/reservas/:id', (req, res) => {
     });
 });
 
-// --- 2. RUTA: CAMBIO DE ESTADO ---
 app.put('/reservas/:id/estado', (req, res) => {
     const id = req.params.id;
     const { estado, borrado, responsable } = req.body;
@@ -136,7 +136,35 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
-// --- 3. RUTA: BORRADO FÍSICO Y TRASPASO A HISTÓRICO ---
+app.get('/reservas', (req, res) => {
+    const { q, sucursal, rol } = req.query;
+    
+    // USAMOS SUBCONSULTAS: Evita duplicados y no oculta reservas si no hay coincidencia exacta
+    let sql = `
+        SELECT r.*, 
+        (SELECT direccion FROM usuarios WHERE sucursal = r.local_origen LIMIT 1) as direccion,
+        (SELECT horarios FROM usuarios WHERE sucursal = r.local_origen LIMIT 1) as horarios
+        FROM reservas r
+        WHERE (r.cliente_nombre LIKE ? OR r.prod_codigo LIKE ?)
+    `;
+    
+    let par = [`%${q}%`, `%${q}%`];
+    
+    if (rol !== 'admin') { 
+        sql += " AND r.local_origen = ?"; 
+        par.push(sucursal); 
+    }
+    
+    sql += " ORDER BY r.id DESC";
+
+    db.query(sql, par, (err, results) => {
+        if (err) return res.status(500).send(err);
+        res.json(results);
+    });
+});
+
+// --- OTRAS RUTAS ---
+
 app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     const id = req.params.id;
     try {
@@ -168,7 +196,6 @@ app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     }
 });
 
-// --- 4. RUTA: ACTUALIZAR PRECIOS ---
 app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
     const rolUsuario = req.headers['user-role'];
     if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
@@ -243,34 +270,6 @@ app.post('/reservar', (req, res) => {
         if (err) return res.status(500).send(err);
         enviarAvisoEmail({ id: result.insertId, ...data, sucursal_nombre: data.local_origen }, 'CONFIRMACION');
         res.send('OK');
-    });
-});
-
-// --- RUTA DE RESERVAS CORREGIDA (SIN DUPLICADOS) ---
-app.get('/reservas', (req, res) => {
-    const { q, sucursal, rol } = req.query;
-    
-    // Usamos GROUP BY r.id para evitar duplicados si hay múltiples usuarios por sucursal
-    // Traemos direccion y horarios para el mensaje de WhatsApp
-    let sql = `
-        SELECT r.*, u.direccion, u.horarios 
-        FROM reservas r
-        LEFT JOIN usuarios u ON r.local_origen = u.sucursal
-        WHERE (r.cliente_nombre LIKE ? OR r.prod_codigo LIKE ?)
-    `;
-    
-    let par = [`%${q}%`, `%${q}%`];
-    
-    if (rol !== 'admin') { 
-        sql += " AND r.local_origen = ?"; 
-        par.push(sucursal); 
-    }
-    
-    sql += " GROUP BY r.id ORDER BY r.id DESC";
-
-    db.query(sql, par, (err, results) => {
-        if (err) return res.status(500).send(err);
-        res.json(results);
     });
 });
 

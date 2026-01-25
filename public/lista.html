@@ -360,12 +360,12 @@ function mostrarQR(id) {
     // 2. Construcción del mensaje dinámico
     // Usamos los campos que ya usas para los mails: item.direccion e item.horario
 const msg = `Hola *${item.cliente_nombre}*! 👋\n\n` +
-            `Tu pedido ya llegó y está disponible para retirar en:\n` +
-            `📍 *${item.local_origen}*\n` +
-            `🏠 Dirección: ${item.direccion || "Dirección habitual"}\n` +
-            `⏰ Horario: ${item.horarios || "Horario comercial"}\n\n` +
-            `Reserva: ${item.descripcion}\n\n` +
-            `¡Te esperamos! 🛒`;
+                `Tu pedido ya llegó y está listo para retirar en:\n` +
+                `📍 *${item.local_origen}*\n` +
+                `🏠 Dirección: ${item.direccion || "Dirección habitual"}\n` +
+                `⏰ Horario: ${item.horarios || "Horario comercial"}\n\n` +
+                `Reserva: ${item.descripcion}\n\n` +
+                `¡Te esperamos! 🛒`;
 
     // 3. Generación de la URL de WhatsApp
     const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
