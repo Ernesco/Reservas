@@ -84,7 +84,7 @@ async function enviarAvisoEmail(reserva, tipo) {
     } catch (error) { console.error("Error mail:", error); }
 }
 
-// --- 1. RUTA DE BORRADO LÓGICO (Mueve de Finalizado a Eliminados) ---
+// --- 1. RUTA DE BORRADO LÓGICO ---
 app.delete('/reservas/:id', (req, res) => {
     const id = req.params.id;
     db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [id], (err) => {
@@ -134,22 +134,24 @@ app.put('/reservas/:id/estado', (req, res) => {
     }
 });
 
-// --- 3. RUTA: BORRADO FÍSICO Y ARCHIVADO (Solo Admin) ---
-// Esta ruta mueve la información a BORRADOS_DEFINITIVOS antes de quitarla de RESERVAS
+// --- 3. RUTA: BORRADO FÍSICO Y TRASPASO A HISTÓRICO (Solo Admin) ---
+// CORREGIDO: Incluye cliente_telefono y cliente_email explícitamente
 app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     const id = req.params.id;
 
     try {
         const sqlInsert = `
             INSERT INTO borrados_definitivos (
-                id, fecha_registro, cliente_nombre, prod_codigo, descripcion, 
-                prod_cantidad, total_reserva, local_origen, operador_nombre, 
-                responsable_recibo, responsable_finalizado, estado
+                id, fecha_registro, cliente_nombre, cliente_telefono, cliente_email,
+                prod_codigo, descripcion, prod_cantidad, total_reserva, 
+                local_origen, operador_nombre, responsable_recibo, 
+                responsable_finalizado, estado
             )
             SELECT 
-                id, fecha_registro, cliente_nombre, prod_codigo, descripcion, 
-                prod_cantidad, total_reserva, local_origen, operador_nombre, 
-                responsable_recibo, responsable_finalizado, estado
+                id, fecha_registro, cliente_nombre, cliente_telefono, cliente_email,
+                prod_codigo, descripcion, prod_cantidad, total_reserva, 
+                local_origen, operador_nombre, responsable_recibo, 
+                responsable_finalizado, estado
             FROM reservas 
             WHERE id = ?`;
 
@@ -162,7 +164,7 @@ app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
             res.status(404).send('No encontrada');
         }
     } catch (err) {
-        console.error("Error al archivar:", err);
+        console.error("Error al archivar en borrados_definitivos:", err);
         res.status(500).send('Error');
     }
 });
@@ -205,7 +207,7 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
         });
 });
 
-// --- SOPORTE ---
+// --- SOPORTE, USUARIOS, LOGIN, PRODUCTOS Y RESERVAR (Sin cambios) ---
 app.post('/admin/soporte', async (req, res) => {
     const { tipo, mensaje, usuario } = req.body;
     try {
@@ -214,7 +216,6 @@ app.post('/admin/soporte', async (req, res) => {
     } catch (error) { res.status(500).json({ success: false }); }
 });
 
-// --- USUARIOS ---
 app.get('/admin/usuarios', (req, res) => {
     db.query("SELECT * FROM usuarios ORDER BY sucursal ASC", (err, results) => {
         if (err) return res.status(500).send(err);
@@ -222,7 +223,6 @@ app.get('/admin/usuarios', (req, res) => {
     });
 });
 
-// --- LOGIN Y PRODUCTOS ---
 app.post('/login', (req, res) => {
     const { usuario, password } = req.body;
     db.query("SELECT * FROM usuarios WHERE usuario = ? AND password = ?", [usuario, password], (err, results) => {
