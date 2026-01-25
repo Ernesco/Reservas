@@ -236,10 +236,10 @@
             }
         } else if (item.estado === 'Pendiente de Retiro') {
             botones += `<button class="btn-azul" style="background:#a6e3a1; color:#1e1e2e;" onclick="cambiarEstadoConFirma(${item.id}, 'Retirado', '¿Confirmar entrega al cliente?')">ENTREGAR</button>`;
-            botones += `<button class="btn-borrar" style="margin-left:5px;" onclick="abrirModalBorradoLógico(${item.id})">BORRAR</button>`;
+            botones += `<button class="btn-borrar" style="margin-left:5px;" onclick="abrirModalBorradoLogico(${item.id})">BORRAR</button>`;
         } else if (item.estado === 'Retirado' || item.estado === 'Cancelado') {
             if (rol === 'admin') {
-                botones += `<button class="btn-borrar" onclick="abrirModalBorradoLógico(${item.id})">BORRAR</button>`;
+                botones += `<button class="btn-borrar" onclick="abrirModalBorradoLogico(${item.id})">BORRAR</button>`;
             }
         }
         return botones;
@@ -267,7 +267,7 @@
         abrirModalFirma(`¿Recuperar reserva y pasar a estado "${nuevoEstado}"?`, false, null);
     }
 
-    function abrirModalBorradoLógico(id) {
+    function abrirModalBorradoLogico(id) {
         const btnAceptar = document.getElementById('modalAceptar');
         btnAceptar.onclick = async function() {
             const res = await fetch(`/reservas/${id}`, { method: 'DELETE' });
