@@ -205,7 +205,6 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
         });
 });
 
-// --- 5. RUTA: SOPORTE, USUARIOS, LOGIN, PRODUCTOS ---
 app.post('/admin/soporte', async (req, res) => {
     const { tipo, mensaje, usuario } = req.body;
     try {
@@ -247,11 +246,12 @@ app.post('/reservar', (req, res) => {
     });
 });
 
-// --- 6. RUTA: RESERVAS (MODIFICADA CON JOIN PARA WHATSAPP) ---
+// --- RUTA DE RESERVAS CORREGIDA (SIN DUPLICADOS) ---
 app.get('/reservas', (req, res) => {
     const { q, sucursal, rol } = req.query;
     
-    // El JOIN permite que cada reserva traiga los datos del local desde la tabla usuarios
+    // Usamos GROUP BY r.id para evitar duplicados si hay múltiples usuarios por sucursal
+    // Traemos direccion y horarios para el mensaje de WhatsApp
     let sql = `
         SELECT r.*, u.direccion, u.horarios 
         FROM reservas r
@@ -266,7 +266,7 @@ app.get('/reservas', (req, res) => {
         par.push(sucursal); 
     }
     
-    sql += " ORDER BY r.id DESC";
+    sql += " GROUP BY r.id ORDER BY r.id DESC";
 
     db.query(sql, par, (err, results) => {
         if (err) return res.status(500).send(err);
