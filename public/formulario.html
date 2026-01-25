@@ -7,36 +7,61 @@
     <link rel="stylesheet" href="style.css">
     <title>One Box - Nueva Reserva</title>
     <style>
-        /* --- CORRECCIÓN DE CONTENEDOR INTERNO --- */
+        /* CONTENEDOR MAESTRO PARA CENTRAR TODO */
+        .main-container {
+            max-width: 650px;
+            margin: 30px auto;
+            padding: 0 15px; /* Margen de seguridad para móviles */
+        }
+
+        /* AJUSTE DEL FORMULARIO PARA QUE NO DESBORDE */
+        #formReservas {
+            width: 100%;
+            background-color: #ffffff; /* Fondo blanco del formulario */
+            border-radius: 12px;
+            padding: 25px;
+            box-sizing: border-box; /* Crucial: incluye padding en el ancho */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        /* FIELDSETS DENTRO DEL CONTENEDOR */
+        fieldset {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* EL CARRITO OSCURO AHORA RESPETA EL ANCHO */
         #contenedorResumen {
-            background: #1e1e2e;
+            background: #1e1e2e; /* Fondo oscuro tipo Catppuccin */
             padding: 15px;
             border-radius: 12px;
             margin-top: 20px;
             border: 1px solid #45475a;
-            width: 100%; /* Obliga a mantenerse dentro del fieldset */
-            box-sizing: border-box; /* Incluye el padding en el cálculo del ancho */
+            width: 100%; 
+            box-sizing: border-box; 
+            display: none; /* Se activa por JS */
         }
+
         .tabla-resumen { 
             width: 100%; 
             border-collapse: separate; 
             border-spacing: 0 8px; 
-            table-layout: fixed; /* Evita que la tabla se ensanche por contenido largo */
+            table-layout: fixed; /* Evita que el contenido la empuje hacia afuera */
         }
-        .tabla-resumen th { 
-            color: #89b4fa; 
-            padding: 8px; 
-            text-align: left; 
-            font-size: 0.75em; 
-            text-transform: uppercase;
-        }
+
         .tabla-resumen td { 
             padding: 10px; 
             background: #313244; 
             color: #cdd6f4; 
             font-size: 0.85em;
-            word-wrap: break-word; /* Rompe el texto largo si es necesario */
+            word-wrap: break-word; /* Rompe descripciones largas */
         }
+
+        /* BORDES REDONDEADOS DE FILAS */
         .tabla-resumen td:first-child { border-radius: 8px 0 0 8px; }
         .tabla-resumen td:last-child { border-radius: 0 8px 8px 0; text-align: right; }
 
@@ -52,15 +77,16 @@
         }
 
         .btn-agregar-item { 
-            background: transparent; 
-            color: #89b4fa; 
-            border: 2px solid #89b4fa; 
-            padding: 10px; 
+            background: #89b4fa; 
+            color: #1e1e2e; 
+            border: none; 
+            padding: 12px; 
             border-radius: 8px; 
             cursor: pointer; 
             font-weight: bold; 
             width: 100%; 
             margin-top: 10px; 
+            transition: 0.3s;
         }
 
         .total-display-container {
@@ -71,6 +97,19 @@
             padding-top: 10px;
             border-top: 1px solid #45475a;
         }
+
+        /* BOTÓN GUARDAR FINAL */
+        .btn-guardar-final {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 1em;
+        }
     </style>
 </head>
 <body>
@@ -80,87 +119,89 @@
         <a href="panel.html" class="btn-header">🏠 INICIO</a>
     </header>
 
-    <form id="formReservas" class="caja-central" style="max-width: 650px; margin: 30px auto; padding: 20px;">
-        <h2 style="color: #4a90e2; margin-bottom: 20px;">Nueva Reserva</h2>
-        
-        <fieldset>
-            <legend>👤 Cliente</legend>
-            <label>Nombre <span class="requerido">*</span></label>
-            <input type="text" id="cliente_nombre" required>
+    <div class="main-container">
+        <form id="formReservas">
+            <h2 style="color: #4a90e2; margin-bottom: 20px; text-align: center;">Nueva Reserva</h2>
             
-            <label>Teléfono <span class="requerido">*</span></label>
-            <input type="tel" id="cliente_telefono" required>
-            
-            <label>Email (opcional)</label>
-            <input type="email" id="cliente_email">
-        </fieldset>
+            <fieldset>
+                <legend>👤 Cliente</legend>
+                <label>Nombre <span class="requerido">*</span></label>
+                <input type="text" id="cliente_nombre" required style="width: 100%; box-sizing: border-box;">
+                
+                <label>Teléfono <span class="requerido">*</span></label>
+                <input type="tel" id="cliente_telefono" required style="width: 100%; box-sizing: border-box;">
+                
+                <label>Email (opcional)</label>
+                <input type="email" id="cliente_email" style="width: 100%; box-sizing: border-box;">
+            </fieldset>
 
-        <fieldset>
-            <legend>🛒 Cargar Productos</legend>
-            <label>Código <span class="requerido">*</span></label>
-            <input type="text" id="prod_codigo" placeholder="Ingrese código y presione TAB">
-            
-            <label>Descripción</label>
-            <input type="text" id="prod_descripcion" readonly style="background-color: #f1f3f5; color: #495057;" placeholder="Autocompletado">
+            <fieldset>
+                <legend>🛒 Cargar Productos</legend>
+                <label>Código <span class="requerido">*</span></label>
+                <input type="text" id="prod_codigo" placeholder="Ingrese código y presione TAB" style="width: 100%; box-sizing: border-box;">
+                
+                <label>Descripción</label>
+                <input type="text" id="prod_descripcion" readonly style="background-color: #f1f3f5; color: #495057; width: 100%; box-sizing: border-box;" placeholder="Autocompletado">
 
-            <div style="display: flex; gap: 10px;">
-                <div style="flex: 1;">
-                    <label>Precio Unitario</label>
-                    <input type="number" id="precio_unitario" readonly style="background-color: #f1f3f5; color: #495057;">
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <div style="flex: 1;">
+                        <label>Precio Unitario</label>
+                        <input type="number" id="precio_unitario" readonly style="background-color: #f1f3f5; color: #495057; width: 100%; box-sizing: border-box;">
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Cantidad <span class="requerido">*</span></label>
+                        <input type="number" id="prod_cantidad" min="1" value="1" style="width: 100%; box-sizing: border-box;">
+                    </div>
                 </div>
-                <div style="flex: 1;">
-                    <label>Cantidad <span class="requerido">*</span></label>
-                    <input type="number" id="prod_cantidad" min="1" value="1">
+
+                <button type="button" class="btn-agregar-item" onclick="agregarArticulo()">➕ AGREGAR AL PEDIDO</button>
+
+                <div id="contenedorResumen">
+                    <h4 style="color: #cdd6f4; margin-bottom: 5px; font-size: 0.9em;">📦 Items en esta reserva:</h4>
+                    <table class="tabla-resumen">
+                        <thead>
+                            <tr style="color: #89b4fa; font-size: 0.75em; text-transform: uppercase;">
+                                <th style="width: 15%; text-align: left; padding: 5px;">Cant</th>
+                                <th style="width: 55%; text-align: left; padding: 5px;">Descripción</th>
+                                <th style="width: 20%; text-align: left; padding: 5px;">Total</th>
+                                <th style="width: 10%;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoResumen"></tbody>
+                    </table>
+
+                    <div class="total-display-container">
+                        <span style="color: #a6e3a1; font-weight: bold; font-size: 0.9em;">TOTAL ACTUAL:</span>
+                        <input type="text" id="total_reserva" readonly value="0.00" 
+                               style="background: transparent; border: none; color: #a6e3a1; font-weight: bold; font-size: 1.4em; text-align: right; width: 140px;">
+                    </div>
                 </div>
-            </div>
+            </fieldset>
 
-            <button type="button" class="btn-agregar-item" onclick="agregarArticulo()">➕ AGREGAR AL PEDIDO</button>
+            <fieldset>
+                <legend>🏢 Sucursal</legend>
+                <label>Local destino <span class="requerido">*</span></label>
+                <input type="text" id="local_destino" required style="width: 100%; box-sizing: border-box;">
 
-            <div id="contenedorResumen" style="display: none;">
-                <h4 style="color: #cdd6f4; margin-bottom: 5px; font-size: 0.9em;">📦 Items en esta reserva:</h4>
-                <table class="tabla-resumen">
-                    <thead>
-                        <tr>
-                            <th style="width: 15%;">Cant.</th>
-                            <th style="width: 55%;">Descripción</th>
-                            <th style="width: 20%;">Subtotal</th>
-                            <th style="width: 10%;"></th>
-                        </tr>
-                    </thead>
-                    <tbody id="cuerpoResumen"></tbody>
-                </table>
+                <label>Contacto en sucursal <span class="requerido">*</span></label>
+                <input type="text" id="contacto_sucursal" required style="width: 100%; box-sizing: border-box;">
+            </fieldset>
 
-                <div class="total-display-container">
-                    <span style="color: #a6e3a1; font-weight: bold; font-size: 0.9em;">TOTAL ACTUAL:</span>
-                    <input type="text" id="total_reserva" readonly value="0.00" 
-                           style="background: transparent; border: none; color: #a6e3a1; font-weight: bold; font-size: 1.4em; text-align: right; width: 140px; padding:0;">
-                </div>
-            </div>
-        </fieldset>
+            <fieldset>
+                <legend>📝 Operador</legend>
+                <label>Tu Local (Origen)</label>
+                <input type="text" id="local_origen" readonly style="background-color: #f1f3f5; color: #495057; width: 100%; box-sizing: border-box;">
 
-        <fieldset>
-            <legend>🏢 Sucursal</legend>
-            <label for="local_destino">Local a quien se le pide el artículo <span class="requerido">*</span></label>
-            <input type="text" id="local_destino" placeholder="Ej: Alto Palermo" required>
+                <label>Tu Nombre <span class="requerido">*</span></label>
+                <input type="text" id="nombre_operador" required style="width: 100%; box-sizing: border-box;">
 
-            <label for="contacto_sucursal">Con quién hablaste <span class="requerido">*</span></label>
-            <input type="text" id="contacto_sucursal" placeholder="Nombre del contacto en el local" required>
-        </fieldset>
+                <label>Comentarios</label>
+                <textarea id="comentarios" style="width: 100%; box-sizing: border-box; min-height: 60px;"></textarea>
+            </fieldset>
 
-        <fieldset>
-            <legend>📝 Operador</legend>
-            <label>Local que gestiona (Tu Local)</label>
-            <input type="text" id="local_origen" readonly style="background-color: #f1f3f5; color: #495057;">
-
-            <label for="nombre_operador">Nombre <span class="requerido">*</span></label>
-            <input type="text" id="nombre_operador" placeholder="Escriba su nombre" required>
-
-            <label for="comentarios">Comentarios</label>
-            <textarea id="comentarios" placeholder="Notas adicionales..."></textarea>
-        </fieldset>
-
-        <button type="submit" class="btn-azul" style="margin-top: 20px;">💾 GUARDAR RESERVA FINAL</button>
-    </form>
+            <button type="submit" class="btn-guardar-final">💾 GUARDAR RESERVA FINAL</button>
+        </form>
+    </div>
 
     <div id="modalAviso" class="modal-overlay">
         <div class="modal-caja" id="bordeModal">
@@ -213,7 +254,7 @@
                 totalGeneral += item.subtotal;
                 cuerpo.innerHTML += `
                     <tr>
-                        <td>${item.cantidad}</td>
+                        <td style="font-weight: bold; text-align: center;">${item.cantidad}</td>
                         <td>${item.descripcion} <br><small style="color: #89b4fa;">${item.codigo}</small></td>
                         <td>$${item.subtotal.toFixed(2)}</td>
                         <td><button type="button" class="btn-eliminar-item" onclick="eliminarItem(${index})">✕</button></td>
@@ -257,7 +298,7 @@
         document.getElementById('formReservas').addEventListener('submit', function(e) {
             e.preventDefault();
             if (listaProductos.length === 0) {
-                mostrarAviso('⚠️ Vacío', 'Agrega al menos un producto.', true);
+                mostrarAviso('⚠️ Vacío', 'Agrega al menos un producto antes de guardar.', true);
                 return;
             }
 
@@ -281,7 +322,7 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(datos)
             }).then(res => {
-                if (res.ok) mostrarAviso('✅ Éxito', 'Reserva guardada.', false, true);
+                if (res.ok) mostrarAviso('✅ Éxito', 'Reserva guardada correctamente.', false, true);
                 else mostrarAviso('❌ Error', 'Error al guardar.', true);
             });
         });
