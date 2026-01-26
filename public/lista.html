@@ -421,6 +421,30 @@
     });
 
     document.getElementById('buscador').addEventListener('input', (e) => cargarReservas(e.target.value));
+
+    // Borrado definitivo: Mueve de 'reservas' a 'borrados_definitivos'
+function confirmarEliminarDefinitivo(id) {
+    // Usamos el modal de firma pero sin el input de nombre, solo como confirmación
+    const btnAceptar = document.getElementById('modalAceptar');
+    
+    btnAceptar.onclick = function() {
+        fetch(`/admin/reservas-eliminar/${id}`, {
+            method: 'DELETE'
+        })
+        .then(res => {
+            if (res.ok) {
+                cerrarModalFirma();
+                cargarReservas();
+                mostrarAviso('🚫 Eliminado', 'La reserva ha sido borrada de la base de datos y archivada.', true);
+            } else {
+                alert("Error al eliminar de la base de datos.");
+            }
+        });
+    };
+
+    // Abrimos el modal con el input oculto (falso) porque es una acción de Admin directa
+    abrirModalFirma("¿Desea eliminar DEFINITIVAMENTE esta reserva? Se guardará un historial en la tabla de borrados.", false, null);
+}
 </script>
 </body>
 </html>
