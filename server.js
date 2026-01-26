@@ -96,13 +96,11 @@ app.delete('/reservas/:id', (req, res) => {
     });
 });
 
-// MODIFICADO: Ruta de cambio de estado ahora soporta trazabilidad en borrado lógico
 app.put('/reservas/:id/estado', (req, res) => {
     const id = req.params.id;
     const { estado, borrado, responsable } = req.body;
 
     if (borrado !== undefined) {
-        // Al mover a papelera, actualizamos el operador con el nombre del responsable
         const operadorTrazable = responsable ? responsable : 'Sistema';
         db.query("UPDATE reservas SET borrado = ?, estado = ?, operador_nombre = ? WHERE id = ?", 
         [borrado, estado, operadorTrazable, id], (err) => {
@@ -239,6 +237,7 @@ app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     }
 });
 
+// --- RUTA ACTUALIZAR PRECIOS MEJORADA ---
 app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
     const rolUsuario = req.headers['user-role'];
     if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
@@ -251,7 +250,7 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
             const filaLimpia = {};
             for (let key in data) {
                 const nuevaLlave = key.trim().replace(/^\uFEFF/, '').toLowerCase();
-                filaLimpia[nuevaLlave] = data[key].trim();
+                filaLimpia[nuevaLlave] = data[key] ? data[key].trim() : "";
             }
             resultados.push(filaLimpia);
         })
@@ -260,27 +259,47 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                 let contador = 0;
                 for (const fila of resultados) {
                     const codigo = fila.codigo || fila.cod;
-                    const precio = fila.precio_unitario || fila.precio;
-                    if (codigo && precio) {
+                    let precioRaw = fila.precio_unitario || fila.precio;
+
+                    if (codigo && precioRaw) {
+                        // Limpieza de formato numérico (Maneja 1.200,50 o 1200,50)
+                        let precioLimpio = precioRaw.replace(/[^0-9.,]/g, '');
+                        if (precioLimpio.includes(',') && precioLimpio.includes('.')) {
+                            precioLimpio = precioLimpio.replace(/\./g, '').replace(',', '.');
+                        } else {
+                            precioLimpio = precioLimpio.replace(',', '.');
+                        }
+
                         const [resUpdate] = await db.promise().query(
                             "UPDATE productos SET precio_unitario = ? WHERE codigo = ?",
-                            [precio.replace(',', '.'), codigo]
+                            [precioLimpio, codigo]
                         );
                         if (resUpdate.affectedRows > 0) contador++;
                     }
                 }
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
                 res.json({ success: true, count: contador });
-            } catch (err) { res.status(500).json({ success: false }); }
+            } catch (err) { 
+                console.error("Error masivo:", err);
+                res.status(500).json({ success: false }); 
+            }
         });
 });
 
 app.post('/admin/soporte', async (req, res) => {
     const { tipo, mensaje, usuario } = req.body;
     try {
-        await enviarAvisoEmail({ tipo_ticket: tipo, descripcion_ticket: mensaje, usuario: usuario }, 'SOPORTE');
+        // CORRECCIÓN: Se pasan las propiedades correctas para que el mail no falle
+        await enviarAvisoEmail({ 
+            tipo_ticket: tipo, 
+            descripcion_ticket: mensaje, 
+            usuario: usuario 
+        }, 'SOPORTE');
         res.json({ success: true });
-    } catch (error) { res.status(500).json({ success: false }); }
+    } catch (error) { 
+        console.error("Error soporte:", error);
+        res.status(500).json({ success: false }); 
+    }
 });
 
 app.get('/admin/usuarios', (req, res) => {
