@@ -100,28 +100,33 @@
             mostrarAviso('⏳ Procesando', 'Actualizando precios masivamente...', false);
 
             try {
-                // Se utiliza la ruta administrativa para evitar errores de conexión
+                // CORRECCIÓN: Se añade el header 'user-role' que el servidor exige
                 const response = await fetch('/admin/actualizar-precios', {
                     method: 'POST',
+                    headers: {
+                        'user-role': sessionStorage.getItem('usuario_rol')
+                    },
                     body: formData
                 });
                 
-                if (!response.ok) throw new Error('Fallo en la comunicación');
-
                 const data = await response.json();
 
                 if (data.success) {
                     cerrarAviso();
-                    mostrarAviso('✅ Éxito', `Se han actualizado ${data.count} productos correctamente.`, false);
+                    // data.count indica cuántas filas se actualizaron realmente
+                    if (data.count > 0) {
+                        mostrarAviso('✅ Éxito', `Se han actualizado ${data.count} productos correctamente.`, false);
+                    } else {
+                        mostrarAviso('⚠️ Sin cambios', 'El archivo se procesó, pero no se encontraron coincidencias de códigos o los precios ya eran iguales.', true);
+                    }
                     this.reset();
                     document.getElementById('infoArchivo').style.display = 'none';
                 } else {
-                    mostrarAviso('❌ Error', data.message || 'El archivo no tiene el formato correcto.', true);
+                    mostrarAviso('❌ Error', 'El servidor no pudo procesar el archivo. Verificá que el CSV use comas y tenga las columnas codigo y precio_unitario.', true);
                 }
             } catch (error) {
                 console.error("Falla de red:", error);
-                // Captura del error de conexión visualizado anteriormente
-                mostrarAviso('❌ Error de Conexión', 'No se pudo contactar con el servidor. Revisá si Render terminó el Deploy.', true);
+                mostrarAviso('❌ Error de Conexión', 'Hubo un problema al subir el archivo. Verificá el tamaño y el formato.', true);
             }
         };
     </script>
