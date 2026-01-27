@@ -245,10 +245,14 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
     const resultados = [];
     fs.createReadStream(req.file.path)
         .pipe(csv({ 
-            separator: undefined, // Detecta automáticamente , o ;
-            mapHeaders: ({ header }) => header.trim().replace(/^\uFEFF/, '').toLowerCase() 
+            separator: ';', // FORZAMOS el punto y coma que se ve en tu imagen
+            mapHeaders: ({ header }) => header.trim().toLowerCase() 
         })) 
-        .on('data', (data) => resultados.push(data))
+        .on('data', (data) => {
+            if (data.codigo || data.cod) {
+                resultados.push(data);
+            }
+        })
         .on('end', async () => {
             try {
                 let contador = 0;
@@ -257,27 +261,23 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                     let precioRaw = fila.precio_unitario || fila.precio;
 
                     if (codigo && precioRaw) {
-                        // Limpiamos el precio de símbolos y manejamos decimales (1.200,50 -> 1200.50)
-                        let precioLimpio = precioRaw.toString().replace(/[^0-9.,]/g, '');
-                        if (precioLimpio.includes(',') && precioLimpio.includes('.')) {
-                            precioLimpio = precioLimpio.replace(/\./g, '').replace(',', '.');
-                        } else {
-                            precioLimpio = precioLimpio.replace(',', '.');
-                        }
+                        // Limpiamos el precio de cualquier cosa que no sea número o punto
+                        let precioLimpio = precioRaw.toString().replace(/[^0-9.]/g, '');
 
                         const [resUpdate] = await db.promise().query(
                             "UPDATE productos SET precio_unitario = ? WHERE codigo = ?",
                             [precioLimpio, codigo]
                         );
                         
-                        // Contamos si se encontró el código (aunque el precio sea el mismo, para dar feedback)
+                        // MySQL devuelve affectedRows > 0 solo si el precio cambió.
+                        // Usamos info.changedRows o simplemente sumamos si hubo match.
                         if (resUpdate.affectedRows > 0) contador++;
                     }
                 }
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
                 res.json({ success: true, count: contador });
             } catch (err) { 
-                console.error("Error en DB:", err);
+                console.error("Error en proceso masivo:", err);
                 res.status(500).json({ success: false }); 
             }
         });
