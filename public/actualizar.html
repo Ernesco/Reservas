@@ -18,26 +18,24 @@
         <div class="encabezado-total" style="text-align: center; margin-bottom: 40px; margin-top: 30px;">
             <h2 style="color: #ffffff; font-size: 26px; margin-bottom: 10px;">📊 Carga de Precios Masiva</h2>
             <p style="color: #bac2de; max-width: 600px; margin: 0 auto;">
-                Subí un archivo CSV con las columnas <b>codigo</b> y <b>precio_unitario</b> para actualizar los valores en la base de datos de forma instantánea.
+                Subí un archivo CSV con las columnas <b>codigo</b> y <b>precio_unitario</b>.
             </p>
         </div>
 
         <div style="max-width: 600px; margin: 0 auto;">
             <form id="formActualizar" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
-                <div style="border: 2px dashed #45475a; padding: 50px; border-radius: 15px; width: 100%; text-align: center; background: #1e1e2e; cursor: pointer; transition: border-color 0.3s;" 
-                     onclick="document.getElementById('inputCSV').click()"
-                     onmouseover="this.style.borderColor='#89b4fa'" 
-                     onmouseout="this.style.borderColor='#45475a'">
+                <div style="border: 2px dashed #45475a; padding: 50px; border-radius: 15px; width: 100%; text-align: center; background: #1e1e2e; cursor: pointer;" 
+                     onclick="document.getElementById('inputCSV').click()">
                     <span style="font-size: 3.5rem;">📁</span>
-                    <p style="margin-top: 15px; font-weight: bold; color: #cdd6f4;">Hacé clic para seleccionar el archivo CSV</p>
+                    <p style="margin-top: 15px; font-weight: bold; color: #cdd6f4;">Seleccionar archivo CSV</p>
                     <input type="file" id="inputCSV" accept=".csv" style="display: none;" required>
                 </div>
 
-                <div id="infoArchivo" style="margin-top: 20px; color: #a6e3a1; font-weight: bold; display: none; background: rgba(166, 227, 161, 0.1); padding: 10px 20px; border-radius: 8px;">
+                <div id="infoArchivo" style="margin-top: 20px; color: #a6e3a1; font-weight: bold; display: none;">
                     📄 Archivo: <span id="nombreArchivo"></span>
                 </div>
 
-                <button type="submit" class="btn-azul" style="margin-top: 30px; width: 100%; padding: 15px; font-size: 16px;">
+                <button type="submit" class="btn-azul" style="margin-top: 30px; width: 100%; padding: 15px;">
                     🚀 PROCESAR ACTUALIZACIÓN
                 </button>
             </form>
@@ -55,57 +53,44 @@
     </div>
 
     <script>
-        // --- SEGURIDAD ---
-        if (!sessionStorage.getItem('usuario_nombre') || sessionStorage.getItem('usuario_rol') !== 'admin') {
+        // Seguridad: Solo Admin
+        if (sessionStorage.getItem('usuario_rol') !== 'admin') {
             window.location.href = 'panel.html';
         }
 
-        // --- GESTIÓN DE AVISOS ---
         function mostrarAviso(titulo, mensaje, esError = true) {
             const modal = document.getElementById('modalAviso');
-            const tituloH3 = document.getElementById('tituloAviso');
-            const textoP = document.getElementById('textoAviso');
-            const borde = document.getElementById('bordeModal');
-            const btn = document.getElementById('btnColorAviso');
-            tituloH3.textContent = titulo;
-            textoP.textContent = mensaje;
+            document.getElementById('tituloAviso').textContent = titulo;
+            document.getElementById('textoAviso').textContent = mensaje;
             const color = esError ? '#f38ba8' : '#a6e3a1';
-            tituloH3.style.color = color;
-            borde.style.borderColor = color;
-            btn.style.backgroundColor = color;
+            document.getElementById('tituloAviso').style.color = color;
+            document.getElementById('bordeModal').style.borderColor = color;
+            document.getElementById('btnColorAviso').style.backgroundColor = color;
             modal.style.display = 'flex';
         }
 
         function cerrarAviso() { document.getElementById('modalAviso').style.display = 'none'; }
 
-        // --- SELECCIÓN DE ARCHIVO ---
         document.getElementById('inputCSV').onchange = function() {
-            const info = document.getElementById('infoArchivo');
-            const nombre = document.getElementById('nombreArchivo');
             if(this.files.length > 0) {
-                nombre.textContent = this.files[0].name;
-                info.style.display = 'block';
+                document.getElementById('nombreArchivo').textContent = this.files[0].name;
+                document.getElementById('infoArchivo').style.display = 'block';
             }
         };
 
-        // --- ENVÍO AL SERVIDOR ---
         document.getElementById('formActualizar').onsubmit = async function(e) {
             e.preventDefault();
             const fileInput = document.getElementById('inputCSV');
-            if (fileInput.files.length === 0) return;
-
             const formData = new FormData();
             formData.append('archivoCsv', fileInput.files[0]);
 
-            mostrarAviso('⏳ Procesando', 'Actualizando precios masivamente...', false);
+            mostrarAviso('⏳ Procesando', 'Leyendo archivo...', false);
 
             try {
-                // CORRECCIÓN: Se añade el header 'user-role' que el servidor exige
                 const response = await fetch('/admin/actualizar-precios', {
                     method: 'POST',
-                    headers: {
-                        'user-role': sessionStorage.getItem('usuario_rol')
-                    },
+                    // ESTO ES LO QUE FALTABA EN EL PRIMER CÓDIGO
+                    headers: { 'user-role': sessionStorage.getItem('usuario_rol') }, 
                     body: formData
                 });
                 
@@ -113,20 +98,16 @@
 
                 if (data.success) {
                     cerrarAviso();
-                    // data.count indica cuántas filas se actualizaron realmente
                     if (data.count > 0) {
-                        mostrarAviso('✅ Éxito', `Se han actualizado ${data.count} productos correctamente.`, false);
+                        mostrarAviso('✅ Éxito', `Se actualizaron ${data.count} productos.`, false);
                     } else {
-                        mostrarAviso('⚠️ Sin cambios', 'El archivo se procesó, pero no se encontraron coincidencias de códigos o los precios ya eran iguales.', true);
+                        mostrarAviso('⚠️ Sin cambios', 'No se encontraron códigos coincidentes o los precios ya son iguales.', true);
                     }
-                    this.reset();
-                    document.getElementById('infoArchivo').style.display = 'none';
                 } else {
-                    mostrarAviso('❌ Error', 'El servidor no pudo procesar el archivo. Verificá que el CSV use comas y tenga las columnas codigo y precio_unitario.', true);
+                    mostrarAviso('❌ Error', 'Error en el formato del servidor.');
                 }
             } catch (error) {
-                console.error("Falla de red:", error);
-                mostrarAviso('❌ Error de Conexión', 'Hubo un problema al subir el archivo. Verificá el tamaño y el formato.', true);
+                mostrarAviso('❌ Error', 'No se pudo conectar con el servidor.');
             }
         };
     </script>
