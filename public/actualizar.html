@@ -81,16 +81,19 @@
         document.getElementById('formActualizar').onsubmit = async function(e) {
             e.preventDefault();
             const fileInput = document.getElementById('inputCSV');
+            if (fileInput.files.length === 0) return;
+
             const formData = new FormData();
             formData.append('archivoCsv', fileInput.files[0]);
 
-            mostrarAviso('⏳ Procesando', 'Leyendo archivo...', false);
+            mostrarAviso('⏳ Procesando', 'Actualizando base de datos...', false);
 
             try {
                 const response = await fetch('/admin/actualizar-precios', {
                     method: 'POST',
-                    // ESTO ES LO QUE FALTABA EN EL PRIMER CÓDIGO
-                    headers: { 'user-role': sessionStorage.getItem('usuario_rol') }, 
+                    headers: { 
+                        'user-role': sessionStorage.getItem('usuario_rol') 
+                    },
                     body: formData
                 });
                 
@@ -101,13 +104,14 @@
                     if (data.count > 0) {
                         mostrarAviso('✅ Éxito', `Se actualizaron ${data.count} productos.`, false);
                     } else {
-                        mostrarAviso('⚠️ Sin cambios', 'No se encontraron códigos coincidentes o los precios ya son iguales.', true);
+                        mostrarAviso('⚠️ Sin cambios', 'No se encontraron códigos coincidentes. Verifica que la columna se llame "codigo".', true);
                     }
+                    this.reset();
                 } else {
-                    mostrarAviso('❌ Error', 'Error en el formato del servidor.');
+                    mostrarAviso('❌ Error', 'El servidor rechazó el archivo o el formato es inválido.');
                 }
             } catch (error) {
-                mostrarAviso('❌ Error', 'No se pudo conectar con el servidor.');
+                mostrarAviso('❌ Error de red', 'No se pudo conectar con el servidor.');
             }
         };
     </script>

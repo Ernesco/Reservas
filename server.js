@@ -237,7 +237,6 @@ app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     }
 });
 
-// --- RUTA ACTUALIZAR PRECIOS MEJORADA ---
 app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
     const rolUsuario = req.headers['user-role'];
     if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
@@ -245,15 +244,11 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
 
     const resultados = [];
     fs.createReadStream(req.file.path)
-        .pipe(csv({ separator: undefined })) 
-        .on('data', (data) => {
-            const filaLimpia = {};
-            for (let key in data) {
-                const nuevaLlave = key.trim().replace(/^\uFEFF/, '').toLowerCase();
-                filaLimpia[nuevaLlave] = data[key] ? data[key].trim() : "";
-            }
-            resultados.push(filaLimpia);
-        })
+        .pipe(csv({ 
+            separator: undefined, // Detecta automáticamente , o ;
+            mapHeaders: ({ header }) => header.trim().replace(/^\uFEFF/, '').toLowerCase() 
+        })) 
+        .on('data', (data) => resultados.push(data))
         .on('end', async () => {
             try {
                 let contador = 0;
@@ -262,8 +257,8 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                     let precioRaw = fila.precio_unitario || fila.precio;
 
                     if (codigo && precioRaw) {
-                        // Limpieza de formato numérico (Maneja 1.200,50 o 1200,50)
-                        let precioLimpio = precioRaw.replace(/[^0-9.,]/g, '');
+                        // Limpiamos el precio de símbolos y manejamos decimales (1.200,50 -> 1200.50)
+                        let precioLimpio = precioRaw.toString().replace(/[^0-9.,]/g, '');
                         if (precioLimpio.includes(',') && precioLimpio.includes('.')) {
                             precioLimpio = precioLimpio.replace(/\./g, '').replace(',', '.');
                         } else {
@@ -274,13 +269,15 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                             "UPDATE productos SET precio_unitario = ? WHERE codigo = ?",
                             [precioLimpio, codigo]
                         );
+                        
+                        // Contamos si se encontró el código (aunque el precio sea el mismo, para dar feedback)
                         if (resUpdate.affectedRows > 0) contador++;
                     }
                 }
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
                 res.json({ success: true, count: contador });
             } catch (err) { 
-                console.error("Error masivo:", err);
+                console.error("Error en DB:", err);
                 res.status(500).json({ success: false }); 
             }
         });
