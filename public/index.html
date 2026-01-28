@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
-    <title>One Box - Login</title>
+    <title>Login</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -27,14 +27,22 @@
         </div>
     </main>
 
-    <footer>
+<footer>
         <div class="footer-links">
-            <a href="javascript:void(0)" onclick="abrirSoporte()">Soporte</a>
+            <a href="soporte.html" onclick="registrarOrigenSoporte()">Soporte</a>
         </div>
-            <img src="./img/Ob_Logo.png" alt="One Box Logo" class="footer-logo">
-            <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        <img src="./img/Ob_Logo.png" alt="One Box Logo" class="footer-logo">
+        <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
         <div class="footer-version">v1.2.0</div> 
     </footer>
+
+    <script>
+        function registrarOrigenSoporte() {
+            // Obtenemos el nombre del archivo actual (ej: login.html)
+            const paginaActual = window.location.pathname.split('/').pop() || 'Inicio';
+            sessionStorage.setItem('origen_soporte', paginaActual);
+        }
+    </script>
 
     <div id="modalSoporte" class="modal-overlay">
         <div class="modal-caja">

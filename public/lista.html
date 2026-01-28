@@ -6,7 +6,7 @@
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
     <link rel="stylesheet" href="style.css">
-    <title>One Box - Gestión de Reservas</title>
+    <title>Gestión de Reservas</title>
     <style>
         .select-restaurar {
             background: #313244;
@@ -148,6 +148,23 @@
             </div>
         </div>
     </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="soporte.html" onclick="registrarOrigenSoporte()">Soporte</a>
+        </div>
+        <img src="./img/Ob_Logo.png" alt="One Box Logo" class="footer-logo">
+        <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        <div class="footer-version">v1.2.0</div> 
+    </footer>
+
+    <script>
+        function registrarOrigenSoporte() {
+            // Obtenemos el nombre del archivo actual (ej: login.html)
+            const paginaActual = window.location.pathname.split('/').pop() || 'Inicio';
+            sessionStorage.setItem('origen_soporte', paginaActual);
+        }
+    </script>
 
 <script>
     let estadoActualFiltrado = 'En Tránsito';

@@ -9,7 +9,9 @@ const fs = require('fs');
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+
+// Aumentamos el límite para permitir el envío de capturas de pantalla en Base64 desde soporte.html
+app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 const upload = multer({ dest: 'uploads/' });
@@ -26,12 +28,13 @@ const db = mysql.createPool({
     connectionLimit: 10
 });
 
-// FUNCIÓN AUXILIAR: Enviar Correo
+// --- FUNCIÓN AUXILIAR: Enviar Correo (Avisos de Reservas) ---
 async function enviarAvisoEmail(reserva, tipo) {
     let asunto = "";
     let mensajeHtml = "";
     let destinatario = reserva.cliente_email;
     
+    // Si no es soporte, validamos el destinatario del cliente
     if (tipo !== 'SOPORTE') {
         if (!destinatario || destinatario === '---' || !destinatario.includes('@')) return;
     }
@@ -60,20 +63,15 @@ async function enviarAvisoEmail(reserva, tipo) {
         mensajeHtml = `<h2>¡Hola ${reserva.cliente_nombre}!</h2>
                         <p>Tu reserva ha sido registrada correctamente y ya está en camino.</p>
                         <p><strong>Producto: </strong> ${reserva.descripcion}</p>
-                        <p>Te avisaremos por este medio y por Wathsapp cuando puedas pasar a retirarla</p>
+                        <p>Te avisaremos cuando puedas pasar a retirarla.</p>
                         ${footerHtml}`;
     } else if (tipo === 'DISPONIBLE') {
         asunto = `¡Tu pedido ya llegó! Reserva #${reserva.id}`;
         mensajeHtml = `<div style="font-family: sans-serif; border: 1px solid #a6e3a1; padding: 20px;">
             <h2>¡Buenas noticias, ${reserva.cliente_nombre}!</h2>
             <p>Tu reserva: <strong>${reserva.descripcion}</strong> ya está en <strong>${reserva.sucursal_nombre}</strong>.</p>
-            <p>Te esperamos!</p>
             <p>📍 Dirección: ${infoSucursal.direccion}<br>⏰ Horarios: ${infoSucursal.horarios}</p>
             </div>${footerHtml}`;
-    } else if (tipo === 'SOPORTE') {
-        destinatario = 'erco.efc@gmail.com'; 
-        asunto = `🛠️ Soporte: ${reserva.tipo_ticket}`;
-        mensajeHtml = `<h2>Nuevo Ticket</h2><p><strong>De:</strong> ${reserva.usuario}</p><p><strong>Mensaje:</strong> ${reserva.descripcion_ticket}</p>${footerHtml}`;
     }
 
     try {
@@ -86,8 +84,91 @@ async function enviarAvisoEmail(reserva, tipo) {
     } catch (error) { console.error("Error mail:", error); }
 }
 
-// --- RUTAS DE RESERVAS ---
+// --- RUTA DE SOPORTE TÉCNICO (NUEVA INTEGRACIÓN) ---
+app.post('/admin/soporte', async (req, res) => {
+    const { tipo, mensaje, usuario, imagen } = req.body;
+    try {
+        let cuerpoHtml = `
+            <div style="font-family: sans-serif; color: #333; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+                <h2 style="color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 10px;">🛠️ Nuevo Ticket de Soporte</h2>
+                <p><strong>Usuario:</strong> ${usuario}</p>
+                <p><strong>Motivo y Origen:</strong> ${tipo}</p>
+                <div style="background: #f8f9fa; padding: 15px; border-left: 4px solid #007bff; margin: 15px 0;">
+                    <strong>Descripción del problema:</strong><br>${mensaje}
+                </div>
+        `;
 
+        if (imagen) {
+            cuerpoHtml += `
+                <p><strong>Captura de pantalla adjunta:</strong></p>
+                <img src="${imagen}" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px; margin-top: 10px;">
+            `;
+        }
+
+        cuerpoHtml += `</div><br><p style="font-size: 11px; color: #999;">Enviado desde el sistema OneBox Soporte</p>`;
+
+        await resend.emails.send({
+            from: 'Soporte OneBox <reservas.mo@onebox.net.ar>',
+            to: 'erco.efc@gmail.com',
+            subject: `🛠️ Soporte: ${tipo}`,
+            html: cuerpoHtml
+        });
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error("Error al enviar ticket:", error);
+        res.status(500).json({ success: false });
+    }
+});
+
+// --- RUTA ACTUALIZAR PRECIOS (ULTRA COMPATIBLE) ---
+app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
+    const rolUsuario = req.headers['user-role'];
+    if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
+    if (!req.file) return res.status(400).json({ success: false });
+
+    const resultados = [];
+    fs.createReadStream(req.file.path)
+        .pipe(csv({ 
+            separator: ';', // Específico para Excel en español
+            mapHeaders: ({ header }) => header.trim().toLowerCase().replace(/^\uFEFF/, '') 
+        })) 
+        .on('data', (data) => {
+            if (data.codigo || data.cod) resultados.push(data);
+        })
+        .on('end', async () => {
+            try {
+                let contador = 0;
+                for (const fila of resultados) {
+                    const codigo = fila.codigo || fila.cod;
+                    let precioRaw = fila.precio_unitario || fila.precio;
+
+                    if (codigo && precioRaw) {
+                        // Limpia símbolos monetarios y maneja comas decimales
+                        let precioLimpio = precioRaw.toString().replace(/[^0-9.,]/g, '');
+                        if (precioLimpio.includes(',') && precioLimpio.includes('.')) {
+                            precioLimpio = precioLimpio.replace(/\./g, '').replace(',', '.');
+                        } else {
+                            precioLimpio = precioLimpio.replace(',', '.');
+                        }
+
+                        const [resUpdate] = await db.promise().query(
+                            "UPDATE productos SET precio_unitario = ? WHERE codigo = ?",
+                            [precioLimpio, codigo]
+                        );
+                        if (resUpdate.affectedRows > 0) contador++;
+                    }
+                }
+                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+                res.json({ success: true, count: contador });
+            } catch (err) { 
+                console.error("Error masivo:", err);
+                res.status(500).json({ success: false }); 
+            }
+        });
+});
+
+// --- RUTAS DE RESERVAS Y ESTADOS ---
 app.delete('/reservas/:id', (req, res) => {
     const id = req.params.id;
     db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [id], (err) => {
@@ -108,21 +189,11 @@ app.put('/reservas/:id/estado', (req, res) => {
             res.send('OK');
         });
     } else {
-        let sqlUpdate = "";
-        let valores = [];
+        let sqlUpdate = (estado === 'Pendiente de Retiro') 
+            ? `UPDATE reservas SET estado = ?, responsable_recibo = ?, fecha_ingreso = NOW() WHERE id = ?`
+            : `UPDATE reservas SET estado = ?, responsable_finalizado = ?, fecha_cierre = NOW() WHERE id = ?`;
 
-        if (estado === 'Pendiente de Retiro') {
-            sqlUpdate = `UPDATE reservas SET estado = ?, responsable_recibo = ?, fecha_ingreso = NOW() WHERE id = ?`;
-            valores = [estado, responsable, id];
-        } else if (estado === 'Retirado' || estado === 'Cancelado') {
-            sqlUpdate = `UPDATE reservas SET estado = ?, responsable_finalizado = ?, fecha_cierre = NOW() WHERE id = ?`;
-            valores = [estado, responsable, id];
-        } else {
-            sqlUpdate = `UPDATE reservas SET estado = ? WHERE id = ?`;
-            valores = [estado, id];
-        }
-
-        db.query(sqlUpdate, valores, (err) => {
+        db.query(sqlUpdate, [estado, responsable, id], (err) => {
             if (err) return res.status(500).send('Error');
             if (estado === 'Pendiente de Retiro') {
                 db.query("SELECT * FROM reservas WHERE id = ?", [id], (err, results) => {
@@ -140,167 +211,23 @@ app.put('/reservas/:id/estado', (req, res) => {
 
 app.put('/reservas/:id/editar', (req, res) => {
     const id = req.params.id;
-    const { 
-        cliente_nombre, 
-        cliente_telefono, 
-        cliente_email, 
-        prod_codigo, 
-        descripcion, 
-        prod_cantidad, 
-        total_reserva,
-        responsable_edicion 
-    } = req.body;
-
+    const { cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva, responsable_edicion } = req.body;
     const operadorActualizado = `${responsable_edicion} (Editado)`;
 
-    const sql = `
-        UPDATE reservas 
-        SET cliente_nombre = ?, 
-            cliente_telefono = ?, 
-            cliente_email = ?, 
-            prod_codigo = ?, 
-            descripcion = ?, 
-            prod_cantidad = ?, 
-            total_reserva = ?,
-            operador_nombre = ? 
-        WHERE id = ?`;
-
-    db.query(sql, [
-        cliente_nombre, 
-        cliente_telefono, 
-        cliente_email, 
-        prod_codigo, 
-        descripcion, 
-        prod_cantidad, 
-        total_reserva, 
-        operadorActualizado, 
-        id
-    ], (err, result) => {
-        if (err) {
-            console.error("Error al editar reserva:", err);
-            return res.status(500).send('Error al actualizar');
-        }
+    const sql = `UPDATE reservas SET cliente_nombre = ?, cliente_telefono = ?, cliente_email = ?, prod_codigo = ?, descripcion = ?, prod_cantidad = ?, total_reserva = ?, operador_nombre = ? WHERE id = ?`;
+    db.query(sql, [cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva, operadorActualizado, id], (err) => {
+        if (err) return res.status(500).send('Error');
         res.send('OK');
     });
 });
 
 app.get('/reservas', (req, res) => {
     const { q, sucursal, rol } = req.query;
-    let sql = `
-        SELECT r.*, 
-        (SELECT direccion FROM usuarios WHERE sucursal = r.local_origen LIMIT 1) as direccion,
-        (SELECT horarios FROM usuarios WHERE sucursal = r.local_origen LIMIT 1) as horarios
-        FROM reservas r
-        WHERE (r.cliente_nombre LIKE ? OR r.prod_codigo LIKE ?)
-    `;
+    let sql = `SELECT r.*, (SELECT direccion FROM usuarios WHERE sucursal = r.local_origen LIMIT 1) as direccion, (SELECT horarios FROM usuarios WHERE sucursal = r.local_origen LIMIT 1) as horarios FROM reservas r WHERE (r.cliente_nombre LIKE ? OR r.prod_codigo LIKE ?)`;
     let par = [`%${q}%`, `%${q}%`];
-    if (rol !== 'admin') { 
-        sql += " AND r.local_origen = ?"; 
-        par.push(sucursal); 
-    }
+    if (rol !== 'admin') { sql += " AND r.local_origen = ?"; par.push(sucursal); }
     sql += " ORDER BY r.id DESC";
-
     db.query(sql, par, (err, results) => {
-        if (err) return res.status(500).send(err);
-        res.json(results);
-    });
-});
-
-app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
-    const id = req.params.id;
-    try {
-        const sqlInsert = `
-            INSERT INTO borrados_definitivos (
-                id, fecha_registro, cliente_nombre, cliente_telefono, cliente_email,
-                prod_codigo, descripcion, prod_cantidad, total_reserva, 
-                local_origen, operador_nombre, responsable_recibo, 
-                responsable_finalizado, estado
-            )
-            SELECT 
-                id, fecha_registro, cliente_nombre, cliente_telefono, cliente_email,
-                prod_codigo, descripcion, prod_cantidad, total_reserva, 
-                local_origen, operador_nombre, responsable_recibo, 
-                responsable_finalizado, estado
-            FROM reservas 
-            WHERE id = ?`;
-
-        const [resCopia] = await db.promise().query(sqlInsert, [id]);
-        if (resCopia.affectedRows > 0) {
-            await db.promise().query("DELETE FROM reservas WHERE id = ?", [id]);
-            res.send('OK');
-        } else {
-            res.status(404).send('No encontrada');
-        }
-    } catch (err) {
-        console.error("Error al archivar:", err);
-        res.status(500).send('Error');
-    }
-});
-
-app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
-    const rolUsuario = req.headers['user-role'];
-    if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
-    if (!req.file) return res.status(400).json({ success: false });
-
-    const resultados = [];
-    fs.createReadStream(req.file.path)
-        .pipe(csv({ 
-            separator: ';', // FORZAMOS el punto y coma que se ve en tu imagen
-            mapHeaders: ({ header }) => header.trim().toLowerCase() 
-        })) 
-        .on('data', (data) => {
-            if (data.codigo || data.cod) {
-                resultados.push(data);
-            }
-        })
-        .on('end', async () => {
-            try {
-                let contador = 0;
-                for (const fila of resultados) {
-                    const codigo = fila.codigo || fila.cod;
-                    let precioRaw = fila.precio_unitario || fila.precio;
-
-                    if (codigo && precioRaw) {
-                        // Limpiamos el precio de cualquier cosa que no sea número o punto
-                        let precioLimpio = precioRaw.toString().replace(/[^0-9.]/g, '');
-
-                        const [resUpdate] = await db.promise().query(
-                            "UPDATE productos SET precio_unitario = ? WHERE codigo = ?",
-                            [precioLimpio, codigo]
-                        );
-                        
-                        // MySQL devuelve affectedRows > 0 solo si el precio cambió.
-                        // Usamos info.changedRows o simplemente sumamos si hubo match.
-                        if (resUpdate.affectedRows > 0) contador++;
-                    }
-                }
-                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                res.json({ success: true, count: contador });
-            } catch (err) { 
-                console.error("Error en proceso masivo:", err);
-                res.status(500).json({ success: false }); 
-            }
-        });
-});
-
-app.post('/admin/soporte', async (req, res) => {
-    const { tipo, mensaje, usuario } = req.body;
-    try {
-        // CORRECCIÓN: Se pasan las propiedades correctas para que el mail no falle
-        await enviarAvisoEmail({ 
-            tipo_ticket: tipo, 
-            descripcion_ticket: mensaje, 
-            usuario: usuario 
-        }, 'SOPORTE');
-        res.json({ success: true });
-    } catch (error) { 
-        console.error("Error soporte:", error);
-        res.status(500).json({ success: false }); 
-    }
-});
-
-app.get('/admin/usuarios', (req, res) => {
-    db.query("SELECT * FROM usuarios ORDER BY sucursal ASC", (err, results) => {
         if (err) return res.status(500).send(err);
         res.json(results);
     });

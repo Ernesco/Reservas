@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
-    <title>One Box - Actualizar Precios</title>
+    <title>Actualizar Precios</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -51,6 +51,23 @@
             </div>
         </div>
     </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="soporte.html" onclick="registrarOrigenSoporte()">Soporte</a>
+        </div>
+        <img src="./img/Ob_Logo.png" alt="One Box Logo" class="footer-logo">
+        <p>&copy; 2026 Tu Sistema de Reservas. Todos los derechos reservados.</p>
+        <div class="footer-version">v1.2.0</div> 
+    </footer>
+
+    <script>
+        function registrarOrigenSoporte() {
+            // Obtenemos el nombre del archivo actual (ej: login.html)
+            const paginaActual = window.location.pathname.split('/').pop() || 'Inicio';
+            sessionStorage.setItem('origen_soporte', paginaActual);
+        }
+    </script>
 
     <script>
         // Seguridad: Solo Admin
