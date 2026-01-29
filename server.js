@@ -105,7 +105,7 @@ app.post('/admin/soporte', async (req, res) => {
             `;
         }
 
-        cuerpoHtml += `</div><br><p style="font-size: 11px; color: #999;">Enviado desde el sistema OneBox Soporte</p>`;
+        cuerpoHtml += `</div><br><p style="font-size: 11px; color: #999;">Este es un mensaje automático, enviado por el sistema de Onebox</p>`;
 
         await resend.emails.send({
             from: 'Soporte OneBox <reservas.mo@onebox.net.ar>',
