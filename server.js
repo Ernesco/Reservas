@@ -28,13 +28,12 @@ const db = mysql.createPool({
     connectionLimit: 10
 });
 
-// --- FUNCIÓN AUXILIAR: Enviar Correo (Avisos de Reservas) ---
+// --- FUNCIÓN AUXILIAR: Enviar Correo ---
 async function enviarAvisoEmail(reserva, tipo) {
     let asunto = "";
     let mensajeHtml = "";
     let destinatario = reserva.cliente_email;
     
-    // Si no es soporte, validamos el destinatario del cliente
     if (tipo !== 'SOPORTE') {
         if (!destinatario || destinatario === '---' || !destinatario.includes('@')) return;
     }
@@ -84,7 +83,7 @@ async function enviarAvisoEmail(reserva, tipo) {
     } catch (error) { console.error("Error mail:", error); }
 }
 
-// --- RUTA DE SOPORTE TÉCNICO (NUEVA INTEGRACIÓN) ---
+// --- RUTA DE SOPORTE TÉCNICO ---
 app.post('/admin/soporte', async (req, res) => {
     const { tipo, mensaje, usuario, imagen } = req.body;
     try {
@@ -99,13 +98,11 @@ app.post('/admin/soporte', async (req, res) => {
         `;
 
         if (imagen) {
-            cuerpoHtml += `
-                <p><strong>Captura de pantalla adjunta:</strong></p>
-                <img src="${imagen}" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px; margin-top: 10px;">
-            `;
+            cuerpoHtml += `<p><strong>Captura de pantalla adjunta:</strong></p>
+                           <img src="${imagen}" style="max-width: 100%; height: auto; border: 1px solid #ddd; border-radius: 5px; margin-top: 10px;">`;
         }
 
-        cuerpoHtml += `</div><br><p style="font-size: 11px; color: #999;">Este es un mensaje automático, enviado por el sistema de Onebox</p>`;
+        cuerpoHtml += `</div>`;
 
         await resend.emails.send({
             from: 'Soporte OneBox <reservas.mo@onebox.net.ar>',
@@ -121,7 +118,43 @@ app.post('/admin/soporte', async (req, res) => {
     }
 });
 
-// --- RUTA ACTUALIZAR PRECIOS (ULTRA COMPATIBLE) ---
+// --- RUTA DE ARCHIVADO DEFINITIVO (LA QUE ESTABA FALLANDO) ---
+app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
+    const id = req.params.id;
+    try {
+        // 1. Buscamos los datos actuales
+        const [rows] = await db.promise().query("SELECT * FROM reservas WHERE id = ?", [id]);
+        if (rows.length === 0) return res.status(404).send('No encontrada');
+
+        const r = rows[0];
+
+        // 2. Insertamos en borrados_definitivos
+        const sqlInsert = `
+            INSERT INTO borrados_definitivos (
+                id, fecha_registro, cliente_nombre, cliente_telefono, cliente_email,
+                prod_codigo, descripcion, prod_cantidad, total_reserva, 
+                local_origen, operador_nombre, responsable_recibo, 
+                responsable_finalizado, estado
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+
+        await db.promise().query(sqlInsert, [
+            r.id, r.fecha_registro, r.cliente_nombre, r.cliente_telefono, r.cliente_email,
+            r.prod_codigo, r.descripcion, r.prod_cantidad, r.total_reserva, 
+            r.local_origen, r.operador_nombre, r.responsable_recibo, 
+            r.responsable_finalizado, r.estado
+        ]);
+
+        // 3. Borramos de la tabla principal
+        await db.promise().query("DELETE FROM reservas WHERE id = ?", [id]);
+        
+        res.send('OK');
+    } catch (err) {
+        console.error("Error al archivar:", err);
+        res.status(500).send('Error');
+    }
+});
+
+// --- RUTA ACTUALIZAR PRECIOS ---
 app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
     const rolUsuario = req.headers['user-role'];
     if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
@@ -130,7 +163,7 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
     const resultados = [];
     fs.createReadStream(req.file.path)
         .pipe(csv({ 
-            separator: ';', // Específico para Excel en español
+            separator: ';', 
             mapHeaders: ({ header }) => header.trim().toLowerCase().replace(/^\uFEFF/, '') 
         })) 
         .on('data', (data) => {
@@ -144,14 +177,7 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                     let precioRaw = fila.precio_unitario || fila.precio;
 
                     if (codigo && precioRaw) {
-                        // Limpia símbolos monetarios y maneja comas decimales
-                        let precioLimpio = precioRaw.toString().replace(/[^0-9.,]/g, '');
-                        if (precioLimpio.includes(',') && precioLimpio.includes('.')) {
-                            precioLimpio = precioLimpio.replace(/\./g, '').replace(',', '.');
-                        } else {
-                            precioLimpio = precioLimpio.replace(',', '.');
-                        }
-
+                        let precioLimpio = precioRaw.toString().replace(/[^0-9.]/g, '');
                         const [resUpdate] = await db.promise().query(
                             "UPDATE productos SET precio_unitario = ? WHERE codigo = ?",
                             [precioLimpio, codigo]
@@ -161,22 +187,11 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                 }
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
                 res.json({ success: true, count: contador });
-            } catch (err) { 
-                console.error("Error masivo:", err);
-                res.status(500).json({ success: false }); 
-            }
+            } catch (err) { res.status(500).json({ success: false }); }
         });
 });
 
-// --- RUTAS DE RESERVAS Y ESTADOS ---
-app.delete('/reservas/:id', (req, res) => {
-    const id = req.params.id;
-    db.query("UPDATE reservas SET borrado = 1 WHERE id = ?", [id], (err) => {
-        if (err) return res.status(500).send('Error');
-        res.send('OK');
-    });
-});
-
+// --- OTRAS RUTAS ---
 app.put('/reservas/:id/estado', (req, res) => {
     const id = req.params.id;
     const { estado, borrado, responsable } = req.body;
@@ -207,18 +222,6 @@ app.put('/reservas/:id/estado', (req, res) => {
             res.send('OK');
         });
     }
-});
-
-app.put('/reservas/:id/editar', (req, res) => {
-    const id = req.params.id;
-    const { cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva, responsable_edicion } = req.body;
-    const operadorActualizado = `${responsable_edicion} (Editado)`;
-
-    const sql = `UPDATE reservas SET cliente_nombre = ?, cliente_telefono = ?, cliente_email = ?, prod_codigo = ?, descripcion = ?, prod_cantidad = ?, total_reserva = ?, operador_nombre = ? WHERE id = ?`;
-    db.query(sql, [cliente_nombre, cliente_telefono, cliente_email, prod_codigo, descripcion, prod_cantidad, total_reserva, operadorActualizado, id], (err) => {
-        if (err) return res.status(500).send('Error');
-        res.send('OK');
-    });
 });
 
 app.get('/reservas', (req, res) => {
