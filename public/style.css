@@ -374,7 +374,7 @@ footer {
 }
 
 .footer-logo {
-    max-width: 100px !important;
+    max-width: 50px !important;
     height: auto;
     margin: 1px; /* Centrado automático y margen mínimo abajo */
     display: block;
