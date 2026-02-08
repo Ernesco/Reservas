@@ -346,19 +346,41 @@ footer {
     position: relative;     /* <-- AGREGÁ ESTO para que la versión se ubique bien */
 }
 
-/* --- NUEVO ESTILO PARA LA VERSIÓN --- */
-.footer-version {
-    position: absolute;
-    bottom: 10px;
-    right: 20px;
-    font-size: 11px;
-    color: #bac2de;        
-    font-family: monospace;
-    opacity: 0.8;
+/* --- ESTILO ACTUALIZADO DEL FOOTER --- */
+footer {
+    position: relative;
+    display: flex;
+    align-items: center; /* Centra verticalmente los elementos */
+    justify-content: space-between; /* Distribuye espacio entre logo y contenido central */
+    padding: 20px;
+    border-top: 1px solid #45475a;
+    min-height: 80px;
 }
 
-.footer-links {
-    margin-bottom: 10px;
+.footer-creador-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinea texto y logo a la izquierda */
+    gap: 5px;
+}
+
+.texto-creado {
+    font-size: 0.7rem;
+    color: #bac2de;
+    margin: 0;
+    font-weight: bold;
+}
+
+.footer-logo {
+    max-width: 95px !important; /* Mitad del tamaño original (190px / 2) */
+    height: auto;
+    display: block;
+}
+
+.footer-centro {
+    flex-grow: 1;
+    text-align: center;
+    margin-right: 95px; /* Compensa el ancho del logo para que el centro sea real */
 }
 
 .footer-links a {
@@ -373,17 +395,20 @@ footer {
     color: #f38ba8 !important;
 }
 
-.footer-logo {
-    max-width: 50px !important;
-    height: auto;
-    margin: 1px; /* Centrado automático y margen mínimo abajo */
-    display: block;
-}
-
 footer p {
-    margin: 0 !important;
+    margin: 5px 0 0 0 !important;
     font-size: 0.75rem;
     color: #bac2de;
+}
+
+.footer-version {
+    position: absolute;
+    bottom: 10px;
+    right: 20px;
+    font-size: 11px;
+    color: #bac2de;        
+    font-family: monospace;
+    opacity: 0.8;
 }
 
 /* --- MODAL SOPORTE: OPTIMIZACIÓN DE ESPACIO --- */
