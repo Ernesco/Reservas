@@ -335,52 +335,40 @@ td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important
 
 footer {
     display: flex;
-    flex-direction: column;
-    align-items: center;    /* Centra logo y texto horizontalmente */
-    justify-content: center;
-    text-align: center;
-    padding: 20px 0;
-    background-color: #11111b;
-    border-top: 2px solid #89b4fa;
-    margin-top: auto;
-    position: relative;     /* <-- AGREGÁ ESTO para que la versión se ubique bien */
-}
-
-/* --- ESTILO ACTUALIZADO DEL FOOTER --- */
-footer {
-    position: relative;
-    display: flex;
-    align-items: center; /* Centra verticalmente los elementos */
-    justify-content: space-between; /* Distribuye espacio entre logo y contenido central */
+    align-items: center; /* Alineación vertical */
+    justify-content:沟通; /* Distribución de los 3 bloques */
     padding: 20px;
     border-top: 1px solid #45475a;
-    min-height: 80px;
+    position: relative;
+    background: #11111b; /* Fondo para que resalte */
 }
 
+/* Contenedor del Logo (Izquierda) */
 .footer-creador-container {
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Alinea texto y logo a la izquierda */
-    gap: 5px;
+    align-items: flex-start; /* Todo a la izquierda */
+    flex: 1; /* Ocupa el espacio de la izquierda */
 }
 
 .texto-creado {
     font-size: 0.7rem;
     color: #bac2de;
-    margin: 0;
+    margin-bottom: 5px;
     font-weight: bold;
 }
 
 .footer-logo {
-    max-width: 95px !important; /* Mitad del tamaño original (190px / 2) */
+    max-width: 95px !important; /* Mitad del tamaño original */
     height: auto;
-    display: block;
 }
 
+/* Bloque Central (Soporte y Copyright) */
 .footer-centro {
-    flex-grow: 1;
-    text-align: center;
-    margin-right: 95px; /* Compensa el ancho del logo para que el centro sea real */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 2; /* Más espacio al centro */
 }
 
 .footer-links a {
@@ -388,25 +376,26 @@ footer {
     text-decoration: none;
     font-weight: bold;
     font-size: 1.1rem;
-    transition: 0.3s;
-}
-
-.footer-links a:hover {
-    color: #f38ba8 !important;
+    margin-bottom: 5px;
+    display: inline-block;
 }
 
 footer p {
-    margin: 5px 0 0 0 !important;
+    margin: 0 !important;
     font-size: 0.75rem;
     color: #bac2de;
 }
 
+/* Versión (Derecha) */
+.footer-version-container {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
 .footer-version {
-    position: absolute;
-    bottom: 10px;
-    right: 20px;
     font-size: 11px;
-    color: #bac2de;        
+    color: #bac2de;
     font-family: monospace;
     opacity: 0.8;
 }
