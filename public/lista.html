@@ -408,12 +408,10 @@
         let tel = item.cliente_telefono.replace(/\D/g, '');
         if (tel.startsWith('0')) tel = tel.substring(1);
         if (!tel.startsWith('549')) tel = '549' + tel;
-        const msg = `Hola *${item.cliente_nombre}*! 👋
-                    \nTu pedido *${item.descripcion}* ya llegó y está listo en:
+        const msg = `Hola*${item.cliente_nombre}*!👋 Tu pedido *${item.descripcion}*ya llegó y está listo en:
                     \n📍 *${item.local_origen}*
                     \n📍 *${item.direccion}*
-                    \n¡Te esperamos en el horario de:
-                    \n⏰ Horarios: *${item.horarios}*`;
+                    \n¡Te esperamos en el ⏰ horario de:*${item.horarios}*`;
         const url = `https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
         document.getElementById('modalQR').style.display = 'flex';
         setTimeout(() => { 
