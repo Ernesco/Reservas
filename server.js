@@ -150,7 +150,7 @@ app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     }
 });
 
-// --- RUTA ACTUALIZAR PRECIOS ---
+// --- RUTA ACTUALIZAR PRECIOS (UPSERT MASIVO - ACTUALIZA O INSERTA) ---
 app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
     const rolUsuario = req.headers['user-role'];
     if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
@@ -166,28 +166,61 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
             if (data.codigo || data.cod) resultados.push(data);
         })
         .on('end', async () => {
+            let connection;
             try {
                 let contador = 0;
-                for (const fila of resultados) {
-                    const codigo = fila.codigo || fila.cod;
-                    let precioRaw = fila.precio_unitario || fila.precio;
+                connection = await db.promise().getConnection();
+                await connection.beginTransaction();
 
-                    if (codigo && precioRaw) {
-                        let precioLimpio = precioRaw.toString().replace(/[^0-9.]/g, '');
-                        const [resUpdate] = await db.promise().query(
-                            "UPDATE productos SET precio_unitario = ? WHERE codigo = ?",
-                            [precioLimpio, codigo]
-                        );
-                        if (resUpdate.affectedRows > 0) contador++;
+                // Procesamos en bloques de 1000 filas para máxima eficiencia en inserts masivos
+                const tamañoBloque = 1000;
+                for (let i = 0; i < resultados.length; i += tamañoBloque) {
+                    const bloque = resultados.slice(i, i + tamañoBloque);
+                    
+                    // Si el archivo trae descripción la usamos, sino ponemos una por defecto para nuevos productos
+                    let sql = "INSERT INTO productos (codigo, descripcion, precio_unitario) VALUES ";
+                    const valores = [];
+                    const fragmentos = [];
+
+                    for (const fila of bloque) {
+                        const codigo = fila.codigo || fila.cod;
+                        let precioRaw = fila.precio_unitario || fila.precio;
+                        let desc = fila.descripcion || 'Producto Importado';
+
+                        if (codigo && precioRaw) {
+                            let precioLimpio = precioRaw.toString().replace(/[^0-9.]/g, '');
+                            if (precioLimpio) {
+                                fragmentos.push("(?, ?, ?)");
+                                valores.push(codigo, desc, precioLimpio);
+                            }
+                        }
+                    }
+
+                    if (fragmentos.length > 0) {
+                        // Si el código ya existe, actualiza el precio_unitario automáticamente
+                        sql += fragmentos.join(', ') + " ON DUPLICATE KEY UPDATE precio_unitario = VALUES(precio_unitario)";
+                        const [resInsert] = await connection.query(sql, valores);
+                        // affectedRows cuenta 1 por cada fila nueva insertada y 2 por cada fila actualizada
+                        contador += resInsert.affectedRows;
                     }
                 }
+
+                await connection.commit();
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                res.json({ success: true, count: contador });
-            } catch (err) { res.status(500).json({ success: false }); }
+                res.json({ success: true, count: resultados.length }); // Devolvemos el total de filas procesadas
+
+            } catch (err) { 
+                console.error("Error masivo de precios + inserción:", err);
+                if (connection) await connection.rollback();
+                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+                res.status(500).json({ success: false }); 
+            } finally {
+                if (connection) connection.release();
+            }
         });
 });
 
-// --- NUEVA: RUTA ACTUALIZAR STOCK (INTEGRADA) ---
+// --- RUTA ACTUALIZAR STOCK (UPSERT MASIVO - ACTUALIZA O INSERTA) ---
 app.post('/admin/actualizar-stock', upload.single('archivoCsv'), async (req, res) => {
     const rolUsuario = req.headers['user-role'];
     if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
@@ -196,39 +229,60 @@ app.post('/admin/actualizar-stock', upload.single('archivoCsv'), async (req, res
     const resultados = [];
     fs.createReadStream(req.file.path)
         .pipe(csv({ 
-            separator: ';', // Clave para delimitación en Excel en español
+            separator: ';', 
             mapHeaders: ({ header }) => header.trim().toLowerCase().replace(/^\uFEFF/, '') 
         })) 
         .on('data', (data) => {
             if (data.codigo || data.cod) resultados.push(data);
         })
         .on('end', async () => {
+            let connection;
             try {
                 let contador = 0;
-                for (const fila of resultados) {
-                    const codigo = fila.codigo || fila.cod;
-                    // Acepta columnas tituladas 'stock', 'cantidad', 'cant' o 'stock_actual'
-                    let stockRaw = fila.stock || fila.cantidad || fila.cant || fila.stock_actual;
+                connection = await db.promise().getConnection();
+                await connection.beginTransaction();
 
-                    if (codigo && stockRaw !== undefined) {
-                        // Limpiamos strings quitando letras y parseamos a número entero limpio
-                        let stockLimpio = parseInt(stockRaw.toString().replace(/[^0-9]/g, ''), 10);
+                const tamañoBloque = 1000;
+                for (let i = 0; i < resultados.length; i += tamañoBloque) {
+                    const bloque = resultados.slice(i, i + tamañoBloque);
+                    
+                    let sql = "INSERT INTO productos (codigo, descripcion, stock, precio_unitario) VALUES ";
+                    const valores = [];
+                    const fragmentos = [];
 
-                        if (!isNaN(stockLimpio)) {
-                            const [resUpdate] = await db.promise().query(
-                                "UPDATE productos SET stock = ? WHERE codigo = ?",
-                                [stockLimpio, codigo]
-                            );
-                            if (resUpdate.affectedRows > 0) contador++;
+                    for (const fila of bloque) {
+                        const codigo = fila.codigo || fila.cod;
+                        let stockRaw = fila.stock || fila.cantidad || fila.cant || fila.stock_actual;
+                        let desc = fila.descripcion || 'Producto Importado';
+                        let precioDefecto = fila.precio_unitario || fila.precio || 0;
+
+                        if (codigo && stockRaw !== undefined) {
+                            let stockLimpio = parseInt(stockRaw.toString().replace(/[^0-9]/g, ''), 10);
+                            if (!isNaN(stockLimpio)) {
+                                fragmentos.push("(?, ?, ?, ?)");
+                                valores.push(codigo, desc, stockLimpio, precioDefecto);
+                            }
                         }
                     }
+
+                    if (fragmentos.length > 0) {
+                        // Si el código ya existe, actualiza el stock automáticamente
+                        sql += fragmentos.join(', ') + " ON DUPLICATE KEY UPDATE stock = VALUES(stock)";
+                        await connection.query(sql, valores);
+                    }
                 }
+
+                await connection.commit();
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                res.json({ success: true, count: contador });
+                res.json({ success: true, count: resultados.length });
+
             } catch (err) {
-                console.error("Error al actualizar stock masivo:", err);
+                console.error("Error masivo de stock + inserción:", err);
+                if (connection) await connection.rollback();
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
                 res.status(500).json({ success: false });
+            } finally {
+                if (connection) connection.release();
             }
         });
 });
@@ -239,7 +293,7 @@ app.put('/reservas/:id/estado', (req, res) => {
     const { estado, borrado, responsable } = req.body;
 
     if (borrado !== undefined) {
-        const operadorTrazable = penultimate = responsable ? responsable : 'Sistema';
+        const operadorTrazable = responsable ? responsable : 'Sistema';
         db.query("UPDATE reservas SET borrado = ?, estado = ?, operador_nombre = ? WHERE id = ?", 
         [borrado, estado, operadorTrazable, id], (err) => {
             if (err) return res.status(500).send('Error');
