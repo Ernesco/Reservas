@@ -150,7 +150,7 @@ app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     }
 });
 
-// --- RUTA ACTUALIZAR PRECIOS (UPSERT MASIVO ADAPTADO A: codigo, descripcion, precio_unitario) ---
+// --- RUTA 1: ACTUALIZAR PRECIOS EXISTENTES (SÓLO MODIFICACIONES, ULTRA RÁPIDA) ---
 app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
     const rolUsuario = req.headers['user-role'];
     if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
@@ -171,54 +171,99 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                 connection = await db.promise().getConnection();
                 await connection.beginTransaction();
 
-                const tamañoBloque = 1000;
-                for (let i = 0; i < resultados.length; i += tamañoBloque) {
-                    const bloque = resultados.slice(i, i + tamañoBloque);
-                    
-                    let sql = "INSERT INTO productos (codigo, descripcion, precio_unitario) VALUES ";
-                    const valores = [];
-                    const fragmentos = [];
+                const sqlUpdate = "UPDATE productos SET precio_unitario = ? WHERE codigo = ?";
+                let contador = 0;
 
-                    for (const fila of bloque) {
-                        const codigo = fila.codigo || fila.cod;
-                        let precioRaw = fila.precio_unitario || fila.precio;
-                        let desc = fila.descripcion || fila.desc;
+                for (const fila of resultados) {
+                    const codigo = fila.codigo || fila.cod;
+                    let precioRaw = fila.precio_unitario || fila.precio;
 
-                        if (codigo && precioRaw) {
-                            let descLimpia = desc ? desc.toString().trim() : `Producto ${codigo}`;
-                            
-                            // CORREGIDO: Limpieza y asignación de variable sin errores de tipeo
-                            let precioLimpio = precioRaw.toString().replace(/[^0-9.,]/g, '');
-                            if (precioLimpio.includes(',') && precioLimpio.includes('.')) {
-                                precioLimpio = precioLimpio.replace(/\./g, '').replace(',', '.');
-                            } else {
-                                precioLimpio = precioLimpio.replace(',', '.');
-                            }
-
-                            if (precioLimpio && !isNaN(parseFloat(precioLimpio))) {
-                                fragmentos.push("(?, ?, ?)");
-                                valores.push(codigo.toString().trim(), descLimpia, precioLimpio);
-                            }
+                    if (codigo && precioRaw) {
+                        let precioLimpio = precioRaw.toString().replace(/[^0-9.,]/g, '').replace(',', '.');
+                        if (!isNaN(parseFloat(precioLimpio))) {
+                            const [resUp] = await connection.query(sqlUpdate, [precioLimpio, codigo.toString().trim()]);
+                            contador += resUp.affectedRows;
                         }
-                    }
-
-                    if (fragmentos.length > 0) {
-                        // CORREGIDO: Cláusula UPSERT nativa sincronizando precio_unitario y descripción
-                        sql += fragmentos.join(', ') + " ON DUPLICATE KEY UPDATE precio_unitario = VALUES(precio_unitario), descripcion = VALUES(descripcion)";
-                        await connection.query(sql, valores);
                     }
                 }
 
                 await connection.commit();
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                res.json({ success: true, count: resultados.length });
+                res.json({ success: true, count: contador });
 
             } catch (err) { 
-                // CORREGIDO: Logs informativos avanzados para auditar fallas en Render
-                console.error("❌ ERROR CRÍTICO EN ACTUALIZACIÓN MASIVA DE PRECIOS:", err);
+                console.error("❌ Error en actualización simple de precios:", err);
                 if (connection) await connection.rollback();
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                res.status(500).json({ success: false, detalle: err.message }); 
+                res.status(500).json({ success: false }); 
+            } finally {
+                if (connection) connection.release();
+            }
+        });
+});
+
+// --- RUTA 2 (NUEVA NUEVA): CARGAR SÓLO ARTÍCULOS NUEVOS (INSERT PURO MASIVO) ---
+app.post('/admin/cargar-nuevos', upload.single('archivoCsv'), async (req, res) => {
+    const rolUsuario = req.headers['user-role'];
+    if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
+    if (!req.file) return res.status(400).json({ success: false });
+
+    const resultados = [];
+    fs.createReadStream(req.file.path)
+        .pipe(csv({ 
+            separator: ';', 
+            mapHeaders: ({ header }) => header.trim().toLowerCase().replace(/^\uFEFF/, '') 
+        })) 
+        .on('data', (data) => {
+            if (data.codigo || data.cod) resultados.push(data);
+        })
+        .on('end', async () => {
+            let connection;
+            try {
+                connection = await db.promise().getConnection();
+                await connection.beginTransaction();
+
+                const tamañoBloque = 1000;
+                let totalInsertados = 0;
+
+                for (let i = 0; i < resultados.length; i += tamañoBloque) {
+                    const bloque = resultados.slice(i, i + tamañoBloque);
+                    
+                    // Columnas exactas de tu tabla productos: codigo, descripcion, precio_unitario
+                    let sql = "INSERT IGNORE INTO productos (codigo, descripcion, precio_unitario) VALUES ";
+                    const valores = [];
+                    const fragmentos = [];
+
+                    for (const fila of bloque) {
+                        const codigo = fila.codigo || fila.cod;
+                        let desc = fila.descripcion || fila.desc;
+                        let precioRaw = fila.precio_unitario || fila.precio;
+
+                        if (codigo && desc && precioRaw) {
+                            let precioLimpio = precioRaw.toString().replace(/[^0-9.,]/g, '').replace(',', '.');
+                            if (!isNaN(parseFloat(precioLimpio))) {
+                                fragmentos.push("(?, ?, ?)");
+                                valores.push(codigo.toString().trim(), desc.toString().trim(), precioLimpio);
+                            }
+                        }
+                    }
+
+                    if (fragmentos.length > 0) {
+                        sql += fragmentos.join(', ');
+                        const [resIns] = await connection.query(sql, valores);
+                        totalInsertados += resIns.affectedRows;
+                    }
+                }
+
+                await connection.commit();
+                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+                res.json({ success: true, count: totalInsertados });
+
+            } catch (err) {
+                console.error("❌ Error en inserción pura de altas:", err);
+                if (connection) await connection.rollback();
+                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+                res.status(500).json({ success: false });
             } finally {
                 if (connection) connection.release();
             }
@@ -248,7 +293,7 @@ app.post('/admin/actualizar-stock', upload.single('archivoCsv'), async (req, res
 
                 const tamañoBloque = 1000;
                 for (let i = 0; i < resultados.length; i += tamañoBloque) {
-                    const bloque = Box = resultados.slice(i, i + tamañoBloque);
+                    const bloque = resultados.slice(i, i + tamañoBloque);
                     
                     let sql = "INSERT INTO productos (codigo, descripcion, stock, precio_unitario) VALUES ";
                     const valores = [];
