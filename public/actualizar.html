@@ -4,21 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
-    <title>Actualizar Precios</title>
+    <title>One Box - Actualizar Stock</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <header>
-        <div class="logo-texto">📈 Actualización Masiva de Precios</div>
+        <div class="logo-texto">📦 Actualización Masiva de Stock</div>
         <a href="panel.html" class="btn-header">🏠 VOLVER AL PANEL</a>
     </header>
 
     <main class="contenedor-lista">
         <div class="encabezado-total" style="text-align: center; margin-bottom: 40px; margin-top: 30px;">
-            <h2 style="color: #ffffff; font-size: 26px; margin-bottom: 10px;">📊 Carga de Precios Masiva</h2>
+            <h2 style="color: #ffffff; font-size: 26px; margin-bottom: 10px;">📊 Carga de Stock Masiva</h2>
             <p style="color: #bac2de; max-width: 600px; margin: 0 auto;">
-                Subí un archivo CSV con las columnas <b>codigo</b> y <b>precio_unitario</b>.
+                Subí un archivo CSV con las columnas <b>codigo</b> y <b>stock</b> (o cantidad).
             </p>
         </div>
 
@@ -36,7 +36,7 @@
                 </div>
 
                 <button type="submit" class="btn-azul" style="margin-top: 30px; width: 100%; padding: 15px;">
-                    🚀 PROCESAR ACTUALIZACIÓN
+                    🚀 PROCESAR STOCK
                 </button>
             </form>
         </div>
@@ -72,13 +72,10 @@
 
     <script>
         function registrarOrigenSoporte() {
-            // Obtenemos el nombre del archivo actual (ej: login.html)
             const paginaActual = window.location.pathname.split('/').pop() || 'Inicio';
             sessionStorage.setItem('origen_soporte', paginaActual);
         }
-    </script>
 
-    <script>
         // Seguridad: Solo Admin
         if (sessionStorage.getItem('usuario_rol') !== 'admin') {
             window.location.href = 'panel.html';
@@ -112,10 +109,11 @@
             const formData = new FormData();
             formData.append('archivoCsv', fileInput.files[0]);
 
-            mostrarAviso('⏳ Procesando', 'Actualizando base de datos...', false);
+            mostrarAviso('⏳ Procesando', 'Actualizando stock en la base de datos...', false);
 
             try {
-                const response = await fetch('/admin/actualizar-precios', {
+                // CORRECCIÓN CRÍTICA: Apunta a /admin/actualizar-stock
+                const response = await fetch('/admin/actualizar-stock', {
                     method: 'POST',
                     headers: { 
                         'user-role': sessionStorage.getItem('usuario_rol') 
@@ -128,11 +126,12 @@
                 if (data.success) {
                     cerrarAviso();
                     if (data.count > 0) {
-                        mostrarAviso('✅ Éxito', `Se actualizaron ${data.count} productos.`, false);
+                        mostrarAviso('✅ Éxito', `Se actualizó el stock de ${data.count} productos.`, false);
                     } else {
-                        mostrarAviso('⚠️ Sin cambios', 'No se encontraron códigos coincidentes. Verifica que la columna se llame "codigo".', true);
+                        mostrarAviso('⚠️ Sin cambios', 'No se modificó el stock. Revisá que los códigos existan o que los valores no sean idénticos.', true);
                     }
                     this.reset();
+                    document.getElementById('infoArchivo').style.display = 'none';
                 } else {
                     mostrarAviso('❌ Error', 'El servidor rechazó el archivo o el formato es inválido.');
                 }

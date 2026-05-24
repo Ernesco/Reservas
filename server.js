@@ -118,17 +118,15 @@ app.post('/admin/soporte', async (req, res) => {
     }
 });
 
-// --- RUTA DE ARCHIVADO DEFINITIVO (LA QUE ESTABA FALLANDO) ---
+// --- RUTA DE ARCHIVADO DEFINITIVO ---
 app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     const id = req.params.id;
     try {
-        // 1. Buscamos los datos actuales
         const [rows] = await db.promise().query("SELECT * FROM reservas WHERE id = ?", [id]);
         if (rows.length === 0) return res.status(404).send('No encontrada');
 
         const r = rows[0];
 
-        // 2. Insertamos en borrados_definitivos
         const sqlInsert = `
             INSERT INTO borrados_definitivos (
                 id, fecha_registro, cliente_nombre, cliente_telefono, cliente_email,
@@ -144,9 +142,7 @@ app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
             r.responsable_finalizado, r.estado
         ]);
 
-        // 3. Borramos de la tabla principal
         await db.promise().query("DELETE FROM reservas WHERE id = ?", [id]);
-        
         res.send('OK');
     } catch (err) {
         console.error("Error al archivar:", err);
@@ -191,13 +187,59 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
         });
 });
 
+// --- NUEVA: RUTA ACTUALIZAR STOCK (INTEGRADA) ---
+app.post('/admin/actualizar-stock', upload.single('archivoCsv'), async (req, res) => {
+    const rolUsuario = req.headers['user-role'];
+    if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
+    if (!req.file) return res.status(400).json({ success: false });
+
+    const resultados = [];
+    fs.createReadStream(req.file.path)
+        .pipe(csv({ 
+            separator: ';', // Clave para delimitación en Excel en español
+            mapHeaders: ({ header }) => header.trim().toLowerCase().replace(/^\uFEFF/, '') 
+        })) 
+        .on('data', (data) => {
+            if (data.codigo || data.cod) resultados.push(data);
+        })
+        .on('end', async () => {
+            try {
+                let contador = 0;
+                for (const fila of resultados) {
+                    const codigo = fila.codigo || fila.cod;
+                    // Acepta columnas tituladas 'stock', 'cantidad', 'cant' o 'stock_actual'
+                    let stockRaw = fila.stock || fila.cantidad || fila.cant || fila.stock_actual;
+
+                    if (codigo && stockRaw !== undefined) {
+                        // Limpiamos strings quitando letras y parseamos a número entero limpio
+                        let stockLimpio = parseInt(stockRaw.toString().replace(/[^0-9]/g, ''), 10);
+
+                        if (!isNaN(stockLimpio)) {
+                            const [resUpdate] = await db.promise().query(
+                                "UPDATE productos SET stock = ? WHERE codigo = ?",
+                                [stockLimpio, codigo]
+                            );
+                            if (resUpdate.affectedRows > 0) contador++;
+                        }
+                    }
+                }
+                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+                res.json({ success: true, count: contador });
+            } catch (err) {
+                console.error("Error al actualizar stock masivo:", err);
+                if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
+                res.status(500).json({ success: false });
+            }
+        });
+});
+
 // --- OTRAS RUTAS ---
 app.put('/reservas/:id/estado', (req, res) => {
     const id = req.params.id;
     const { estado, borrado, responsable } = req.body;
 
     if (borrado !== undefined) {
-        const operadorTrazable = responsable ? responsable : 'Sistema';
+        const operadorTrazable = penultimate = responsable ? responsable : 'Sistema';
         db.query("UPDATE reservas SET borrado = ?, estado = ?, operador_nombre = ? WHERE id = ?", 
         [borrado, estado, operadorTrazable, id], (err) => {
             if (err) return res.status(500).send('Error');
