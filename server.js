@@ -150,7 +150,7 @@ app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     }
 });
 
-// --- RUTA ACTUALIZAR PRECIOS (UPSERT MASIVO - ACTUALIZA O INSERTA) ---
+// --- RUTA ACTUALIZAR PRECIOS (UPSERT MASIVO - ACTUALIZA PRECIO O AGREGA CÓDIGO NUEVO) ---
 app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
     const rolUsuario = req.headers['user-role'];
     if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
@@ -168,17 +168,15 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
         .on('end', async () => {
             let connection;
             try {
-                let contador = 0;
                 connection = await db.promise().getConnection();
                 await connection.beginTransaction();
 
-                // Procesamos en bloques de 1000 filas para máxima eficiencia en inserts masivos
                 const tamañoBloque = 1000;
                 for (let i = 0; i < resultados.length; i += tamañoBloque) {
                     const bloque = resultados.slice(i, i + tamañoBloque);
                     
-                    // Si el archivo trae descripción la usamos, sino ponemos una por defecto para nuevos productos
-                    let sql = "INSERT INTO productos (codigo, descripcion, precio_unitario) VALUES ";
+                    // Si el código no existe, se inserta con stock 0 y descripción por defecto
+                    let sql = "INSERT INTO productos (codigo, descripcion, precio_unitario, stock) VALUES ";
                     const valores = [];
                     const fragmentos = [];
 
@@ -186,28 +184,27 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                         const codigo = fila.codigo || fila.cod;
                         let precioRaw = fila.precio_unitario || fila.precio;
                         let desc = fila.descripcion || 'Producto Importado';
+                        let stockDefecto = fila.stock || fila.cantidad || 0;
 
                         if (codigo && precioRaw) {
                             let precioLimpio = precioRaw.toString().replace(/[^0-9.]/g, '');
                             if (precioLimpio) {
-                                fragmentos.push("(?, ?, ?)");
-                                valores.push(codigo, desc, precioLimpio);
+                                fragmentos.push("(?, ?, ?, ?)");
+                                valores.push(codigo, desc, precioLimpio, stockDefecto);
                             }
                         }
                     }
 
                     if (fragmentos.length > 0) {
-                        // Si el código ya existe, actualiza el precio_unitario automáticamente
+                        // ON DUPLICATE KEY UPDATE pisa el precio si el código ya existía en la DB
                         sql += fragmentos.join(', ') + " ON DUPLICATE KEY UPDATE precio_unitario = VALUES(precio_unitario)";
-                        const [resInsert] = await connection.query(sql, valores);
-                        // affectedRows cuenta 1 por cada fila nueva insertada y 2 por cada fila actualizada
-                        contador += resInsert.affectedRows;
+                        await connection.query(sql, valores);
                     }
                 }
 
                 await connection.commit();
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                res.json({ success: true, count: resultados.length }); // Devolvemos el total de filas procesadas
+                res.json({ success: true, count: resultados.length });
 
             } catch (err) { 
                 console.error("Error masivo de precios + inserción:", err);
@@ -220,7 +217,7 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
         });
 });
 
-// --- RUTA ACTUALIZAR STOCK (UPSERT MASIVO - ACTUALIZA O INSERTA) ---
+// --- RUTA ACTUALIZAR STOCK (UPSERT MASIVO - ACTUALIZA STOCK O AGREGA CÓDIGO NUEVO) ---
 app.post('/admin/actualizar-stock', upload.single('archivoCsv'), async (req, res) => {
     const rolUsuario = req.headers['user-role'];
     if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
@@ -238,7 +235,6 @@ app.post('/admin/actualizar-stock', upload.single('archivoCsv'), async (req, res
         .on('end', async () => {
             let connection;
             try {
-                let contador = 0;
                 connection = await db.promise().getConnection();
                 await connection.beginTransaction();
 
@@ -266,7 +262,6 @@ app.post('/admin/actualizar-stock', upload.single('archivoCsv'), async (req, res
                     }
 
                     if (fragmentos.length > 0) {
-                        // Si el código ya existe, actualiza el stock automáticamente
                         sql += fragmentos.join(', ') + " ON DUPLICATE KEY UPDATE stock = VALUES(stock)";
                         await connection.query(sql, valores);
                     }
@@ -285,6 +280,14 @@ app.post('/admin/actualizar-stock', upload.single('archivoCsv'), async (req, res
                 if (connection) connection.release();
             }
         });
+    });
+
+// --- RUTA PARA CONTAR EL TOTAL DE PRODUCTOS EN LA DB ---
+app.get('/admin/total-productos', (req, res) => {
+    db.query("SELECT COUNT(1) AS total FROM productos", (err, results) => {
+        if (err) return res.status(500).json({ success: false, error: err });
+        res.json({ success: true, total: results[0].total });
+    });
 });
 
 // --- OTRAS RUTAS ---
