@@ -150,7 +150,7 @@ app.delete('/admin/reservas-eliminar/:id', async (req, res) => {
     }
 });
 
-// --- RUTA ACTUALIZAR PRECIOS (UPSERT MASIVO - ACTUALIZA PRECIO O AGREGA CÓDIGO NUEVO) ---
+// --- RUTA ACTUALIZAR PRECIOS (UPSERT MASIVO ADAPTADO A: codigo, descripcion, precio_unitario) ---
 app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, res) => {
     const rolUsuario = req.headers['user-role'];
     if (rolUsuario !== 'admin') return res.status(403).json({ success: false });
@@ -175,29 +175,38 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                 for (let i = 0; i < resultados.length; i += tamañoBloque) {
                     const bloque = resultados.slice(i, i + tamañoBloque);
                     
-                    // Si el código no existe, se inserta con stock 0 y descripción por defecto
-                    let sql = "INSERT INTO productos (codigo, descripcion, precio_unitario, stock) VALUES ";
+                    // SQL estructurado basándose exactamente en tus 3 columnas reales
+                    let sql = "INSERT INTO productos (codigo, descripcion, precio_unitario) VALUES ";
                     const valores = [];
                     const fragmentos = [];
 
                     for (const fila of bloque) {
                         const codigo = fila.codigo || fila.cod;
                         let precioRaw = fila.precio_unitario || fila.precio;
-                        let desc = fila.descripcion || 'Producto Importado';
-                        let stockDefecto = fila.stock || fila.cantidad || 0;
+                        let desc = fila.descripcion || fila.desc;
 
                         if (codigo && precioRaw) {
-                            let precioLimpio = precioRaw.toString().replace(/[^0-9.]/g, '');
-                            if (precioLimpio) {
-                                fragmentos.push("(?, ?, ?, ?)");
-                                valores.push(codigo, desc, precioLimpio, stockDefecto);
+                            // Limpieza profunda de los saltos de línea y espacios en descripciones
+                            let descLimpia = desc ? desc.toString().trim() : `Producto ${codigo}`;
+                            
+                            // Normalización del formato de precio argentino/excel a decimal de SQL
+                            let precioLimpio = precioRaw.toString().replace(/[^0-9.,]/g, '');
+                            if (precioLimpio.includes(',') && precioLimpio.includes('.')) {
+                                precioLimpio = precioLinter.replace(/\./g, '').replace(',', '.');
+                            } else {
+                                precioLimpio = precioLimpio.replace(',', '.');
+                            }
+
+                            if (precioLimpio && !isNaN(parseFloat(precioLinter))) {
+                                fragmentos.push("(?, ?, ?)");
+                                valores.push(codigo.toString().trim(), descLimpia, precioLimpio);
                             }
                         }
                     }
 
                     if (fragmentos.length > 0) {
-                        // ON DUPLICATE KEY UPDATE pisa el precio si el código ya existía en la DB
-                        sql += fragmentos.join(', ') + " ON DUPLICATE KEY UPDATE precio_unitario = VALUES(precio_unitario)";
+                        // Si el código ya existe, pisa el precio_unitario. Si no, genera el alta.
+                        sql += fragmentos.join(', ') + " ON DUPLICATE KEY UPDATE precio_unitario = VALUES(precio_unitario), descripcion = VALUES(descripcion)";
                         await connection.query(sql, valores);
                     }
                 }
@@ -207,7 +216,7 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                 res.json({ success: true, count: resultados.length });
 
             } catch (err) { 
-                console.error("Error masivo de precios + inserción:", err);
+                console.error("Error masivo en Upsert de precios:", err);
                 if (connection) await connection.rollback();
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
                 res.status(500).json({ success: false }); 
@@ -280,7 +289,7 @@ app.post('/admin/actualizar-stock', upload.single('archivoCsv'), async (req, res
                 if (connection) connection.release();
             }
         });
-    });
+});
 
 // --- RUTA PARA CONTAR EL TOTAL DE PRODUCTOS EN LA DB ---
 app.get('/admin/total-productos', (req, res) => {
