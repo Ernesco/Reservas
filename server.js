@@ -175,7 +175,6 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                 for (let i = 0; i < resultados.length; i += tamañoBloque) {
                     const bloque = resultados.slice(i, i + tamañoBloque);
                     
-                    // SQL estructurado basándose exactamente en tus 3 columnas reales
                     let sql = "INSERT INTO productos (codigo, descripcion, precio_unitario) VALUES ";
                     const valores = [];
                     const fragmentos = [];
@@ -186,18 +185,17 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                         let desc = fila.descripcion || fila.desc;
 
                         if (codigo && precioRaw) {
-                            // Limpieza profunda de los saltos de línea y espacios en descripciones
                             let descLimpia = desc ? desc.toString().trim() : `Producto ${codigo}`;
                             
-                            // Normalización del formato de precio argentino/excel a decimal de SQL
+                            // CORREGIDO: Limpieza y asignación de variable sin errores de tipeo
                             let precioLimpio = precioRaw.toString().replace(/[^0-9.,]/g, '');
                             if (precioLimpio.includes(',') && precioLimpio.includes('.')) {
-                                precioLimpio = precioLinter.replace(/\./g, '').replace(',', '.');
+                                precioLimpio = precioLimpio.replace(/\./g, '').replace(',', '.');
                             } else {
                                 precioLimpio = precioLimpio.replace(',', '.');
                             }
 
-                            if (precioLimpio && !isNaN(parseFloat(precioLinter))) {
+                            if (precioLimpio && !isNaN(parseFloat(precioLimpio))) {
                                 fragmentos.push("(?, ?, ?)");
                                 valores.push(codigo.toString().trim(), descLimpia, precioLimpio);
                             }
@@ -205,7 +203,7 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                     }
 
                     if (fragmentos.length > 0) {
-                        // Si el código ya existe, pisa el precio_unitario. Si no, genera el alta.
+                        // CORREGIDO: Cláusula UPSERT nativa sincronizando precio_unitario y descripción
                         sql += fragmentos.join(', ') + " ON DUPLICATE KEY UPDATE precio_unitario = VALUES(precio_unitario), descripcion = VALUES(descripcion)";
                         await connection.query(sql, valores);
                     }
@@ -216,10 +214,11 @@ app.post('/admin/actualizar-precios', upload.single('archivoCsv'), async (req, r
                 res.json({ success: true, count: resultados.length });
 
             } catch (err) { 
-                console.error("Error masivo en Upsert de precios:", err);
+                // CORREGIDO: Logs informativos avanzados para auditar fallas en Render
+                console.error("❌ ERROR CRÍTICO EN ACTUALIZACIÓN MASIVA DE PRECIOS:", err);
                 if (connection) await connection.rollback();
                 if (fs.existsSync(req.file.path)) fs.unlinkSync(req.file.path);
-                res.status(500).json({ success: false }); 
+                res.status(500).json({ success: false, detalle: err.message }); 
             } finally {
                 if (connection) connection.release();
             }
@@ -249,7 +248,7 @@ app.post('/admin/actualizar-stock', upload.single('archivoCsv'), async (req, res
 
                 const tamañoBloque = 1000;
                 for (let i = 0; i < resultados.length; i += tamañoBloque) {
-                    const bloque = resultados.slice(i, i + tamañoBloque);
+                    const bloque = Box = resultados.slice(i, i + tamañoBloque);
                     
                     let sql = "INSERT INTO productos (codigo, descripcion, stock, precio_unitario) VALUES ";
                     const valores = [];
