@@ -7,31 +7,30 @@
     <title>Panel de Control</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- CORRECCIÓN INTEGRAL PARA EL FOOTER AL FONDO --- */
+        /* --- CORRECCIÓN INTEGRAL SIN PERDER EL CONTENEDOR BLANCO --- */
         html, body {
             margin: 0;
             padding: 0;
-            height: 100%; /* Forzamos a que ocupen el alto total del navegador */
+            height: 100%; /* Forzamos el alto total del navegador */
         }
 
         body {
             display: flex;
-            flex-direction: column; /* Estructura en fila vertical: Header -> Contenido -> Footer */
+            flex-direction: column; /* Header -> Contenido (Main) -> Footer */
             min-height: 100vh;
         }
 
-        /* El contenedor del panel se expande para ocupar todo el espacio vacío, empujando al footer */
-        .caja-central-panel {
+        /* Contenedor principal invisible que ocupa el espacio intermedio y centra la caja central */
+        main {
             flex: 1 0 auto; 
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
             padding: 40px 20px;
         }
 
         footer {
-            flex-shrink: 0; /* Evita que el footer se achique o deforme */
+            flex-shrink: 0; /* Evita que el footer se deforme o achique */
         }
     </style>
 </head>
@@ -41,17 +40,19 @@
         <a href="#" id="btnSalir" class="btn-header">🚪 SALIR</a>
     </header>
 
-    <div id="panel-box" class="caja-central-panel">
-        <h1>Panel de Control</h1>
-        <p style="color: #bac2de; margin-bottom: 30px; font-weight: 500;">Seleccione una operación para continuar:</p>
+    <main>
+        <div id="panel-box" class="caja-central">
+            <h1>Panel de Control</h1>
+            <p style="color: #444; margin-bottom: 30px; font-weight: 500;">Seleccione una operación para continuar:</p>
 
-        <div class="contenedor-menu" id="contenedor-botones">
-            <a href="formulario.html" class="btn-menu">➕ Nueva Reserva</a>
-            <a href="lista.html" class="btn-menu">📋 Ver Lista de Reservas</a>
-            <a href="procesos.html" class="btn-menu" style="background-color: #585b70;">📖 Manual de Procesos</a>
-            <a href="actualizar.html" class="btn-menu btn-destacado" id="btnActualizar">📈 Actualizar Precios</a>
+            <div class="contenedor-menu" id="contenedor-botones">
+                <a href="formulario.html" class="btn-menu">➕ Nueva Reserva</a>
+                <a href="lista.html" class="btn-menu">📋 Ver Lista de Reservas</a>
+                <a href="procesos.html" class="btn-menu" style="background-color: #585b70;">📖 Manual de Procesos</a>
+                <a href="actualizar.html" class="btn-menu btn-destacado" id="btnActualizar">📈 Actualizar Precios</a>
+            </div>
         </div>
-    </div>
+    </main>
 
     <footer>
         <div class="footer-creador-container">
@@ -126,8 +127,8 @@
             }
             
             if (nombre) {
-                // Cambié el texto "Hola, admin" que se veía gris oscuro a #4a90e2 o el color que traes en tu sesión
-                document.querySelector('h1').innerHTML = `Hola, <span style="color:#89b4fa">${sucursal || nombre}</span>`;
+                // Volvemos al color de texto oscuro #444 para que resalte perfecto adentro del contenedor blanco
+                document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2; font-weight: bold;">${sucursal || nombre}</span>`;
             }
         });
 
