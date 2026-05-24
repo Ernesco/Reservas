@@ -7,20 +7,20 @@
     <title>Panel de Control</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* --- CORRECCIÓN INTEGRAL SIN PERDER EL CONTENEDOR BLANCO --- */
+        /* --- CORRECCIÓN INTEGRAL: FOOTER FIJO ABAJO Y SIN DESBORDE --- */
         html, body {
             margin: 0;
             padding: 0;
-            height: 100%; /* Forzamos el alto total del navegador */
+            height: 100%;
+            overflow-x: hidden; /* Bloquea cualquier scroll horizontal rebelde */
         }
 
         body {
             display: flex;
-            flex-direction: column; /* Header -> Contenido (Main) -> Footer */
+            flex-direction: column;
             min-height: 100vh;
         }
 
-        /* Contenedor principal invisible que ocupa el espacio intermedio y centra la caja central */
         main {
             flex: 1 0 auto; 
             display: flex;
@@ -30,7 +30,9 @@
         }
 
         footer {
-            flex-shrink: 0; /* Evita que el footer se deforme o achique */
+            flex-shrink: 0;
+            width: auto; /* CORRECCIÓN: Evita que sume paddings por fuera del 100% */
+            margin: 0;   /* Resetea márgenes que puedan empujar el diseño */
         }
     </style>
 </head>
@@ -110,7 +112,6 @@
     </div>
 
     <script>
-        // --- SEGURIDAD Y SESIÓN ---
         const nombre = sessionStorage.getItem('usuario_nombre');
         const sucursal = sessionStorage.getItem('usuario_sucursal');
         const rol = sessionStorage.getItem('usuario_rol'); 
@@ -119,7 +120,6 @@
             window.location.href = 'index.html';
         }
 
-        // --- LÓGICA DE VISIBILIDAD PARA ADMIN ---
         document.addEventListener('DOMContentLoaded', () => {
             const btnActualizar = document.getElementById('btnActualizar');
             if (rol !== 'admin' && btnActualizar) {
@@ -127,19 +127,16 @@
             }
             
             if (nombre) {
-                // Volvemos al color de texto oscuro #444 para que resalte perfecto adentro del contenedor blanco
                 document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2; font-weight: bold;">${sucursal || nombre}</span>`;
             }
         });
 
-        // Botón Salir
         document.getElementById('btnSalir').addEventListener('click', (e) => {
             e.preventDefault();
             sessionStorage.clear();
             window.location.href = 'index.html';
         });
 
-        // --- GESTIÓN DE MODALES ---
         function mostrarAviso(titulo, mensaje, esError = true) {
             const modal = document.getElementById('modalAviso');
             const tituloH3 = document.getElementById('tituloAviso');
@@ -159,7 +156,6 @@
         function abrirSoporte() { document.getElementById('modalSoporte').style.display = 'flex'; }
         function cerrarSoporte() { document.getElementById('modalSoporte').style.display = 'none'; }
 
-        // --- ENVÍO DE SOPORTE CORREGIDO ---
         document.getElementById('formSoporte').addEventListener('submit', async function(e) {
             e.preventDefault();
             const datos = {
