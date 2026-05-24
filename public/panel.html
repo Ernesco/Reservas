@@ -6,6 +6,34 @@
     <script type="text/javascript">document.oncontextmenu = function(){return false;}</script>
     <title>Panel de Control</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- CORRECCIÓN INTEGRAL PARA EL FOOTER AL FONDO --- */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%; /* Forzamos a que ocupen el alto total del navegador */
+        }
+
+        body {
+            display: flex;
+            flex-direction: column; /* Estructura en fila vertical: Header -> Contenido -> Footer */
+            min-height: 100vh;
+        }
+
+        /* El contenedor del panel se expande para ocupar todo el espacio vacío, empujando al footer */
+        .caja-central-panel {
+            flex: 1 0 auto; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        footer {
+            flex-shrink: 0; /* Evita que el footer se achique o deforme */
+        }
+    </style>
 </head>
 <body> 
     <header>    
@@ -13,9 +41,9 @@
         <a href="#" id="btnSalir" class="btn-header">🚪 SALIR</a>
     </header>
 
-    <div id="panel-box" class="caja-central">
+    <div id="panel-box" class="caja-central-panel">
         <h1>Panel de Control</h1>
-        <p style="color: #444; margin-bottom: 30px; font-weight: 500;">Seleccione una operación para continuar:</p>
+        <p style="color: #bac2de; margin-bottom: 30px; font-weight: 500;">Seleccione una operación para continuar:</p>
 
         <div class="contenedor-menu" id="contenedor-botones">
             <a href="formulario.html" class="btn-menu">➕ Nueva Reserva</a>
@@ -45,7 +73,6 @@
 
     <script>
         function registrarOrigenSoporte() {
-            // Obtenemos el nombre del archivo actual (ej: login.html)
             const paginaActual = window.location.pathname.split('/').pop() || 'Inicio';
             sessionStorage.setItem('origen_soporte', paginaActual);
         }
@@ -95,11 +122,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             const btnActualizar = document.getElementById('btnActualizar');
             if (rol !== 'admin' && btnActualizar) {
-                btnActualizar.remove(); // Elimina el botón si no es admin
+                btnActualizar.remove(); 
             }
             
             if (nombre) {
-                document.querySelector('h1').innerHTML = `Hola, <span style="color:#4a90e2">${sucursal}</span>`;
+                // Cambié el texto "Hola, admin" que se veía gris oscuro a #4a90e2 o el color que traes en tu sesión
+                document.querySelector('h1').innerHTML = `Hola, <span style="color:#89b4fa">${sucursal || nombre}</span>`;
             }
         });
 
@@ -139,7 +167,6 @@
                 usuario: sessionStorage.getItem('usuario_nombre') || 'Usuario Panel'
             };
             try {
-                // Ruta corregida para coincidir con el server.js
                 const res = await fetch('/admin/soporte', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
