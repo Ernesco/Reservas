@@ -1,46 +1,84 @@
-/* --- 1. ESTRUCTURA BASE Y FOOTER PEGAJOSO --- */
+/* ==========================================================================
+    1. VARIABLES GLOBALES Y CONFIGURACIÓN (Paleta Cyber: Azul y Fucsia)
+   ========================================================================== */
+:root {
+    --bg-main: #030611;        /* Fondo azul oscuro profundo */
+    --bg-cards: #0a0f24;       /* Contenedores oscuros con matiz azulado */
+    --border-color: #16224f;   /* Bordes azulados sutiles */
+    --accent-color: #00bfff;   /* Azul eléctrico principal */
+    --hover-color: #ff007f;    /* Fucsia/Magenta para la reacción visual */
+    --text-white: #ffffff;     /* Texto principal */
+    --text-gray: #7a8cb5;      /* Texto secundario con tono azulado sutil */
+    --error-color: #ff5252;    /* Alertas y errores */
+}
+
 html, body {
     height: 100%;
     margin: 0;
 }
 
+/* CONFIGURACIÓN DEL FONDO CON IMAGEN ATENUADA (OPACIDAD) */
 body {
+    background-color: var(--bg-main);
+    color: var(--text-white);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #1e1e2e;
-    color: #e0e6f8;
     padding-top: 100px;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
     box-sizing: border-box;
+    position: relative;
+    overflow-x: hidden;
 }
 
-/* --- 2. HEADER: TÍTULOS Y BOTONES --- */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('img/IMG_2243.PNG'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.15; 
+    z-index: -1;   
+}
+
+/* ==========================================================================
+    2. HEADER: TÍTULOS Y BOTONES (ESTILO CYBER)
+   ========================================================================== */
 header {
     position: fixed;
     top: 0; left: 0;
     width: 100%;
     height: 70px;
-    background-color: #11111b;
-    border-bottom: 2px solid #89b4fa;
+    background-color: var(--bg-cards);
+    border-bottom: 1px solid var(--border-color);
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 0 5%;
     z-index: 3000;
     box-sizing: border-box;
+    backdrop-filter: blur(4px);
 }
 
 .logo-texto {
     font-size: clamp(1.1rem, 2vw, 1.5rem);
     font-weight: bold;
-    color: #ffffff !important; /* Fix: Asegura el color blanco del título */
+    color: var(--text-white) !important;
+}
+
+.logo-texto span {
+    color: var(--accent-color);
 }
 
 header a, .btn-header {
-    background-color: #313244;
-    color: #fff !important;
-    border: 1px solid #45475a;
+    background-color: rgba(6, 10, 23, 0.6);
+    color: var(--text-white) !important;
+    border: 1px solid var(--accent-color); /* Borde inicial en azul eléctrico */
     text-decoration: none !important;
     padding: 8px 18px;
     border-radius: 20px;
@@ -48,16 +86,19 @@ header a, .btn-header {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    transition: 0.3s;
+    transition: 0.3s ease;
     height: fit-content;
 }
 
-header a:hover {
-    background-color: #89b4fa;
-    color: #11111b !important;
+header a:hover, .btn-header:hover {
+    border-color: var(--hover-color); /* Pasa a fucsia */
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
+    color: var(--text-white) !important;
 }
 
-/* --- 3. CONTENEDORES Y CAJA BLANCA --- */
+/* ==========================================================================
+    3. CONTENEDORES Y CAJA DE FORMULARIO (TRANSPARENTE CYBER)
+   ========================================================================== */
 main {
     flex: 1 0 auto;
     display: flex;
@@ -68,33 +109,52 @@ main {
 }
 
 .caja-central {
-    background-color: #ffffff;
+    background-color: var(--bg-cards); /* Ahora es oscura con matiz azulado */
     padding: 2.5rem;
     border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 90% !important;
-    max-width: 35rem !important; /* Ajustado para formularios */
+    max-width: 35rem !important;
     margin: 20px auto;
-    color: #313244;
+    color: var(--text-white);
+    backdrop-filter: blur(4px);
 }
 
 .caja-central h1, .caja-central h2 {
     text-align: center;
-    color: #313244;
+    color: var(--text-white);
     margin-bottom: 1.5rem;
     font-weight: bold;
 }
 
-/* --- 4. FORMULARIO: FIELDSETS Y LABELS (RESTAURADO) --- */
+/* --- RESTAURACIÓN DEL CONTENEDOR BLANCO SOLO PARA EL PANEL DE CONTROL --- */
+#panel-box.caja-central {
+    max-width: 500px !important;
+    width: 90% !important;
+    padding: 30px !important;
+    margin: 40px auto !important;
+    background-color: #ffffff !important;
+    color: #313244 !important;
+    border: none !important;
+}
+
+#panel-box.caja-central h1, #panel-box.caja-central p {
+    color: #313244 !important;
+}
+
+/* ==========================================================================
+    4. FORMULARIO: FIELDSETS, LABELS E INPUTS
+   ========================================================================== */
 fieldset {
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 10px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    background-color: rgba(0, 0, 0, 0.02);
+    background-color: rgba(6, 10, 23, 0.4);
     width: 100%;
     box-sizing: border-box;
     text-align: left;
@@ -102,85 +162,121 @@ fieldset {
 
 legend {
     font-weight: bold;
-    color: #313244;
+    color: var(--accent-color); /* Leyendas resaltadas en azul eléctrico */
     padding: 0 10px;
 }
 
 label {
     display: block;
     width: 100%;
-    color: #5e616b;
+    color: var(--text-gray);
     margin-bottom: 8px;
     font-weight: 500;
     text-align: left;
 }
 
-.requerido { color: #e74c3c; }
+.requerido { color: var(--error-color); }
 
 input, select, textarea {
     padding: 12px;
     width: 100%;
     border-radius: 6px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    color: #333;
+    border: 1px solid var(--border-color);
+    background-color: #060a17;
+    color: var(--text-white);
     margin-bottom: 15px;
     box-sizing: border-box;
     font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    background-color: #0b1126;
+    box-shadow: 0 0 10px rgba(0, 191, 255, 0.2);
 }
 
 input[readonly] {
-    background-color: #f8f9fa;
-    color: #666;
-    border-color: #ddd;
+    background-color: rgba(6, 10, 23, 0.8);
+    color: var(--text-gray);
+    border-color: var(--border-color);
 }
 
-/* --- CORRECCIÓN ÚNICA: BOTONES DEL PANEL --- */
+/* ==========================================================================
+    5. BOTONES Y HOVER EFECTO CYBER (MARCO FUCSIA)
+   ========================================================================== */
 .contenedor-menu {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centra los botones horizontalmente */
+    align-items: center;
     gap: 15px;
     width: 100%;
     margin-top: 20px;
 }
 
-.btn-menu {
+.btn-menu, .btn-azul, button[type="submit"] {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
-    max-width: 300px; /* Limitamos el largo para que no se estiren */
+    max-width: 300px;
     padding: 15px;
-    background-color: #313244;
-    color: white !important;
+    background-color: transparent;
+    color: var(--text-white) !important;
     text-decoration: none !important;
     font-weight: bold;
     border-radius: 12px;
-    border: 2px solid #45475a;
-    transition: 0.3s;
+    border: 1px solid var(--accent-color); /* Borde inicial Azul Eléctrico */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-sizing: border-box;
-}
-
-.btn-menu:hover {
-    background-color: #4a90e2;
-    border-color: #89b4fa;
-    transform: translateY(-2px);
-}
-
-.btn-azul, button[type="submit"] {
-    width: 100%;
-    padding: 15px;
-    background-color: #4a90e2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-weight: bold;
     cursor: pointer;
-    transition: 0.3s;
 }
 
-/* --- 6. LISTA DE RESERVAS Y TABLA --- */
+/* AL PASAR EL MAUSE: MARCO FUCSIA Y DESTELO GLOW */
+.btn-menu:hover, .btn-azul:hover, button[type="submit"]:hover {
+    border-color: var(--hover-color);
+    box-shadow: 0 0 15px rgba(255, 0, 127, 0.3);
+    transform: translateY(-2px);
+    background-color: transparent;
+}
+
+/* Botones con un ancho plano para el interior de los formularios */
+.caja-central .btn-azul, .caja-central button[type="submit"] {
+    max-width: 100% !important;
+}
+
+/* Mantener el color oscuro original para los botones dentro del panel-box blanco */
+#panel-box .btn-menu {
+    background-color: #313244;
+    border: 2px solid #45475a;
+}
+#panel-box .btn-menu:hover {
+    background-color: #45475a;
+    border-color: #89b4fa;
+}
+
+.btn-admin-panel {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 50px !important;
+    background-color: #313244 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    margin-bottom: 12px !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    font-size: 16px !important;
+    border: none !important;
+    transition: background 0.2s;
+}
+.btn-admin-panel:hover { background-color: #45475a !important; }
+
+/* ==========================================================================
+    6. LISTA DE RESERVAS Y TABLA CYBER
+   ========================================================================== */
 .contenedor-lista {
     flex: 1 0 auto;
     width: 95% !important;
@@ -203,35 +299,46 @@ input[readonly] {
 }
 
 .btn-filtro {
-    background: #313244;
-    color: white;
-    border: 1px solid #45475a;
+    background: rgba(6, 10, 23, 0.6);
+    color: var(--text-white);
+    border: 1px solid var(--border-color);
     padding: 10px 18px;
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-filtro:hover {
+    border-color: var(--accent-color);
 }
 
 .btn-filtro.active {
-    background-color: #4a90e2 !important;
-    border-color: #89b4fa;
+    background-color: rgba(0, 191, 255, 0.1) !important;
+    border-color: var(--accent-color);
+    color: var(--accent-color);
 }
 
 #buscador {
     padding: 12px 15px;
     width: 350px !important;
     border-radius: 8px;
-    border: 1px solid #45475a;
-    background-color: #313244;
+    border: 1px solid var(--border-color);
+    background-color: #060a17;
     color: white;
     margin-bottom: 0;
+}
+#buscador:focus {
+    outline: none;
+    border-color: var(--accent-color);
 }
 
 .tabla-scroll-container {
     overflow-x: auto;
     border-radius: 12px;
-    background-color: #313244;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    background-color: var(--bg-cards);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.5);
 }
 
 table {
@@ -241,20 +348,24 @@ table {
 }
 
 th {
-    background-color: #45475a;
-    color: #89b4fa;
+    background-color: #060a17;
+    color: var(--accent-color);
     padding: 15px;
     text-transform: uppercase;
     font-size: 0.8rem;
-    border-bottom: 2px solid #89b4fa;
+    border-bottom: 2px solid var(--border-color);
 }
 
 td {
     padding: 12px 10px;
     text-align: center;
-    border-bottom: 1px solid #45475a;
-    color: #bac2de;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-gray);
     font-size: 0.9rem;
+}
+
+tr:hover td {
+    background-color: rgba(0, 191, 255, 0.02); /* Iluminación suave al pasar por la fila */
 }
 
 td .btn-azul, td .btn-borrar {
@@ -266,127 +377,136 @@ td .btn-azul, td .btn-borrar {
     font-size: 11px;
     border-radius: 6px;
     font-weight: bold;
-    border: none;
+    border: 1px solid transparent;
     cursor: pointer;
     margin: 2px;
 }
 
-td .btn-azul[onclick*="Retirado"] { background-color: #2e7d32 !important; color: white !important; }
-td .btn-borrar { background-color: #f38ba8 !important; color: #1e1e2e !important; }
+td .btn-azul[onclick*="Retirado"] { background-color: rgba(46, 125, 50, 0.2) !important; border-color: #2e7d32 !important; color: #a6e3a1 !important; }
+td .btn-borrar { background-color: rgba(243, 139, 168, 0.1) !important; border-color: var(--error-color) !important; color: var(--error-color) !important; }
+td .btn-borrar:hover { background-color: var(--error-color) !important; color: #030611 !important; }
 
-/* --- 7. MODALES (OCULTOS POR DEFECTO) --- */
+/* ==========================================================================
+    7. MODALES (ESTILO CYBER DE ALTA CONTENCIÓN)
+   ========================================================================== */
 .modal-overlay {
-    display: none; /* Fix: Oculta alertas en todas las hojas */
+    display: none;
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.85);
+    background: rgba(3, 6, 17, 0.85);
+    backdrop-filter: blur(4px);
     z-index: 9999;
     justify-content: center;
     align-items: center;
 }
 
 .modal-caja {
-    background: #1e1e2e !important;
+    background: var(--bg-cards) !important;
     padding: 35px !important;
     border-radius: 20px !important;
-    border: 1px solid #4a90e2 !important;
+    border: 1px solid var(--border-color) !important;
     max-width: 450px !important;
     width: 90% !important;
-    color: #fff !important;
+    color: var(--text-white) !important;
     display: flex !important;
     flex-direction: column !important;
     align-items: center !important;
     box-sizing: border-box !important;
 }
 
-/* --- BOTONES DEL MODAL EN COLUMNA --- */
 .modal-botones {
     display: flex;
-    flex-direction: column; /* Apila los botones uno arriba del otro */
-    gap: 12px;             /* Espacio entre los botones */
-    width: 100%;           /* Ocupan todo el ancho de la cajita modal */
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
     margin-top: 25px;
     align-items: center;
 }
 
 .modal-botones button, .modal-botones .btn-azul, .modal-botones .btn-secundario {
-    width: 100% !important;   /* Botones al ancho completo para que se vean parejos */
-    max-width: 280px;         /* Pero con un tope para que no se estiren de más */
+    width: 100% !important;
+    max-width: 280px;
     padding: 12px;
     border-radius: 8px;
     font-weight: bold;
     cursor: pointer;
     text-align: center;
-    border: none;
-    transition: 0.3s;
+    box-sizing: border-box;
 }
 
-/* Estilo para el botón secundario/cancelar que agregamos antes */
 .btn-secundario, #modalCancelar {
-    background-color: #45475a !important;
-    color: #bac2de !important;
+    background-color: transparent !important;
+    border: 1px solid var(--text-gray) !important;
+    color: var(--text-gray) !important;
 }
 
-.btn-secundario:hover {
-    background-color: #f38ba8 !important; /* Rojo suave para cancelar */
-    color: #1e1e2e !important;
+.btn-secundario:hover, #modalCancelar:hover {
+    border-color: var(--error-color) !important;
+    box-shadow: 0 0 10px rgba(255, 82, 82, 0.3);
+    color: var(--error-color) !important;
 }
 
+/* ==========================================================================
+    8. FOOTER COMPACTO DE BORDE A BORDE
+   ========================================================================== */
 footer {
     display: flex;
-    align-items: center; /* Alineación vertical */
-    justify-content:沟通; /* Distribución de los 3 bloques */
+    align-items: center;
+    justify-content: space-between;
     padding: 20px;
-    border-top: 1px solid #45475a;
+    border-top: 1px solid var(--border-color);
     position: relative;
-    background: #11111b; /* Fondo para que resalte */
+    background: rgba(6, 10, 23, 0.9);
+    width: auto;
+    margin: 0;
+    flex-shrink: 0;
 }
 
-/* Contenedor del Logo (Izquierda) */
 .footer-creador-container {
     display: flex;
     flex-direction: column;
-    align-items: flex-start; /* Todo a la izquierda */
-    flex: 1; /* Ocupa el espacio de la izquierda */
+    align-items: flex-start;
+    flex: 1;
 }
 
 .texto-creado {
     font-size: 0.5rem;
-    color: #bac2de;
+    color: var(--text-gray);
     margin-bottom: 5px;
     font-weight: bold;
 }
 
 .footer-logo {
-    max-width: 95px !important; /* Mitad del tamaño original */
+    max-width: 95px !important;
     height: auto;
 }
 
-/* Bloque Central (Soporte y Copyright) */
 .footer-centro {
     display: flex;
     flex-direction: column;
     align-items: center;
-    flex: 2; /* Más espacio al centro */
+    flex: 2;
 }
 
 .footer-links a {
-    color: #89b4fa !important;
+    color: var(--accent-color) !important;
     text-decoration: none;
     font-weight: bold;
     font-size: 1.1rem;
     margin-bottom: 5px;
     display: inline-block;
 }
+.footer-links a:hover {
+    color: var(--hover-color) !important;
+}
 
 footer p {
     margin: 0 !important;
     font-size: 0.75rem;
-    color: #bac2de;
+    color: var(--text-gray);
 }
 
-/* Versión (Derecha) */
 .footer-version-container {
     flex: 1;
     display: flex;
@@ -395,196 +515,115 @@ footer p {
 
 .footer-version {
     font-size: 11px;
-    color: #bac2de;
+    color: var(--text-gray);
     font-family: monospace;
     opacity: 0.8;
 }
 
-/* --- MODAL SOPORTE: OPTIMIZACIÓN DE ESPACIO --- */
+/* ==========================================================================
+    9. MODALES ADICIONALES Y GUÍAS
+   ========================================================================== */
 #modalSoporte .modal-caja {
     width: 95% !important;
     max-width: 400px !important; 
-    padding: px !important; /* Reducimos el margen interno del contenedor */
     box-sizing: border-box;
 }
 
 #formSoporte textarea {
     width: 100%;
-    min-height: 100px; /* Aumentamos el área de escritura */
+    min-height: 100px;
     padding: 10px;
     margin-top: 5px;
     border-radius: 8px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    color: #333;
+    border: 1px solid var(--border-color);
+    background-color: #060a17;
+    color: var(--text-white);
     font-size: 1rem;
-    box-sizing: border-box; /* Fundamental para que no se desborde */
+    box-sizing: border-box;
     resize: none;
 }
 
-/* --- 9. RESPONSIVE --- */
-@media (max-width: 768px) {
-    .fila-controles {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    #buscador { width: 100% !important; }
-    .caja-central { width: 95% !important; }
-}
-
-/* --- MODAL DE EDICIÓN HORIZONTAL OPTIMIZADO (v1.2.5) --- */
-
-/* 1. Contenedor principal: Más compacto y con scroll de seguridad */
 .modal-ancho-editar {
     width: 95% !important;
     max-width: 900px !important; 
-    background: #1e1e2e;
-    padding: 20px 30px !important; /* Menos padding vertical */
+    background: var(--bg-cards);
+    padding: 20px 30px !important;
     border-radius: 15px;
-    border: 1px solid #fab387;
+    border: 1px solid var(--accent-color);
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    max-height: 90vh; /* Seguridad: nunca se sale de la pantalla */
+    max-height: 90vh;
     overflow-y: auto;
 }
 
-/* 2. Distribución en Grid: Espaciado reducido */
 .grid-editar {
     display: flex;
     flex-wrap: nowrap;
-    gap: 20px;         /* Reducido de 30px a 20px */
+    gap: 20px;
     justify-content: space-between;
     margin-top: 10px;
 }
 
-/* 3. Estilo de cada columna */
 .col-editar {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;          /* Pegamos un poco más el input al label */
+    gap: 2px;
 }
 
-/* 4. Etiquetas: Más pequeñas para ganar espacio vertical */
 .col-editar label {
     font-size: 0.75rem; 
-    color: #bac2de;
+    color: var(--text-gray);
     font-weight: bold;
     text-align: left;
     margin-top: 8px;
 }
 
-/* 5. Inputs: Menos altos (Padding reducido) */
 .col-editar input {
     width: 100%;
-    padding: 8px 12px; /* Reducido de 12px/15px a 8px/12px */
+    padding: 8px 12px;
     border-radius: 8px;
-    border: 1px solid #45475a;
-    background-color: #ffffff;
-    color: #11111b;
+    border: 1px solid var(--border-color);
+    background-color: #060a17;
+    color: var(--text-white);
     font-size: 0.95rem;
     box-sizing: border-box;
     outline: none;
-    transition: border-color 0.3s;
 }
+.col-editar input:focus { border-color: var(--accent-color); }
 
-.col-editar input:focus {
-    border-color: #fab387;
-}
-
-/* 6. RESPONSIVE: Unificado para celulares y tablets pequeñas */
-@media (max-width: 850px) {
-    .grid-editar {
-        flex-direction: column; 
-        gap: 5px;
-    }
-
-    .modal-ancho-editar {
-        max-width: 480px !important;
-        padding: 20px !important;
-    }
-
-    .modal-botones {
-        flex-direction: column;
-        gap: 10px;
-        margin-top: 20px;
-    }
-
-    .modal-botones button {
-        width: 100%;
-        padding: 12px;
-    }
-
-    .col-editar input {
-        padding: 10px; /* Un poco más de área táctil en móvil */
-    }
-}
-
-/* 1. Contenedor principal: asegura que ocupe el 100% */
 .contenedor-guia {
     display: flex;
     flex-direction: column;
-    align-items: stretch; /* Esto obliga a las cajas a estirarse horizontalmente */
+    align-items: stretch;
     gap: 25px;
     width: 100%;
-    max-width: 1000px; /* Ajustá este valor al ancho máximo que desees */
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     box-sizing: border-box;
 }
 
-/* 2. Las cajas de los pasos */
 .paso-caja {
     display: flex;
     flex-direction: column;
-    width: 100%; /* Ocupa todo el ancho del contenedor padre */
-    flex: 1 1 auto; /* Las tres crecen igual en vertical si el padre tiene altura fija */
-    min-height: 220px; /* Altura mínima basada en el contenido del Paso 1 */
+    width: 100%;
+    flex: 1 1 auto;
+    min-height: 220px;
     padding: 25px;
-    background-color: #313244;
+    background-color: var(--bg-cards);
+    border: 1px solid var(--border-color);
     border-radius: 12px;
     box-sizing: border-box;
 }
 
-/* 3. Alineación del contenido interno */
 .paso-caja h3, .paso-caja ul {
     width: 100%;
     text-align: left;
 }
 
-/* --- RESTAURACIÓN DEL CONTENEDOR BLANCO --- */
-#panel-box.caja-central {
-    max-width: 500px !important; /* Ancho original exacto */
-    width: 90% !important;
-    padding: 30px !important;
-    margin: 40px auto !important;
-    background-color: #ffffff !important;
-}
-
-/* --- ESTILO UNIFICADO PARA BOTONES ADMIN --- */
-.btn-admin-panel {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    width: 100% !important;
-    height: 50px !important; /* Misma altura que 'Nueva Reserva' */
-    background-color: #313244 !important; /* Color oscuro original */
-    color: white !important;
-    border-radius: 8px !important;
-    margin-bottom: 12px !important;
-    text-decoration: none !important;
-    font-weight: 600 !important;
-    font-size: 16px !important;
-    border: none !important;
-    transition: background 0.2s;
-}
-
-.btn-admin-panel:hover {
-    background-color: #45475a !important;
-}
-
-/* --- DISEÑO DARK FULL-SCREEN (Tipo Lista) --- */
-
-/* Contenedor principal que da el ancho de la lista */
+/* ==========================================================================
+    10. SECCIÓN GESTIÓN DARK Y RESPONSIVE
+   ========================================================================== */
 .seccion-admin-dark {
     width: 95%;
     max-width: 1200px;
@@ -592,7 +631,6 @@ footer p {
     padding: 0 20px;
 }
 
-/* Centrado prolijo de títulos sobre fondo oscuro */
 .header-gestion {
     text-align: center;
     margin-bottom: 40px;
@@ -605,22 +643,32 @@ footer p {
 }
 
 .header-gestion p {
-    color: #bac2de;
+    color: var(--text-gray);
     font-size: 1em;
 }
 
-/* Botón de nuevo usuario centrado */
 .contenedor-accion-central {
     display: flex;
     justify-content: center;
     margin-bottom: 30px;
 }
 
-/* Ajuste de la tabla para que herede el estilo de lista.html */
 .tabla-gestion-dark {
     width: 100%;
-    background-color: #1e1e2e;
+    background-color: var(--bg-cards);
     border-radius: 12px;
     overflow: hidden;
     border-collapse: collapse;
+    border: 1px solid var(--border-color);
+}
+
+@media (max-width: 850px) {
+    .grid-editar { flex-direction: column; gap: 5px; }
+    .modal-ancho-editar { max-width: 480px !important; padding: 20px !important; }
+}
+
+@media (max-width: 768px) {
+    .fila-controles { flex-direction: column; align-items: stretch; }
+    #buscador { width: 100% !important; }
+    .caja-central { width: 95% !important; }
 }
