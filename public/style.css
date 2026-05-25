@@ -97,7 +97,7 @@ header a:hover, .btn-header:hover {
 }
 
 /* ==========================================================================
-    3. CONTENEDORES Y CAJA DE FORMULARIO (TRANSPARENTE CYBER)
+    3. CONTENEDORES TRANSICIONADOS A OSCURO (Ex-Cajas Blancas)
    ========================================================================== */
 main {
     flex: 1 0 auto;
@@ -108,42 +108,63 @@ main {
     padding: 20px 0;
 }
 
-.caja-central {
-    background-color: var(--bg-cards); /* Ahora es oscura con matiz azulado */
+/* Súper corregido: Forzamos a que la caja que envuelve al formulario de reservas sea oscura */
+.caja-central, main form, .form-container {
+    background-color: var(--bg-cards) !important; /* El color azul oscuro de Login */
     padding: 2.5rem;
     border-radius: 15px;
-    border: 1px solid var(--border-color);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    border: 1px solid var(--border-color) !important; /* Contorno Cyber Azul */
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 90% !important;
     max-width: 35rem !important;
     margin: 20px auto;
-    color: var(--text-white);
+    color: var(--text-white) !important;
     backdrop-filter: blur(4px);
 }
 
-.caja-central h1, .caja-central h2 {
+.caja-central h1, .caja-central h2, main form h1, main form h2 {
     text-align: center;
-    color: var(--text-white);
+    color: var(--text-white) !important;
     margin-bottom: 1.5rem;
     font-weight: bold;
 }
 
-/* --- SOLUCIONADO: EL PANEL DE CONTROL AHORA SE ACOPLA AL ESTILO OSCURO DEL LOGIN --- */
+/* Mantener el panel de control alineado a la misma estética oscura */
 #panel-box.caja-central {
     max-width: 500px !important;
     width: 90% !important;
     padding: 30px !important;
     margin: 40px auto !important;
-    background-color: var(--bg-cards) !important; /* Cambiado a la paleta oscura de las tarjetas */
+    background-color: var(--bg-cards) !important;
     color: var(--text-white) !important;
-    border: 1px solid var(--border-color) !important; /* Añadimos el contorno sutil */
+    border: 1px solid var(--border-color) !important;
 }
 
-#panel-box.caja-central h1, #panel-box.caja-central p {
-    color: var(--text-white) !important;
+/* ==========================================================================
+    4. FORMULARIO: FIELDSETS, LABELS E INPUTS CYBER
+   ========================================================================== */
+fieldset {
+    border: 1px solid var(--border-color) !important; /* Forzamos borde azul de la paleta */
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    background-color: rgba(6, 10, 23, 0.6) !important; /* Fondo interno oscuro para "Cliente" y "Productos" */
+    width: 100%;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+legend {
+    font-weight: bold;
+    color: var(--accent-color) !important; /* Títulos "Cliente" y "Productos" en azul eléctrico */
+    padding: 0 10px;
+    background-color: var(--bg-cards); /* Caja oscura para tapar la línea del borde */
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    font-size: 0.9rem;
 }
 
 /* ==========================================================================
