@@ -78,7 +78,7 @@ header {
 header a, .btn-header {
     background-color: rgba(6, 10, 23, 0.6);
     color: var(--text-white) !important;
-    border: 1px solid var(--accent-color); /* Borde inicial en azul eléctrico */
+    border: 1px solid var(--accent-color);
     text-decoration: none !important;
     padding: 8px 18px;
     border-radius: 20px;
@@ -91,7 +91,7 @@ header a, .btn-header {
 }
 
 header a:hover, .btn-header:hover {
-    border-color: var(--hover-color); /* Pasa a fucsia */
+    border-color: var(--hover-color);
     box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
     color: var(--text-white) !important;
 }
@@ -108,12 +108,11 @@ main {
     padding: 20px 0;
 }
 
-/* Súper corregido: Forzamos a que la caja que envuelve al formulario de reservas sea oscura */
-.caja-central, main form, .form-container {
-    background-color: var(--bg-cards) !important; /* El color azul oscuro de Login */
+.caja-central, main form, .form-container, #panel-box.caja-central {
+    background-color: var(--bg-cards) !important; 
     padding: 2.5rem;
     border-radius: 15px;
-    border: 1px solid var(--border-color) !important; /* Contorno Cyber Azul */
+    border: 1px solid var(--border-color) !important; 
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
     display: flex;
     flex-direction: column;
@@ -123,6 +122,7 @@ main {
     margin: 20px auto;
     color: var(--text-white) !important;
     backdrop-filter: blur(4px);
+    box-sizing: border-box;
 }
 
 .caja-central h1, .caja-central h2, main form h1, main form h2 {
@@ -132,26 +132,25 @@ main {
     font-weight: bold;
 }
 
-/* Mantener el panel de control alineado a la misma estética oscura */
 #panel-box.caja-central {
     max-width: 500px !important;
-    width: 90% !important;
     padding: 30px !important;
     margin: 40px auto !important;
-    background-color: var(--bg-cards) !important;
-    color: var(--text-white) !important;
-    border: 1px solid var(--border-color) !important;
+}
+
+#panel-box.caja-central p {
+    color: var(--text-gray) !important;
 }
 
 /* ==========================================================================
-    4. FORMULARIO: FIELDSETS, LABELS E INPUTS CYBER
+    4. FORMULARIO: FIELDSETS, LABELS E INPUTS CYBER DARK
    ========================================================================== */
 fieldset {
-    border: 1px solid var(--border-color) !important; /* Forzamos borde azul de la paleta */
+    border: 1px solid var(--border-color) !important; 
     border-radius: 10px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    background-color: rgba(6, 10, 23, 0.6) !important; /* Fondo interno oscuro para "Cliente" y "Productos" */
+    background-color: rgba(6, 10, 23, 0.4) !important; 
     width: 100%;
     box-sizing: border-box;
     text-align: left;
@@ -159,32 +158,13 @@ fieldset {
 
 legend {
     font-weight: bold;
-    color: var(--accent-color) !important; /* Títulos "Cliente" y "Productos" en azul eléctrico */
-    padding: 0 10px;
-    background-color: var(--bg-cards); /* Caja oscura para tapar la línea del borde */
-    border-radius: 4px;
+    color: var(--accent-color) !important; 
+    padding: 2px 12px;
+    background-color: #04091e; 
+    border-radius: 6px;
     border: 1px solid var(--border-color);
-    font-size: 0.9rem;
-}
-
-/* ==========================================================================
-    4. FORMULARIO: FIELDSETS, LABELS E INPUTS
-   ========================================================================== */
-fieldset {
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    background-color: rgba(6, 10, 23, 0.4);
-    width: 100%;
-    box-sizing: border-box;
-    text-align: left;
-}
-
-legend {
-    font-weight: bold;
-    color: var(--accent-color); /* Leyendas resaltadas en azul eléctrico */
-    padding: 0 10px;
+    font-size: 0.85rem;
+    margin-bottom: 10px; /* MODIFICADO: Agrega espacio para que no pise los labels */
 }
 
 label {
@@ -194,38 +174,39 @@ label {
     margin-bottom: 8px;
     font-weight: 500;
     text-align: left;
+    font-size: 0.9rem;
 }
 
 .requerido { color: var(--error-color); }
 
 input, select, textarea {
     padding: 12px;
-    width: 100%;
+    width: 100%; /* MODIFICADO: Asegura alineación interna perfecta */
     border-radius: 6px;
-    border: 1px solid var(--border-color);
-    background-color: #060a17;
-    color: var(--text-white);
+    border: 1px solid var(--border-color) !important;
+    background-color: #040817 !important; 
+    color: var(--text-white) !important;
     margin-bottom: 15px;
     box-sizing: border-box;
-    font-size: 1rem;
+    font-size: 0.95rem;
     transition: all 0.3s ease;
 }
 
 input:focus, select:focus, textarea:focus {
     outline: none;
-    border-color: var(--accent-color);
-    background-color: #0b1126;
+    border-color: var(--accent-color) !important;
+    background-color: #070d24 !important;
     box-shadow: 0 0 10px rgba(0, 191, 255, 0.2);
 }
 
 input[readonly] {
-    background-color: rgba(6, 10, 23, 0.8);
-    color: var(--text-gray);
-    border-color: var(--border-color);
+    background-color: rgba(6, 10, 23, 0.8) !important;
+    color: var(--text-gray) !important;
+    border-color: var(--border-color) !important;
 }
 
 /* ==========================================================================
-    5. BOTONES Y HOVER EFECTO CYBER (MARCO FUCSIA)
+    5. BOTONES E INTERACCIONES CYBER DINÁMICAS (Hover Fucsia)
    ========================================================================== */
 .contenedor-menu {
     display: flex;
@@ -236,7 +217,7 @@ input[readonly] {
     margin-top: 20px;
 }
 
-.btn-menu, .btn-azul, button[type="submit"] {
+.btn-menu, .btn-azul {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -248,32 +229,46 @@ input[readonly] {
     text-decoration: none !important;
     font-weight: bold;
     border-radius: 12px;
-    border: 1px solid var(--accent-color); /* Borde inicial Azul Eléctrico */
+    border: 1px solid var(--accent-color); 
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-sizing: border-box;
     cursor: pointer;
 }
 
-/* AL PASAR EL MAUSE: MARCO FUCSIA Y DESTELO GLOW */
-.btn-menu:hover, .btn-azul:hover, button[type="submit"]:hover {
+.btn-menu:hover, .btn-azul:hover {
     border-color: var(--hover-color) !important;
     box-shadow: 0 0 15px rgba(255, 0, 127, 0.3);
     transform: translateY(-2px);
     background-color: transparent !important;
 }
 
-/* Botones con un ancho plano para el interior de los formularios */
-.caja-central .btn-azul, .caja-central button[type="submit"] {
+.caja-central .btn-azul, main form .btn-azul {
     max-width: 100% !important;
+    background-color: rgba(0, 191, 255, 0.05) !important;
+    border-radius: 8px;
 }
 
-/* Sincronizamos los botones del panel-box con la estética Cyber */
-#panel-box .btn-menu {
-    background-color: transparent;
-    border: 1px solid var(--accent-color);
+button[type="submit"], .btn-guardar-final {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--accent-color) !important; 
+    color: #030611 !important; 
+    border: none !important;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
 }
-#panel-box .btn-menu:hover {
-    border-color: var(--hover-color);
+
+button[type="submit"]:hover, .btn-guardar-final:hover {
+    background-color: var(--hover-color) !important; 
+    color: var(--text-white) !important;
+    box-shadow: 0 0 20px rgba(255, 0, 127, 0.5);
+    transform: translateY(-2px);
 }
 
 .btn-admin-panel {
@@ -316,10 +311,7 @@ input[readonly] {
     gap: 20px;
 }
 
-.filtros-estados {
-    display: flex;
-    gap: 10px;
-}
+.filtros-estados { display: flex; gap: 10px; }
 
 .btn-filtro {
     background: rgba(6, 10, 23, 0.6);
@@ -331,10 +323,7 @@ input[readonly] {
     font-weight: bold;
     transition: 0.3s;
 }
-
-.btn-filtro:hover {
-    border-color: var(--accent-color);
-}
+.btn-filtro:hover { border-color: var(--accent-color); }
 
 .btn-filtro.active {
     background-color: rgba(0, 191, 255, 0.1) !important;
@@ -351,10 +340,7 @@ input[readonly] {
     color: white;
     margin-bottom: 0;
 }
-#buscador:focus {
-    outline: none;
-    border-color: var(--accent-color);
-}
+#buscador:focus { outline: none; border-color: var(--accent-color); }
 
 .tabla-scroll-container {
     overflow-x: auto;
@@ -364,11 +350,7 @@ input[readonly] {
     box-shadow: 0 4px 25px rgba(0,0,0,0.5);
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    min-width: 1100px;
-}
+table { width: 100%; border-collapse: collapse; min-width: 1100px; }
 
 th {
     background-color: #060a17;
@@ -386,10 +368,7 @@ td {
     color: var(--text-gray);
     font-size: 0.9rem;
 }
-
-tr:hover td {
-    background-color: rgba(0, 191, 255, 0.02);
-}
+tr:hover td { background-color: rgba(0, 191, 255, 0.02); }
 
 td .btn-azul, td .btn-borrar {
     display: inline-flex;
@@ -404,13 +383,12 @@ td .btn-azul, td .btn-borrar {
     cursor: pointer;
     margin: 2px;
 }
-
 td .btn-azul[onclick*="Retirado"] { background-color: rgba(46, 125, 50, 0.2) !important; border-color: #2e7d32 !important; color: #a6e3a1 !important; }
 td .btn-borrar { background-color: rgba(243, 139, 168, 0.1) !important; border-color: var(--error-color) !important; color: var(--error-color) !important; }
 td .btn-borrar:hover { background-color: var(--error-color) !important; color: #030611 !important; }
 
 /* ==========================================================================
-    7. MODALES (ESTILO CYBER DE ALTA CONTENCIÓN)
+    7. MODALES, FOOTER Y SECCIONES ADICIONALES
    ========================================================================== */
 .modal-overlay {
     position: fixed;
@@ -463,16 +441,12 @@ td .btn-borrar:hover { background-color: var(--error-color) !important; color: #
     border: 1px solid var(--text-gray) !important;
     color: var(--text-gray) !important;
 }
-
 .btn-secundario:hover, #modalCancelar:hover {
     border-color: var(--error-color) !important;
     box-shadow: 0 0 10px rgba(255, 82, 82, 0.3);
     color: var(--error-color) !important;
 }
 
-/* ==========================================================================
-    8. FOOTER COMPACTO DE BORDE A BORDE
-   ========================================================================== */
 footer {
     display: flex;
     align-items: center;
@@ -486,212 +460,36 @@ footer {
     flex-shrink: 0;
 }
 
-.footer-creador-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    flex: 1;
-}
+.footer-creador-container { display: flex; flex-direction: column; align-items: flex-start; flex: 1; }
+.texto-creado { font-size: 0.5rem; color: var(--text-gray); margin-bottom: 5px; font-weight: bold; }
+.footer-logo { max-width: 95px !important; height: auto; }
+.footer-centro { display: flex; flex-direction: column; align-items: center; flex: 2; }
+.footer-links a { color: var(--accent-color) !important; text-decoration: none; font-weight: bold; font-size: 1.1rem; margin-bottom: 5px; display: inline-block; }
+.footer-links a:hover { color: var(--hover-color) !important; }
+footer p, .footer-version { margin: 0 !important; font-size: 0.75rem; color: var(--text-gray); }
+.footer-version-container { flex: 1; display: flex; justify-content: flex-end; }
+.footer-version { font-family: monospace; opacity: 0.8; font-size: 11px; }
 
-.texto-creado {
-    font-size: 0.5rem;
-    color: var(--text-gray);
-    margin-bottom: 5px;
-    font-weight: bold;
-}
+#modalSoporte .modal-caja { width: 95% !important; max-width: 400px !important; box-sizing: border-box; }
+#formSoporte textarea { width: 100%; min-height: 100px; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #060a17; color: var(--text-white); font-size: 1rem; box-sizing: border-box; resize: none; }
 
-.footer-logo {
-    max-width: 95px !important;
-    height: auto;
-}
-
-.footer-centro {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 2;
-}
-
-.footer-links a {
-    color: var(--accent-color) !important;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 1.1rem;
-    margin-bottom: 5px;
-    display: inline-block;
-}
-.footer-links a:hover {
-    color: var(--hover-color) !important;
-}
-
-footer p {
-    margin: 0 !important;
-    font-size: 0.75rem;
-    color: var(--text-gray);
-}
-
-.footer-version-container {
-    flex: 1;
-    display: flex;
-    justify-content: flex-end;
-}
-
-.footer-version {
-    font-size: 11px;
-    color: var(--text-gray);
-    font-family: monospace;
-    opacity: 0.8;
-}
-
-/* ==========================================================================
-    9. MODALES ADICIONALES Y GUÍAS
-   ========================================================================== */
-#modalSoporte .modal-caja {
-    width: 95% !important;
-    max-width: 400px !important; 
-    box-sizing: border-box;
-}
-
-#formSoporte textarea {
-    width: 100%;
-    min-height: 100px;
-    padding: 10px;
-    margin-top: 5px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background-color: #060a17;
-    color: var(--text-white);
-    font-size: 1rem;
-    box-sizing: border-box;
-    resize: none;
-}
-
-.modal-ancho-editar {
-    width: 95% !important;
-    max-width: 900px !important; 
-    background: var(--bg-cards);
-    padding: 20px 30px !important;
-    border-radius: 15px;
-    border: 1px solid var(--accent-color);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-    max-height: 90vh;
-    overflow-y: auto;
-}
-
-.grid-editar {
-    display: flex;
-    flex-wrap: nowrap;
-    gap: 20px;
-    justify-content: space-between;
-    margin-top: 10px;
-}
-
-.col-editar {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.col-editar label {
-    font-size: 0.75rem; 
-    color: var(--text-gray);
-    font-weight: bold;
-    text-align: left;
-    margin-top: 8px;
-}
-
-.col-editar input {
-    width: 100%;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--border-color);
-    background-color: #060a17;
-    color: var(--text-white);
-    font-size: 0.95rem;
-    box-sizing: border-box;
-    outline: none;
-}
+.modal-ancho-editar { width: 95% !important; max-width: 900px !important; background: var(--bg-cards); padding: 20px 30px !important; border-radius: 15px; border: 1px solid var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; }
+.grid-editar { display: flex; flex-wrap: nowrap; gap: 20px; justify-content: space-between; margin-top: 10px; }
+.col-editar { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.col-editar label { font-size: 0.75rem; color: var(--text-gray); font-weight: bold; text-align: left; margin-top: 8px; }
+.col-editar input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #060a17; color: var(--text-white); font-size: 0.95rem; box-sizing: border-box; outline: none; }
 .col-editar input:focus { border-color: var(--accent-color); }
 
-.contenedor-guia {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 25px;
-    width: 100%;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-    box-sizing: border-box;
-}
+.contenedor-guia { display: flex; flex-direction: column; align-items: stretch; gap: 25px; width: 100%; max-width: 1000px; margin: 0 auto; padding: 20px; box-sizing: border-box; }
+.paso-caja { display: flex; flex-direction: column; width: 100%; flex: 1 1 auto; min-height: 220px; padding: 25px; background-color: var(--bg-cards); border: 1px solid var(--border-color); border-radius: 12px; box-sizing: border-box; }
+.paso-caja h3, .paso-caja ul { width: 100%; text-align: left; }
 
-.paso-caja {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    flex: 1 1 auto;
-    min-height: 220px;
-    padding: 25px;
-    background-color: var(--bg-cards);
-    border: 1px solid var(--border-color);
-    border-radius: 12px;
-    box-sizing: border-box;
-}
+.seccion-admin-dark { width: 95%; max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+.header-gestion { text-align: center; margin-bottom: 40px; }
+.header-gestion h2 { color: #ffffff; font-size: 2.2em; margin-bottom: 10px; }
+.header-gestion p { color: var(--text-gray); font-size: 1em; }
+.contenedor-accion-central { display: flex; justify-content: center; margin-bottom: 30px; }
+.tabla-gestion-dark { width: 100%; background-color: var(--bg-cards); border-radius: 12px; overflow: hidden; border-collapse: collapse; border: 1px solid var(--border-color); }
 
-.paso-caja h3, .paso-caja ul {
-    width: 100%;
-    text-align: left;
-}
-
-/* ==========================================================================
-    10. SECCIÓN GESTIÓN DARK Y RESPONSIVE
-   ========================================================================== */
-.seccion-admin-dark {
-    width: 95%;
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 0 20px;
-}
-
-.header-gestion {
-    text-align: center;
-    margin-bottom: 40px;
-}
-
-.header-gestion h2 {
-    color: #ffffff;
-    font-size: 2.2em;
-    margin-bottom: 10px;
-}
-
-.header-gestion p {
-    color: var(--text-gray);
-    font-size: 1em;
-}
-
-.contenedor-accion-central {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 30px;
-}
-
-.tabla-gestion-dark {
-    width: 100%;
-    background-color: var(--bg-cards);
-    border-radius: 12px;
-    overflow: hidden;
-    border-collapse: collapse;
-    border: 1px solid var(--border-color);
-}
-
-@media (max-width: 850px) {
-    .grid-editar { flex-direction: column; gap: 5px; }
-    .modal-ancho-editar { max-width: 480px !important; padding: 20px !important; }
-}
-
-@media (max-width: 768px) {
-    .fila-controles { flex-direction: column; align-items: stretch; }
-    #buscador { width: 100% !important; }
-    .caja-central { width: 95% !important; }
-}
+@media (max-width: 850px) { .grid-editar { flex-direction: column; gap: 5px; } .modal-ancho-editar { max-width: 480px !important; padding: 20px !important; } }
+@media (max-width: 768px) { .fila-controles { flex-direction: column; align-items: stretch; } #buscador { width: 100% !important; } .caja-central { width: 95% !important; } }
