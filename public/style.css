@@ -12,7 +12,6 @@
     --error-color: #ff5252;    /* Alertas y errores */
 }
 
-/* SOLUCIÓN DE FONDO FIJO CONTINUO: Fijamos la red neural en el HTML */
 html {
     height: 100%;
     margin: 0;
@@ -22,18 +21,18 @@ html {
 
 html::before {
     content: "";
-    position: fixed; /* Clava la imagen a la ventana del navegador */
+    position: fixed; 
     top: 0;
     left: 0;
-    width: 100vw;    /* Ancho total exacto de la pantalla */
-    height: 100vh;   /* Alto total exacto de la pantalla */
+    width: 100vw;    
+    height: 100vh;   
     background-image: url('../img/IMG_2243.PNG'); 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0.15; 
-    z-index: -1;     /* Se posiciona por detrás de todo el DOM */
-    pointer-events: none; /* No interfiere con los clics ni el scroll */
+    z-index: -1;     
+    pointer-events: none; 
 }
 
 body {
@@ -45,7 +44,7 @@ body {
     flex-direction: column;
     min-height: 100vh;
     box-sizing: border-box;
-    background: transparent !important; /* Evita que el cuerpo pise el fondo */
+    background: transparent !important; 
 }
 
 /* ==========================================================================
@@ -99,7 +98,7 @@ header a:hover, .btn-header:hover {
 }
 
 /* ==========================================================================
-    3. CONTENEDORES OSCUROS UNIFICADOS
+    3. CONTENEDORES OSCUROS UNIFICADOS (CORREGIDO APILAMIENTO LOGIN)
    ========================================================================== */
 main {
     flex: 1 0 auto;
@@ -111,7 +110,8 @@ main {
     background: transparent !important;
 }
 
-.caja-central, main form, .form-container, form {
+/* Contenedor estándar para formularios largos (Reservas) */
+.caja-central, main form:not(#formLogin), .form-container, #formReservas {
     background-color: var(--bg-cards) !important; 
     padding: 2.5rem;
     border-radius: 15px;
@@ -128,13 +128,14 @@ main {
     box-sizing: border-box;
 }
 
-.caja-central h1, .caja-central h2, main form h1, main form h2, form h1, form h2 {
+.caja-central h1, .caja-central h2, main form h1, main form h2 {
     text-align: center;
     color: var(--text-white) !important;
     margin-bottom: 1.5rem;
     font-weight: bold;
 }
 
+/* Ajuste específico para el menú del panel */
 #panel-box.caja-central {
     max-width: 500px !important;
     padding: 30px !important;
@@ -266,12 +267,13 @@ input[readonly] {
     background-color: transparent !important;
 }
 
-button[type="submit"], .btn-guardar-final, input[type="submit"] {
+/* BOTÓN DE ACCIÓN LLENO (NUEVA RESERVA / LOGIN ORIGINAL) */
+button[type="submit"], .btn-guardar-final, input[type="submit"], #btnIngresar {
     width: 100% !important;
     max-width: 100% !important;
     padding: 15px;
     background-color: var(--accent-color) !important; 
-    color: #030611 !important; 
+    color: #030611 !important; /* Asegura el texto oscuro sobre el botón cian */
     border: none !important;
     border-radius: 8px;
     font-weight: bold;
@@ -284,7 +286,7 @@ button[type="submit"], .btn-guardar-final, input[type="submit"] {
     margin-top: 10px;
 }
 
-button[type="submit"]:hover, .btn-guardar-final:hover, input[type="submit"]:hover {
+button[type="submit"]:hover, .btn-guardar-final:hover, input[type="submit"]:hover, #btnIngresar:hover {
     background-color: var(--hover-color) !important; 
     color: var(--text-white) !important;
     box-shadow: 0 0 20px rgba(255, 0, 127, 0.6);
@@ -501,145 +503,26 @@ footer p, .footer-version { margin: 0 !important; font-size: 0.75rem; color: var
 #modalSoporte .modal-caja { width: 95% !important; max-width: 400px !important; box-sizing: border-box; }
 #formSoporte textarea { width: 100%; min-height: 100px; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #060a17; color: var(--text-white); font-size: 1rem; box-sizing: border-box; resize: none; }
 
-.modal-ancho-editar { 
-    width: 95% !important; 
-    max-width: 900px !important; 
-    background: var(--bg-cards); 
-    padding: 20px 30px !important; 
-    border-radius: 15px; 
-    border: 1px solid var(--accent-color); 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
-    max-height: 90vh; 
-    overflow-y: auto; 
-}
+.modal-ancho-editar { width: 95% !important; max-width: 900px !important; background: var(--bg-cards); padding: 20px 30px !important; border-radius: 15px; border: 1px solid var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; }
+.grid-editar { display: flex; flex-wrap: nowrap; gap: 20px; justify-content: space-between; margin-top: 10px; }
+.col-editar { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.col-editar label { font-size: 0.75rem; color: var(--text-gray); font-weight: bold; text-align: left; margin-top: 8px; }
+.col-editar input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #060a17; color: var(--text-white); font-size: 0.95rem; box-sizing: border-box; outline: none; }
+.col-editar input:focus { border-color: var(--accent-color); }
 
-.grid-editar { 
-    display: flex; 
-    flex-wrap: nowrap;
-    gap: 20px; 
-    justify-content: space-between; 
-    margin-top: 10px; 
-}
+.contenedor-guia { display: flex; flex-direction: column; align-items: stretch; gap: 25px; width: 100%; max-width: 1000px; margin: 0 auto; padding: 20px; box-sizing: border-box; }
+.paso-caja { display: flex; flex-direction: column; width: 100%; flex: 1 1 auto; min-height: 220px; padding: 25px; background-color: var(--bg-cards); border: 1px solid var(--border-color); border-radius: 12px; box-sizing: border-box; }
+.paso-caja h3, .paso-caja ul { width: 100%; text-align: left; }
 
-.col-editar { 
-    flex: 1; 
-    display: flex; 
-    flex-direction: column; 
-    gap: 2px; 
-}
+.seccion-admin-dark { width: 95%; max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+.header-gestion { text-align: center; margin-bottom: 40px; }
+.header-gestion h2 { color: #ffffff; font-size: 2.2em; margin-bottom: 10px; }
+.header-gestion p { color: var(--text-gray); font-size: 1em; }
+.contenedor-accion-central { display: flex; justify-content: center; margin-bottom: 30px; }
+.tabla-gestion-dark { width: 100%; background-color: var(--bg-cards); border-radius: 12px; overflow: hidden; border-collapse: collapse; border: 1px solid var(--border-color); }
 
-.col-editar label { 
-    font-size: 0.75rem; 
-    color: var(--text-gray); 
-    font-weight: bold; 
-    text-align: left; 
-    margin-top: 8px; 
-}
-
-.col-editar input { 
-    width: 100%;
-    padding: 8px 12px; 
-    border-radius: 8px; 
-    border: 1px solid var(--border-color); 
-    background-color: #060a17; 
-    color: var(--text-white); 
-    font-size: 0.95rem; 
-    box-sizing: border-box; 
-    outline: none; 
-}
-
-.col-editar input:focus { 
-    border-color: var(--accent-color); 
-}
-
-.contenedor-guia { 
-    display: flex; 
-    flex-direction: column; 
-    align-items: stretch; 
-    gap: 25px; width: 100%; 
-    max-width: 1000px; 
-    margin: 0 auto; 
-    padding: 20px; 
-    box-sizing: border-box; 
-}
-
-.paso-caja { 
-    display: flex; 
-    flex-direction: column; 
-    width: 100%; flex: 1 1 auto; 
-    min-height: 220px; 
-    padding: 25px; 
-    background-color: var(--bg-cards); 
-    border: 1px solid var(--border-color); 
-    border-radius: 12px; 
-    box-sizing: border-box; 
-}
-
-.paso-caja h3, .paso-caja ul { 
-    width: 100%; 
-    text-align: left; 
-}
-
-.seccion-admin-dark { 
-    width: 95%; 
-    max-width: 1200px; 
-    margin: 30px auto; 
-    padding: 0 20px; 
-}
-
-.header-gestion { 
-    text-align: center; 
-    margin-bottom: 40px; 
-}
-
-.header-gestion h2 { 
-    color: #ffffff; 
-    font-size: 2.2em; 
-    margin-bottom: 10px; 
-}
-
-.header-gestion p { 
-    color: var(--text-gray); 
-    font-size: 1em; 
-}
-
-.contenedor-accion-central { 
-    display: flex; 
-    justify-content: center; 
-    margin-bottom: 30px; 
-}
-
-.tabla-gestion-dark { 
-    width: 100%; 
-    background-color: var(--bg-cards); 
-    border-radius: 12px; 
-    overflow: hidden; 
-    border-collapse: collapse; 
-    border: 1px solid var(--border-color); 
-}
-
-@media (max-width: 850px) { 
-    .grid-editar { 
-    flex-direction: column; 
-    gap: 5px; 
-    } 
-    .modal-ancho-editar { 
-    max-width: 480px !important; 
-    padding: 20px !important; 
-    } 
-}
-@media (max-width: 768px) { 
-    .fila-controles { 
-        flex-direction: column; 
-        align-items: stretch; 
-    } 
-    #buscador { 
-        width: 100% !important; 
-    } 
-    .caja-central { 
-        width: 95% !important; 
-    } 
-}
+@media (max-width: 850px) { .grid-editar { flex-direction: column; gap: 5px; } .modal-ancho-editar { max-width: 480px !important; padding: 20px !important; } }
+@media (max-width: 768px) { .fila-controles { flex-direction: column; align-items: stretch; } #buscador { width: 100% !important; } .caja-central { width: 95% !important; } }
 
 /* ==========================================================================
     11. ESTILOS EXCLUSIVOS PARA ELEMENTOS DINÁMICOS DEL TICKET
