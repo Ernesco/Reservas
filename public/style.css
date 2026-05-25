@@ -38,7 +38,7 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('img/IMG_2243.PNG'); 
+    background-image: url('../img/IMG_2243.PNG'); 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -131,19 +131,19 @@ main {
     font-weight: bold;
 }
 
-/* --- RESTAURACIÓN DEL CONTENEDOR BLANCO SOLO PARA EL PANEL DE CONTROL --- */
+/* --- SOLUCIONADO: EL PANEL DE CONTROL AHORA SE ACOPLA AL ESTILO OSCURO DEL LOGIN --- */
 #panel-box.caja-central {
     max-width: 500px !important;
     width: 90% !important;
     padding: 30px !important;
     margin: 40px auto !important;
-    background-color: #ffffff !important;
-    color: #313244 !important;
-    border: none !important;
+    background-color: var(--bg-cards) !important; /* Cambiado a la paleta oscura de las tarjetas */
+    color: var(--text-white) !important;
+    border: 1px solid var(--border-color) !important; /* Añadimos el contorno sutil */
 }
 
 #panel-box.caja-central h1, #panel-box.caja-central p {
-    color: #313244 !important;
+    color: var(--text-white) !important;
 }
 
 /* ==========================================================================
@@ -235,10 +235,10 @@ input[readonly] {
 
 /* AL PASAR EL MAUSE: MARCO FUCSIA Y DESTELO GLOW */
 .btn-menu:hover, .btn-azul:hover, button[type="submit"]:hover {
-    border-color: var(--hover-color);
+    border-color: var(--hover-color) !important;
     box-shadow: 0 0 15px rgba(255, 0, 127, 0.3);
     transform: translateY(-2px);
-    background-color: transparent;
+    background-color: transparent !important;
 }
 
 /* Botones con un ancho plano para el interior de los formularios */
@@ -246,14 +246,13 @@ input[readonly] {
     max-width: 100% !important;
 }
 
-/* Mantener el color oscuro original para los botones dentro del panel-box blanco */
+/* Sincronizamos los botones del panel-box con la estética Cyber */
 #panel-box .btn-menu {
-    background-color: #313244;
-    border: 2px solid #45475a;
+    background-color: transparent;
+    border: 1px solid var(--accent-color);
 }
 #panel-box .btn-menu:hover {
-    background-color: #45475a;
-    border-color: #89b4fa;
+    border-color: var(--hover-color);
 }
 
 .btn-admin-panel {
@@ -262,17 +261,20 @@ input[readonly] {
     justify-content: center !important;
     width: 100% !important;
     height: 50px !important;
-    background-color: #313244 !important;
+    background-color: transparent !important;
     color: white !important;
     border-radius: 8px !important;
     margin-bottom: 12px !important;
     text-decoration: none !important;
     font-weight: 600 !important;
     font-size: 16px !important;
-    border: none !important;
-    transition: background 0.2s;
+    border: 1px solid var(--accent-color) !important;
+    transition: all 0.2s;
 }
-.btn-admin-panel:hover { background-color: #45475a !important; }
+.btn-admin-panel:hover { 
+    border-color: var(--hover-color) !important;
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+}
 
 /* ==========================================================================
     6. LISTA DE RESERVAS Y TABLA CYBER
@@ -365,7 +367,7 @@ td {
 }
 
 tr:hover td {
-    background-color: rgba(0, 191, 255, 0.02); /* Iluminación suave al pasar por la fila */
+    background-color: rgba(0, 191, 255, 0.02);
 }
 
 td .btn-azul, td .btn-borrar {
@@ -390,7 +392,6 @@ td .btn-borrar:hover { background-color: var(--error-color) !important; color: #
     7. MODALES (ESTILO CYBER DE ALTA CONTENCIÓN)
    ========================================================================== */
 .modal-overlay {
-    display: none;
     position: fixed;
     top: 0; left: 0;
     width: 100%; height: 100%;
@@ -399,6 +400,7 @@ td .btn-borrar:hover { background-color: var(--error-color) !important; color: #
     z-index: 9999;
     justify-content: center;
     align-items: center;
+    display: none;
 }
 
 .modal-caja {
