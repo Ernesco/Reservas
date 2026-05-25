@@ -33,17 +33,18 @@ body {
 
 body::before {
     content: "";
-    position: fixed;
+    position: fixed; /* Mantiene el fondo clavado en la pantalla */
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;    /* Fuerza el ancho total exacto de la ventana */
+    height: 100vh;   /* Fuerza el alto total exacto de la ventana */
     background-image: url('../img/IMG_2243.PNG'); 
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     opacity: 0.15; 
-    z-index: -1;   
+    z-index: -1;     /* Se asegura de quedar por detrás de todos los contenedores */
+    pointer-events: none; /* Evita que interfiera con los clics en los formularios */
 }
 
 /* ==========================================================================
