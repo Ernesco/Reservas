@@ -15,11 +15,11 @@
 html, body {
     height: 100%;
     margin: 0;
+    background-color: var(--bg-main);
 }
 
 /* CONFIGURACIÓN DEL FONDO CON IMAGEN ATENUADA (OPACIDAD) */
 body {
-    background-color: var(--bg-main);
     color: var(--text-white);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding-top: 100px;
@@ -78,7 +78,7 @@ header {
 header a, .btn-header {
     background-color: rgba(6, 10, 23, 0.6);
     color: var(--text-white) !important;
-    border: 1px solid var(--accent-color);
+    border: 1px solid var(--accent-color); 
     text-decoration: none !important;
     padding: 8px 18px;
     border-radius: 20px;
@@ -91,13 +91,13 @@ header a, .btn-header {
 }
 
 header a:hover, .btn-header:hover {
-    border-color: var(--hover-color);
+    border-color: var(--hover-color); 
     box-shadow: 0 0 10px rgba(255, 0, 127, 0.4);
     color: var(--text-white) !important;
 }
 
 /* ==========================================================================
-    3. CONTENEDORES TRANSICIONADOS A OSCURO (Ex-Cajas Blancas)
+    3. CONTENEDORES OSCUROS UNIFICADOS
    ========================================================================== */
 main {
     flex: 1 0 auto;
@@ -106,14 +106,15 @@ main {
     align-items: center;
     width: 100%;
     padding: 20px 0;
+    background: transparent !important;
 }
 
-.caja-central, main form, .form-container, #panel-box.caja-central {
+.caja-central, main form, .form-container, form {
     background-color: var(--bg-cards) !important; 
     padding: 2.5rem;
     border-radius: 15px;
     border: 1px solid var(--border-color) !important; 
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6) !important;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -125,7 +126,7 @@ main {
     box-sizing: border-box;
 }
 
-.caja-central h1, .caja-central h2, main form h1, main form h2 {
+.caja-central h1, .caja-central h2, main form h1, main form h2, form h1, form h2 {
     text-align: center;
     color: var(--text-white) !important;
     margin-bottom: 1.5rem;
@@ -139,18 +140,18 @@ main {
 }
 
 #panel-box.caja-central p {
-    color: var(--text-gray) !important;
+    color: var(--text-gray) !important; 
 }
 
 /* ==========================================================================
-    4. FORMULARIO: FIELDSETS, LABELS E INPUTS CYBER DARK
+    4. FORMULARIO: FIELDSETS, LABELS E INPUTS
    ========================================================================== */
 fieldset {
     border: 1px solid var(--border-color) !important; 
     border-radius: 10px;
     padding: 1.5rem;
     margin-bottom: 1.5rem;
-    background-color: rgba(6, 10, 23, 0.4) !important; 
+    background-color: rgba(6, 10, 23, 0.3) !important; 
     width: 100%;
     box-sizing: border-box;
     text-align: left;
@@ -160,17 +161,16 @@ legend {
     font-weight: bold;
     color: var(--accent-color) !important; 
     padding: 2px 12px;
-    background-color: #04091e; 
+    background-color: #04091e !important; 
     border-radius: 6px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--border-color) !important;
     font-size: 0.85rem;
-    margin-bottom: 10px; /* MODIFICADO: Agrega espacio para que no pise los labels */
 }
 
 label {
     display: block;
     width: 100%;
-    color: var(--text-gray);
+    color: var(--text-gray) !important; 
     margin-bottom: 8px;
     font-weight: 500;
     text-align: left;
@@ -181,11 +181,11 @@ label {
 
 input, select, textarea {
     padding: 12px;
-    width: 100%; /* MODIFICADO: Asegura alineación interna perfecta */
+    width: 100%;
     border-radius: 6px;
     border: 1px solid var(--border-color) !important;
     background-color: #040817 !important; 
-    color: var(--text-white) !important;
+    color: var(--text-white) !important; 
     margin-bottom: 15px;
     box-sizing: border-box;
     font-size: 0.95rem;
@@ -200,13 +200,13 @@ input:focus, select:focus, textarea:focus {
 }
 
 input[readonly] {
-    background-color: rgba(6, 10, 23, 0.8) !important;
+    background-color: rgba(6, 10, 23, 0.7) !important;
     color: var(--text-gray) !important;
-    border-color: var(--border-color) !important;
+    border-color: #121b3d !important;
 }
 
 /* ==========================================================================
-    5. BOTONES E INTERACCIONES CYBER DINÁMICAS (Hover Fucsia)
+    5. BOTONES E INTERACCIONES CYBER
    ========================================================================== */
 .contenedor-menu {
     display: flex;
@@ -217,7 +217,7 @@ input[readonly] {
     margin-top: 20px;
 }
 
-.btn-menu, .btn-azul {
+.btn-menu {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -235,21 +235,38 @@ input[readonly] {
     cursor: pointer;
 }
 
-.btn-menu:hover, .btn-azul:hover {
+.btn-menu:hover {
     border-color: var(--hover-color) !important;
     box-shadow: 0 0 15px rgba(255, 0, 127, 0.3);
     transform: translateY(-2px);
+}
+
+.btn-azul, .btn-agregar-producto {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 12px;
+    background-color: rgba(0, 191, 255, 0.05) !important;
+    color: var(--accent-color) !important;
+    border: 1px solid var(--accent-color) !important;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s ease;
+    max-width: 100% !important;
+}
+
+.btn-azul:hover, .btn-agregar-producto:hover {
+    border-color: var(--hover-color) !important;
+    color: var(--hover-color) !important;
+    box-shadow: 0 0 12px rgba(255, 0, 127, 0.2);
     background-color: transparent !important;
 }
 
-.caja-central .btn-azul, main form .btn-azul {
+button[type="submit"], .btn-guardar-final, input[type="submit"] {
+    width: 100% !important;
     max-width: 100% !important;
-    background-color: rgba(0, 191, 255, 0.05) !important;
-    border-radius: 8px;
-}
-
-button[type="submit"], .btn-guardar-final {
-    width: 100%;
     padding: 15px;
     background-color: var(--accent-color) !important; 
     color: #030611 !important; 
@@ -261,14 +278,23 @@ button[type="submit"], .btn-guardar-final {
     letter-spacing: 1px;
     cursor: pointer;
     transition: 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 191, 255, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 191, 255, 0.4);
+    margin-top: 10px;
 }
 
-button[type="submit"]:hover, .btn-guardar-final:hover {
+button[type="submit"]:hover, .btn-guardar-final:hover, input[type="submit"]:hover {
     background-color: var(--hover-color) !important; 
     color: var(--text-white) !important;
-    box-shadow: 0 0 20px rgba(255, 0, 127, 0.5);
+    box-shadow: 0 0 20px rgba(255, 0, 127, 0.6);
     transform: translateY(-2px);
+}
+
+#panel-box .btn-menu {
+    background-color: transparent;
+    border: 1px solid var(--accent-color);
+}
+#panel-box .btn-menu:hover {
+    border-color: var(--hover-color);
 }
 
 .btn-admin-panel {
@@ -473,23 +499,185 @@ footer p, .footer-version { margin: 0 !important; font-size: 0.75rem; color: var
 #modalSoporte .modal-caja { width: 95% !important; max-width: 400px !important; box-sizing: border-box; }
 #formSoporte textarea { width: 100%; min-height: 100px; padding: 10px; margin-top: 5px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #060a17; color: var(--text-white); font-size: 1rem; box-sizing: border-box; resize: none; }
 
-.modal-ancho-editar { width: 95% !important; max-width: 900px !important; background: var(--bg-cards); padding: 20px 30px !important; border-radius: 15px; border: 1px solid var(--accent-color); box-shadow: 0 10px 30px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; }
-.grid-editar { display: flex; flex-wrap: nowrap; gap: 20px; justify-content: space-between; margin-top: 10px; }
-.col-editar { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.col-editar label { font-size: 0.75rem; color: var(--text-gray); font-weight: bold; text-align: left; margin-top: 8px; }
-.col-editar input { width: 100%; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); background-color: #060a17; color: var(--text-white); font-size: 0.95rem; box-sizing: border-box; outline: none; }
-.col-editar input:focus { border-color: var(--accent-color); }
+.modal-ancho-editar { 
+    width: 95% !important; 
+    max-width: 900px !important; 
+    background: var(--bg-cards); 
+    padding: 20px 30px !important; 
+    border-radius: 15px; 
+    border: 1px solid var(--accent-color); 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+    max-height: 90vh; 
+    overflow-y: auto; 
+}
 
-.contenedor-guia { display: flex; flex-direction: column; align-items: stretch; gap: 25px; width: 100%; max-width: 1000px; margin: 0 auto; padding: 20px; box-sizing: border-box; }
-.paso-caja { display: flex; flex-direction: column; width: 100%; flex: 1 1 auto; min-height: 220px; padding: 25px; background-color: var(--bg-cards); border: 1px solid var(--border-color); border-radius: 12px; box-sizing: border-box; }
-.paso-caja h3, .paso-caja ul { width: 100%; text-align: left; }
+.grid-editar { 
+    display: flex; 
+    flex-wrap: nowrap;
+    gap: 20px; 
+    justify-content: space-between; 
+    margin-top: 10px; 
+}
 
-.seccion-admin-dark { width: 95%; max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-.header-gestion { text-align: center; margin-bottom: 40px; }
-.header-gestion h2 { color: #ffffff; font-size: 2.2em; margin-bottom: 10px; }
-.header-gestion p { color: var(--text-gray); font-size: 1em; }
-.contenedor-accion-central { display: flex; justify-content: center; margin-bottom: 30px; }
-.tabla-gestion-dark { width: 100%; background-color: var(--bg-cards); border-radius: 12px; overflow: hidden; border-collapse: collapse; border: 1px solid var(--border-color); }
+.col-editar { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 2px; 
+}
 
-@media (max-width: 850px) { .grid-editar { flex-direction: column; gap: 5px; } .modal-ancho-editar { max-width: 480px !important; padding: 20px !important; } }
-@media (max-width: 768px) { .fila-controles { flex-direction: column; align-items: stretch; } #buscador { width: 100% !important; } .caja-central { width: 95% !important; } }
+.col-editar label { 
+    font-size: 0.75rem; 
+    color: var(--text-gray); 
+    font-weight: bold; 
+    text-align: left; 
+    margin-top: 8px; 
+}
+
+.col-editar input { 
+    width: 100%;
+    padding: 8px 12px; 
+    border-radius: 8px; 
+    border: 1px solid var(--border-color); 
+    background-color: #060a17; 
+    color: var(--text-white); 
+    font-size: 0.95rem; 
+    box-sizing: border-box; 
+    outline: none; 
+}
+
+.col-editar input:focus { 
+    border-color: var(--accent-color); 
+}
+
+.contenedor-guia { 
+    display: flex; 
+    flex-direction: column; 
+    align-items: stretch; 
+    gap: 25px; width: 100%; 
+    max-width: 1000px; 
+    margin: 0 auto; 
+    padding: 20px; 
+    box-sizing: border-box; 
+}
+
+.paso-caja { 
+    display: flex; 
+    flex-direction: column; 
+    width: 100%; flex: 1 1 auto; 
+    min-height: 220px; 
+    padding: 25px; 
+    background-color: var(--bg-cards); 
+    border: 1px solid var(--border-color); 
+    border-radius: 12px; 
+    box-sizing: border-box; 
+}
+
+.paso-caja h3, .paso-caja ul { 
+    width: 100%; 
+    text-align: left; 
+}
+
+.seccion-admin-dark { 
+    width: 95%; 
+    max-width: 1200px; 
+    margin: 30px auto; 
+    padding: 0 20px; 
+}
+
+.header-gestion { 
+    text-align: center; 
+    margin-bottom: 40px; 
+}
+
+.header-gestion h2 { 
+    color: #ffffff; 
+    font-size: 2.2em; 
+    margin-bottom: 10px; 
+}
+
+.header-gestion p { 
+    color: var(--text-gray); 
+    font-size: 1em; 
+}
+
+.contenedor-accion-central { 
+    display: flex; 
+    justify-content: center; 
+    margin-bottom: 30px; 
+}
+
+.tabla-gestion-dark { 
+    width: 100%; 
+    background-color: var(--bg-cards); 
+    border-radius: 12px; 
+    overflow: hidden; 
+    border-collapse: collapse; 
+    border: 1px solid var(--border-color); 
+}
+
+@media (max-width: 850px) { 
+    .grid-editar { 
+    flex-direction: column; 
+    gap: 5px; 
+    } 
+    .modal-ancho-editar { 
+    max-width: 480px !important; 
+    padding: 20px !important; 
+    } 
+}
+@media (max-width: 768px) { 
+    .fila-controles { 
+        flex-direction: column; 
+        align-items: stretch; 
+    } 
+    #buscador { 
+        width: 100% !important; 
+    } 
+    .caja-central { 
+        width: 95% !important; 
+    } 
+}
+
+/* ==========================================================================
+    11. ESTILOS EXCLUSIVOS PARA ELEMENTOS DINÁMICOS DEL TICKET (MUDADOS AQUÍ)
+   ========================================================================== */
+#listaPedido {
+    margin-top: 15px;
+    padding: 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: rgba(6, 10, 23, 0.4);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.renglon-producto {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed var(--border-color);
+    font-size: 0.9em;
+    color: var(--text-white);
+}
+
+.renglon-producto:last-child { 
+    border-bottom: none; 
+}
+
+.btn-quitar-item {
+    background: transparent;
+    border: 1px solid var(--error-color);
+    color: var(--error-color);
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 2px 6px;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-quitar-item:hover {
+    background-color: var(--error-color);
+    color: #030611;
+}
