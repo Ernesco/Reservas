@@ -12,14 +12,32 @@
     --error-color: #ff5252;    /* Alertas y errores */
 }
 
-html, body {
+/* SOLUCIÓN DE FONDO FIJO CONTINUO: Fijamos la red neural en el HTML */
+html {
     height: 100%;
     margin: 0;
     background-color: var(--bg-main);
+    position: relative;
 }
 
-/* CONFIGURACIÓN DEL FONDO CON IMAGEN ATENUADA (OPACIDAD) */
+html::before {
+    content: "";
+    position: fixed; /* Clava la imagen a la ventana del navegador */
+    top: 0;
+    left: 0;
+    width: 100vw;    /* Ancho total exacto de la pantalla */
+    height: 100vh;   /* Alto total exacto de la pantalla */
+    background-image: url('../img/IMG_2243.PNG'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0.15; 
+    z-index: -1;     /* Se posiciona por detrás de todo el DOM */
+    pointer-events: none; /* No interfiere con los clics ni el scroll */
+}
+
 body {
+    margin: 0;
     color: var(--text-white);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     padding-top: 100px;
@@ -27,24 +45,7 @@ body {
     flex-direction: column;
     min-height: 100vh;
     box-sizing: border-box;
-    position: relative;
-    overflow-x: hidden;
-}
-
-body::before {
-    content: "";
-    position: fixed; /* Mantiene el fondo clavado en la pantalla */
-    top: 0;
-    left: 0;
-    width: 100vw;    /* Fuerza el ancho total exacto de la ventana */
-    height: 100vh;   /* Fuerza el alto total exacto de la ventana */
-    background-image: url('../img/IMG_2243.PNG'); 
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0.15; 
-    z-index: -1;     /* Se asegura de quedar por detrás de todos los contenedores */
-    pointer-events: none; /* Evita que interfiera con los clics en los formularios */
+    background: transparent !important; /* Evita que el cuerpo pise el fondo */
 }
 
 /* ==========================================================================
@@ -641,7 +642,7 @@ footer p, .footer-version { margin: 0 !important; font-size: 0.75rem; color: var
 }
 
 /* ==========================================================================
-    11. ESTILOS EXCLUSIVOS PARA ELEMENTOS DINÁMICOS DEL TICKET (MUDADOS AQUÍ)
+    11. ESTILOS EXCLUSIVOS PARA ELEMENTOS DINÁMICOS DEL TICKET
    ========================================================================== */
 #listaPedido {
     margin-top: 15px;
